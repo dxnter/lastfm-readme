@@ -58,5 +58,12 @@
     "@octokit/core": "^4.2.0",
     "lastfm-typed": "^2.1.0",
     "ramda": "^0.28.0"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "semi": true,
+    "printWidth": 80,
+    "tabWidth": 2
   }
 }

@@ -17,6 +17,7 @@
     "prettier"
   ],
   "plugins": ["@typescript-eslint", "prettier", "import"],
+  "ignorePatterns": ["node_modules", "dist"],
   "rules": {
     "@typescript-eslint/no-non-null-assertion": "off",
     "prettier/prettier": 2,
