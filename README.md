@@ -11,8 +11,8 @@ A GitHub Action to dynamically update your GitHub `README.md` with Last.fm metri
 ### Preparation
 
 #### Last.fm API Key
-- Create a [Last.fm API account](https://www.last.fm/api/account/create) if you don't have one to receive an **API Key**.
-  - You don't need to fill out every field on the form, the `Contact email` and `Application name` alone are sufficient.
+Create a [Last.fm API account](https://www.last.fm/api/account/create) if you don't have one to receive an **API Key**.
+> You don't need to fill out every field on the form, the `Contact email` and `Application name` alone are sufficient.
 
 #### Save GitHub Action Secrets
 Navigate to your repositories `Settings → Secrets and variables → Actions → New repository secret` to add the following secrets:
@@ -20,9 +20,15 @@ Navigate to your repositories `Settings → Secrets and variables → Actions �
 |       Name       |                        Value                        |
 |:----------------:|:---------------------------------------------------:|
 | `LASTFM_API_KEY` |    Your previously obtained **Last.fm API Key**     |
-|    `GH_TOKEN`    | A GitHub Access Token with the `repo` scope granted |
+| `GH_TOKEN` [^1]  | A GitHub Access Token with the `repo` scope granted |
 
 [^1]: `GH_TOKEN` is only required when the intention is to modify a `README.md` file in a repository outside of where the workflow is running.
+
+#### Update the workflow permissions for the repository
+
+Navigate to your repositories `Settings → Actions → General → Workflow permissions` and select the **Read and write permissions** option.
+
+![workflow-permissions.png](./public/images/workflow-permissions.png)
 
 #### Add chart HTML comments to your README
 
