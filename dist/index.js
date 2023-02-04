@@ -4172,7 +4172,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var endpoint = __nccwpck_require__(9960);
 var universalUserAgent = __nccwpck_require__(4930);
 var isPlainObject = __nccwpck_require__(366);
-var nodeFetch = _interopDefault(__nccwpck_require__(8040));
+var nodeFetch = _interopDefault(__nccwpck_require__(1822));
 var requestError = __nccwpck_require__(9913);
 
 const VERSION = "5.6.3";
@@ -7856,7 +7856,7 @@ exports.FetchError = FetchError;
 
 /***/ }),
 
-/***/ 8040:
+/***/ 1822:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -9378,7 +9378,9 @@ function fetch(url, opts) {
 				return;
 			}
 
-			destroyStream(response.body, err);
+			if (response && response.body) {
+				destroyStream(response.body, err);
+			}
 		});
 
 		/* c8 ignore next 18 */
@@ -21884,7 +21886,7 @@ async function parseInput() {
     return input;
 }
 
-;// CONCATENATED MODULE: ./src/readme.ts
+;// CONCATENATED MODULE: ./src/readmeFile.ts
 
 
 async function getReadmeFile(input) {
@@ -21892,6 +21894,8 @@ async function getReadmeFile(input) {
     const { owner, repo } = input.repository;
     core.info(`Getting README content from ${owner}/${repo}`);
     const readme = await octokit.rest.repos.getReadme({ owner, repo });
+    core.setOutput('readme_content', readme.data.content);
+    core.setOutput('readme_hash', readme.data.sha);
     return {
         content: Buffer.from(readme.data.content, readme.data.encoding).toString('utf-8'),
         hash: readme.data.sha,
@@ -21926,36 +21930,36 @@ const timePeriods = new Map([
     ['overall', 'All Time'],
 ]);
 const isValidTimePeriod = (timePeriod) => timePeriods.has(timePeriod);
-function readableTimePeriod(chart) {
-    const period = chart.config.period || '7day';
+function readableTimePeriod(section) {
+    const period = section.config.period || '7day';
     return timePeriods.get(period);
 }
-async function getRecentTracks(input, chart) {
+async function getRecentTracks(input, section) {
     const lastfm = new (dist_default())(input.lastfm_api_key);
     return lastfm.user.getRecentTracks(input.lastfm_user, {
-        limit: chart.config.rows ?? 8,
+        limit: section.config.rows ?? 8,
         extended: true,
     });
 }
-async function getTopArtists(input, chart) {
+async function getTopArtists(input, section) {
     const lastfm = new (dist_default())(input.lastfm_api_key);
     return lastfm.user.getTopArtists(input.lastfm_user, {
-        limit: chart.config.rows ?? 8,
-        period: chart.config.period ?? '7day',
+        limit: section.config.rows ?? 8,
+        period: section.config.period ?? '7day',
     });
 }
-async function getTopTracks(input, chart) {
+async function getTopTracks(input, section) {
     const lastfm = new (dist_default())(input.lastfm_api_key);
     return lastfm.user.getTopTracks(input.lastfm_user, {
-        limit: chart.config.rows ?? 8,
-        period: chart.config.period ?? '7day',
+        limit: section.config.rows ?? 8,
+        period: section.config.period ?? '7day',
     });
 }
-async function getTopAlbums(input, chart) {
+async function getTopAlbums(input, section) {
     const lastfm = new (dist_default())(input.lastfm_api_key);
     return lastfm.user.getTopAlbums(input.lastfm_user, {
-        limit: chart.config.rows ?? 8,
-        period: chart.config.period ?? '7day',
+        limit: section.config.rows ?? 8,
+        period: section.config.period ?? '7day',
     });
 }
 
@@ -22062,8 +22066,6 @@ const formatChartData = (section, listeningData) => {
                 });
             case SectionName.RECENT: {
                 const tracks = data;
-                console.log(section.config.rows);
-                console.log(data.length);
                 return tracks
                     .map((track, index) => `> ${index === 0 &&
                     ((section.config.rows && data.length > section.config.rows) ||
@@ -22085,7 +22087,7 @@ const formatChartData = (section, listeningData) => {
  */
 function generateMarkdownChart(input, section, title, content) {
     const chartTitle = input.show_title
-        ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" width="18" height="13"/></a> **${title}**\n`
+        ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
         : '';
     return `${section.start}${chartTitle}
 ${content}
