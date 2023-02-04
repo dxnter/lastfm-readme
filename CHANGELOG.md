@@ -14,7 +14,7 @@
 
 * **build:** add @semantic-release/npm ([b978c1c](https://github.com/dxnter/lastfm-readme/commit/b978c1c9a4e10e7f9eeaba9392aa3bc451ed3cea))
 
-# [1.1.0](https://github.com/dxnter/lastfm-readme/compare/v1.0.0...v1.1.0) (2023-02-04)
+## [1.1.0](https://github.com/dxnter/lastfm-readme/compare/v1.0.0...v1.1.0) (2023-02-04)
 
 
 ### Features
