@@ -41,7 +41,7 @@ const options = {
           'pnpm-lock.yaml',
           'dist/index.js',
         ],
-        message: `chore(release): <%= nextRelease.version %> - <%= new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }) %> [skip ci]`,
+        message: `chore(release): <%= nextRelease.version %> [skip ci]`,
       },
     ],
   ],
