@@ -4,7 +4,7 @@
 # GitHub README Last.fm Metrics
 A GitHub Action to dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.
 
-[![MIT][license.badge]][license] [![github.release.badge]][github.release] [![actions.codegl.badge]][actions.codegl]
+[![MIT][license.badge]][license] [![github.release.badge]][github.release] [![actions.codeql.badge]][actions.codeql]
 
 </div>
 
@@ -197,5 +197,5 @@ Display recently listened to tracks.
 [github.release.badge]: https://img.shields.io/github/v/release/dxnter/lastfm-readme
 [github.release]: https://github.com/dxnter/lastfm-readme/releases
 
-[actions.codegl.badge]: https://github.com/dxnter/lastfm-readme/actions/workflows/codegl.yaml/badge.svg
-[actions.codegl]: https://github.com/dxnter/lastfm-readme/actions/workflows/codegl.yaml
+[actions.codeql.badge]: https://github.com/dxnter/lastfm-readme/actions/workflows/codeql.yaml/badge.svg
+[actions.codeql]: https://github.com/dxnter/lastfm-readme/actions/workflows/codeql.yaml
