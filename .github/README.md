@@ -1,4 +1,4 @@
-<p align="center"><img src="../public/images/readme-hero.png" alt="lastfm-readme branding hero"></p>
+<p align="center"><img src="../public/images/readme-hero.png" alt="lastfm-readme branding hero" width="700px"></p>
 <div align="center">
 
 # GitHub README Last.fm Metrics
