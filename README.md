@@ -15,14 +15,14 @@ A GitHub Action to dynamically update your GitHub `README.md` with Last.fm metri
   - You don't need to fill out every field on the form, the `Contact email` and `Application name` alone are sufficient.
 
 #### Save GitHub Action Secrets
-Navigate to your repositories `Settings > Secrets` to add the following secrets:
+Navigate to your repositories `Settings → Secrets and variables → Actions → New repository secret` to add the following secrets:
 
 |       Name        |                        Value                        |
 |:-----------------:|:---------------------------------------------------:|
 | `LASTFM_USERNAME` |    Your previously obtained **Last.fm API Key**     |
-|  `GITHUB_TOKEN`   | A GitHub Access Token with the `repo` scope granted |
+|    `GH_TOKEN`     | A GitHub Access Token with the `repo` scope granted |
 
-[^1]: `GITHUB_TOKEN` is only required when the intention is to modify a `README.md` file in a repository outside of where the workflow is running.
+[^1]: `GH_TOKEN` is only required when the intention is to modify a `README.md` file in a repository outside of where the workflow is running.
 
 #### Add chart HTML comments to your README
 
@@ -51,20 +51,18 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USERNAME: ${{ secrets.LASTFM_USERNAME }}
           # The following inputs below are only required when the intention is to modify a README.md file in a repository outside where the workflow is running
-          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #GH_TOKEN: ${{ secrets.GH_TOKEN }}
           #REPOSITORY: <gh_username/gh_username>
 ```
 
 ### Inputs
 
-|      Setting      | Required |            Default             |       Accepted Values       |                        Description                        |
-|:-----------------:|:--------:|:------------------------------:|:---------------------------:|:---------------------------------------------------------:|
-| `LASTFM_API_KEY`  |    ✅     |              N/A               |    Valid Last.fm API Key    |          Last.fm API Key used for authentication          |
-| `LASTFM_USERNAME` |    ✅     |              N/A               |   Valid Last.fm username    |      Last.fm username for fetching listening metrics      |
-|  `GITHUB_TOKEN`   |    ❗     |     `${{ github.token }}`      |     GitHub access token     |      An access token with the `repo` scope granted.       |
-|   `REPOSITORY`    |    ❗     | `<gh_username>/<gh_username>`  | `<gh_username>/<repo_name>` | Repository that should have the `README.md` file updated. |
-| `COMMIT_MESSAGE`  |    ❌     | `chore: update Last.fm charts` |         Any string          |    Commit message used when chart metrics are updated     |
-|   `SHOW_TITLE`    |    ❌     |             `true`             |      `true` / `false`       |        Toggle the title shown above chart sections        |
+|      Setting      |            Default             |       Accepted Values       |                        Description                        |
+|:-----------------:|:------------------------------:|:---------------------------:|:---------------------------------------------------------:|
+|    `GH_TOKEN`     |     `${{ github.token }}`      |     GitHub access token     |      An access token with the `repo` scope granted.       |
+|   `REPOSITORY`    | `<gh_username>/<gh_username>`  | `<gh_username>/<repo_name>` | Repository that should have the `README.md` file updated. |
+| `COMMIT_MESSAGE`  | `chore: update Last.fm charts` |         Any string          |    Commit message used when chart metrics are updated     |
+|   `SHOW_TITLE`    |             `true`             |      `true` / `false`       |        Toggle the title shown above chart sections        |
 
 ## 📊 Charts
 

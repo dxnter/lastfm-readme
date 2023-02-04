@@ -8,7 +8,7 @@ interface Readme {
 }
 
 export async function getReadmeFile(input: Input): Promise<Readme> {
-  const octokit = github.getOctokit(input.github_token);
+  const octokit = github.getOctokit(input.gh_token);
   const { owner, repo } = input.repository;
   core.info(`Getting README content from ${owner}/${repo}`);
 
@@ -27,7 +27,7 @@ export async function updateReadmeFile(
   fileHash: string,
   newContent: string,
 ): Promise<void> {
-  const octokit = github.getOctokit(input.github_token);
+  const octokit = github.getOctokit(input.gh_token);
   const { owner, repo } = input.repository;
 
   octokit.rest.repos.createOrUpdateFileContents({

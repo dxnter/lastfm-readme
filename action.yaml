@@ -6,7 +6,7 @@ branding:
   icon: 'music'
 
 inputs:
-  GITHUB_TOKEN:
+  GH_TOKEN:
     description: 'GitHub access token with Repo scope'
     default: ${{ github.token }}
     required: true

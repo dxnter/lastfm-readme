@@ -9,7 +9,7 @@ export interface Input {
   [key: string]: any;
   lastfm_api_key: string;
   lastfm_user: string;
-  github_token: string;
+  gh_token: string;
   repository: { owner: string; repo: string };
   commit_message: string;
   show_title: string;
@@ -25,7 +25,7 @@ export async function parseInput(): Promise<Input> {
   const input = {
     lastfm_api_key: core.getInput('LASTFM_API_KEY', { required: true }),
     lastfm_user: core.getInput('LASTFM_USER', { required: true }),
-    github_token: core.getInput('GITHUB_TOKEN'),
+    gh_token: core.getInput('GH_TOKEN'),
     repository: {
       owner: '',
       repo: '',

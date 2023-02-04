@@ -1,7 +1,7 @@
 {
   "name": "lastfm-readme",
   "version": "0.9.0",
-  "description": "A GitHub Action to dynamically update your GitHub README with Last.fm metrics",
+  "description": "GitHub Action to dynamically update your GitHub README with Last.fm metrics",
   "author": "Danny Foster <danny@foster.sh>",
   "license": "MIT",
   "main": "dist/index.js",
