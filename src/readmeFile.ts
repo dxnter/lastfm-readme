@@ -13,6 +13,9 @@ export async function getReadmeFile(input: Input): Promise<Readme> {
   core.info(`Getting README content from ${owner}/${repo}`);
 
   const readme = await octokit.rest.repos.getReadme({ owner, repo });
+  core.setOutput('readme_content', readme.data.content);
+  core.setOutput('readme_hash', readme.data.sha);
+
   return {
     content: Buffer.from(
       readme.data.content,
