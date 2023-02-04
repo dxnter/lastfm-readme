@@ -82,19 +82,19 @@ Chart with a custom configuration
 
 Display the top listened to artists over a given period of time.
 
-#### <u>Example</u>
+#### <ins>Example</ins>
 
 ```html
 <!--START_LASTFM_ARTISTS:{"period": "6month", "rows": 3}-->
 <!--END_LASTFM_ARTISTS-->
 ```
 
-#### <u>Output</u>
+#### <ins>Output</ins>
 
 ![top-artists.png](./public/images/top-artists.png)
 
 
-#### <u>Configuration</u>
+#### <ins>Configuration</ins>
 
 |  Option  | Default |                          Options                           |               Description               |
 |:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
@@ -106,18 +106,18 @@ Display the top listened to artists over a given period of time.
 
 Display the top listened to albums over a given period of time.
 
-#### <u>Example</u>
+#### <ins>Example</ins>
 
 ```html
 <!--START_LASTFM_ALBUMS:{"period": "1month", "rows": 3}-->
 <!--END_LASTFM_ALBUMS-->
 ```
 
-#### <u>Output</u>
+#### <ins>Output</ins>
 
 ![top-albums.png](./public/images/top-albums.png)
 
-#### <u>Configuration</u>
+#### <ins>Configuration</ins>
 
 |  Option  | Default |                          Options                           |               Description               |
 |:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
@@ -128,18 +128,18 @@ Display the top listened to albums over a given period of time.
 
 Display the top listened to tracks over a given period of time.
 
-#### <u>Example</u>
+#### <ins>Example</ins>
 
 ```html
 <!--START_LASTFM_TRACKS:{"period": "1month", "rows": 3}-->
 <!--END_LASTFM_TRACKS-->
 ```
 
-#### <u>Output</u>
+#### <ins>Output</ins>
 
 ![top-tracks.png](./public/images/top-tracks.png)
 
-#### <u>Configuration</u>
+#### <ins>Configuration</ins>
 
 |  Option  | Default |                          Options                           |               Description               |
 |:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
@@ -150,14 +150,14 @@ Display the top listened to tracks over a given period of time.
 
 Display recently listened to tracks.
 
-#### <u>Example</u>
+#### <ins>Example</ins>
 
 ```html
 <!--START_LASTFM_RECENT:{"rows": 3}-->
 <!--END_LASTFM_RECENT-->
 ```
 
-#### <u>Output</u>
+#### <ins>Output</ins>
 
 **Default**
 
@@ -167,7 +167,7 @@ Display recently listened to tracks.
 
 ![recent-tracks-now-playing.png](./public/images/recent-tracks-now-playing.png)
 
-#### <u>Configuration</u>
+#### <ins>Configuration</ins>
 
 |  Option  | Default |                          Options                           |              Description               |
 |:--------:|:-------:|:----------------------------------------------------------:|:--------------------------------------:|
