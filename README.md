@@ -17,10 +17,10 @@ A GitHub Action to dynamically update your GitHub `README.md` with Last.fm metri
 #### Save GitHub Action Secrets
 Navigate to your repositories `Settings → Secrets and variables → Actions → New repository secret` to add the following secrets:
 
-|       Name        |                        Value                        |
-|:-----------------:|:---------------------------------------------------:|
-| `LASTFM_USERNAME` |    Your previously obtained **Last.fm API Key**     |
-|    `GH_TOKEN`     | A GitHub Access Token with the `repo` scope granted |
+|       Name       |                        Value                        |
+|:----------------:|:---------------------------------------------------:|
+| `LASTFM_API_KEY` |    Your previously obtained **Last.fm API Key**     |
+|    `GH_TOKEN`    | A GitHub Access Token with the `repo` scope granted |
 
 [^1]: `GH_TOKEN` is only required when the intention is to modify a `README.md` file in a repository outside of where the workflow is running.
 
@@ -49,7 +49,7 @@ jobs:
       - uses: dxnter/lastfm-readme@v1
         with:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_USERNAME: ${{ secrets.LASTFM_USERNAME }}
+          LASTFM_USER: dxnter
           # The following inputs below are only required when the intention is to modify a README.md file in a repository outside where the workflow is running
           #GH_TOKEN: ${{ secrets.GH_TOKEN }}
           #REPOSITORY: <gh_username/gh_username>
