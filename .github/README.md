@@ -185,7 +185,7 @@ Display recently listened to tracks.
 |:--------:|:-------:|:----------------------------------------------------------:|:--------------------------------------:|
 |  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      | The number of recent tracks to display |
 
-## Acknowledgements
+## 🌟 Acknowledgements
 
 - [JasonEtco/rss-to-readme](https://github.com/JasonEtco/rss-to-readme)
 - [vnphanquang/monkeytype-readme](https://github.com/vnphanquang/monkeytype-readme)

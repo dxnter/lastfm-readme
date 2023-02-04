@@ -1,6 +1,6 @@
 {
   "name": "lastfm-readme",
-  "version": "0.9.0",
+  "version": "0.0.0-development",
   "description": "GitHub Action to dynamically update your GitHub README with Last.fm metrics",
   "author": "Danny Foster <danny@foster.sh>",
   "license": "MIT",
@@ -15,7 +15,8 @@
     "semantic-release": "semantic-release"
   },
   "engines": {
-    "node": ">=18.12.1"
+    "node": ">=16.13.2",
+    "pnpm": ">=6.23.6"
   },
   "keywords": [
     "lastfm",
