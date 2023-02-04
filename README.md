@@ -57,14 +57,14 @@ jobs:
 
 ### Inputs
 
-|      Setting      | Required |            Default             |       Accepted Values       |                          Description                          |
-|:-----------------:|:--------:|:------------------------------:|:---------------------------:|:-------------------------------------------------------------:|
-| `LASTFM_API_KEY`  |    ✅     |              N/A               |    Valid Last.fm API Key    |       Set the commit message used when updating metrics       |
-| `LASTFM_USERNAME` |    ✅     |              N/A               |   Valid Last.fm username    |        Last.fm username for fetching listening metrics        |
-|  `GITHUB_TOKEN`   |    ❗     |     `${{ github.token }}`      | GitHub authentication token |        An access token with the `repo` scope granted.         |
-|   `REPOSITORY`    |    ❗     | `<gh_username>/<gh_username>`  | `<gh_username>/<repo_name>` | The repository that should have the `README.md` file updated. |
-| `COMMIT_MESSAGE`  |    ❌     | `chore: update Last.fm charts` |         Any string          |      Commit message used when chart metrics are updated       |
-|   `SHOW_TITLE`    |    ❌     |             `true`             |      `true` / `false`       |          Toggle the title shown above chart sections          |
+|      Setting      | Required |            Default             |       Accepted Values       |                        Description                        |
+|:-----------------:|:--------:|:------------------------------:|:---------------------------:|:---------------------------------------------------------:|
+| `LASTFM_API_KEY`  |    ✅     |              N/A               |    Valid Last.fm API Key    |          Last.fm API Key used for authentication          |
+| `LASTFM_USERNAME` |    ✅     |              N/A               |   Valid Last.fm username    |      Last.fm username for fetching listening metrics      |
+|  `GITHUB_TOKEN`   |    ❗     |     `${{ github.token }}`      |     GitHub access token     |      An access token with the `repo` scope granted.       |
+|   `REPOSITORY`    |    ❗     | `<gh_username>/<gh_username>`  | `<gh_username>/<repo_name>` | Repository that should have the `README.md` file updated. |
+| `COMMIT_MESSAGE`  |    ❌     | `chore: update Last.fm charts` |         Any string          |    Commit message used when chart metrics are updated     |
+|   `SHOW_TITLE`    |    ❌     |             `true`             |      `true` / `false`       |        Toggle the title shown above chart sections        |
 
 ## 📊 Charts
 
@@ -185,3 +185,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [vnphanquang/monkeytype-readme](https://github.com/vnphanquang/monkeytype-readme)
 - [athul/waka-readme](https://github.com/athul/waka-readme)
 - [actions-js/profile-readme](https://github.com/actions-js/profile-readme)
+
+[license.badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[license]: ./LICENSE
+
+[github.release.badge]: https://img.shields.io/github/v/release/dxnter/lastfm-readme
+[github.release]: https://github.com/dxnter/lastfm-readme/releases
+
+[actions.ci.badge]: https://github.com/dxnter/lastfm-readme/actions/workflows/ci.yaml/badge.svg
+[actions.ci]: https://github.com/dxnter/lastfm-readme/actions/workflows/ci.yaml
+
+[actions.codegl.badge]: https://github.com/dxnter/lastfm-readme/actions/workflows/codegl.yaml/badge.svg
+[actions.codegl]: https://github.com/dxnter/lastfm-readme/actions/workflows/codegl.yaml
+
+[codecov.badge]: https://codecov.io/github/dxnter/lastfm-readme/coverage.svg?branch=main
+[codecov]: https://codecov.io/github/dxnter/lastfm-readme?branch=main
