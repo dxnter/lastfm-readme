@@ -4,34 +4,34 @@
 
 [![actions.ci.badge]][actions.ci] [![actions.codegl.badge]][actions.codegl] [![codecov.badge]][codecov]
 
-A GitHub Action to dynamically update your GitHub `README.md` with Last.fm metrics.
+A GitHub Action to dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.
 
 ## Usage
 
 ### Preparation
 
-#### Last.fm API Key
+#### <ins>Last.fm API Key</ins>
 Create a [Last.fm API account](https://www.last.fm/api/account/create) if you don't have one to receive an **API Key**.
 > You don't need to fill out every field on the form, the `Contact email` and `Application name` alone are sufficient.
 
-#### Save GitHub Action Secrets
+#### <ins>Save GitHub Action Secrets</ins>
 Navigate to your repositories `Settings → Secrets and variables → Actions → New repository secret` to add the following secrets:
 
 |       Name       |                        Value                        |
 |:----------------:|:---------------------------------------------------:|
-| `LASTFM_API_KEY` |    Your previously obtained **Last.fm API Key**     |
+| `LASTFM_API_KEY` |             A valid **Last.fm API Key**             |
 |   `GH_TOKEN`*    | A GitHub Access Token with the `repo` scope granted |
 
-\* `GH_TOKEN` is only required when the intention is to modify a README.md file in a repository outside where the workflow is running
+> \* `GH_TOKEN` is only required when the intention is to modify a `README.md` file in a repository outside where the workflow is running.
 
 
-#### Update the workflow permissions for the repository
+#### <ins>Update the workflow permissions for the repository</ins>
 
 Navigate to your repositories `Settings → Actions → General → Workflow permissions` and select the **Read and write permissions** option.
 
 ![workflow-permissions.png](./public/images/workflow-permissions.png)
 
-#### Add chart HTML comments to your README
+#### <ins>Add chart HTML comments to your README</ins>
 
 The `README.md` file must contain HTML comments that identify where the charts should be inserted. Commonly, a [profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme) is used to host the `README.md` file.
 
