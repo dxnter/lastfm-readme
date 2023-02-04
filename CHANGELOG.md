@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/dxnter/lastfm-readme/compare/v1.2.0...v1.2.1) (2023-02-04)
+
+
+### Bug Fixes
+
+* republish version to NPM registry ([7eb714a](https://github.com/dxnter/lastfm-readme/commit/7eb714a12834d2ded6a3dd1b1048902f6799c68e))
+
 ## [1.1.1](https://github.com/dxnter/lastfm-readme/compare/v1.1.0...v1.1.1) (2023-02-04)
 
 

@@ -22204,7 +22204,7 @@ async function run() {
     core.setOutput('readme-content', readme.content);
 }
 run().catch((error) => {
-    core.error(error);
+    core.setFailed(error);
     process.exit(1);
 });
 
