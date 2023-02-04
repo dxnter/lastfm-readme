@@ -1,0 +1,187 @@
+# GitHub Profile Last.fm Metrics
+
+[![MIT][license.badge]][license] [![github.release.badge]][github.release]
+
+[![actions.ci.badge]][actions.ci] [![actions.codegl.badge]][actions.codegl] [![codecov.badge]][codecov]
+
+A GitHub Action to dynamically update your GitHub `README.md` with Last.fm metrics.
+
+## Usage
+
+### Preparation
+
+#### Last.fm API Key
+- Create a [Last.fm API account](https://www.last.fm/api/account/create) if you don't have one to receive an **API Key**.
+  - You don't need to fill out every field on the form, the `Contact email` and `Application name` alone are sufficient.
+
+#### Save GitHub Action Secrets
+Navigate to your repositories `Settings > Secrets` to add the following secrets:
+
+|       Name        |                        Value                        |
+|:-----------------:|:---------------------------------------------------:|
+| `LASTFM_USERNAME` |    Your previously obtained **Last.fm API Key**     |
+|  `GITHUB_TOKEN`   | A GitHub Access Token with the `repo` scope granted |
+
+[^1]: `GITHUB_TOKEN` is only required when the intention is to modify a `README.md` file in a repository outside of where the workflow is running.
+
+#### Add chart HTML comments to your README
+
+The `README.md` file must contain HTML comments that identify where the charts should be inserted. Commonly, a [profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme) is used to host the `README.md` file.
+
+> See the [Charts](#-charts) section for configuration details.
+
+### Example Workflow
+
+```yaml
+name: Last.fm Charts
+
+on:
+  workflow_dispatch: # Allow manual triggering of workflow
+  schedule:
+    # Run every day at midnight
+    - cron: '0 0 * * *'
+
+jobs:
+  lastfm-metrics:
+    name: Update Last.fm Charts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dxnter/lastfm-readme@v1
+        with:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_USERNAME: ${{ secrets.LASTFM_USERNAME }}
+          # The following inputs below are only required when the intention is to modify a README.md file in a repository outside where the workflow is running
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #REPOSITORY: <gh_username/gh_username>
+```
+
+### Inputs
+
+|      Setting      | Required |  Type   |            Default             |       Accepted Values       |                                                                                           Description                                                                                           |
+|:-----------------:|:--------:|:-------:|:------------------------------:|:---------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| `LASTFM_API_KEY`  |    ✅     | string  |              N/A               |    Valid Last.fm API Key    |                                                                        Set the commit message used when updating metrics                                                                        |
+| `LASTFM_USERNAME` |    ✅     | string  |              N/A               |   Valid Last.fm username    |                                                                         Last.fm username for fetching listening metrics                                                                         |
+|  `GITHUB_TOKEN`   |    ❗     | string  |     `${{ github.token }}`      | GitHub authentication token |          An access token with the `repo` scope granted. This is only required when the intention is to modify a `README.md` file in a repository outside of where the workflow running          |
+|   `REPOSITORY`    |    ❗     | string  | `<gh_username>/<gh_username>`  | `<gh_username>/<repo_name>` | The repository that should have the `README.md` file updated. This is only required when the intention is to modify a `README.md` file in a repository outside of where the workflow is running |
+| `COMMIT_MESSAGE`  |    ❌     | string  | `chore: update Last.fm charts` |         Any string          |                                                                       Commit message used when chart metrics are updated                                                                        |
+|   `SHOW_TITLE`    |    ❌     | boolean |             `true`             |      `true` / `false`       |                                                                           Toggle the title shown above chart sections                                                                           |
+
+## 📊 Charts
+
+All charts are identified by HTML comments that contain a valid chart name and an **optional** JSON configuration object followed by a closing HTML comment.
+
+```html
+Chart with the default configuration (period: "7day", rows: 8)
+<!--START_LASTFM_...-->
+<!--END_LASTFM_...-->
+
+Chart with a custom configuration
+<!--START_LASTFM_...:{"period": "overall", "rows": 3}-->
+<!--END_LASTFM_...-->
+```
+
+### 🎤️ Top Artists
+
+Display the top listened to artists over a given period of time.
+
+#### <u>Example</u>
+
+```html
+<!--START_LASTFM_ARTISTS:{"period": "6month", "rows": 3}-->
+<!--END_LASTFM_ARTISTS-->
+```
+
+#### <u>Output</u>
+
+![top-artists.png](./public/images/top-artists.png)
+
+
+#### <u>Configuration</u>
+
+|  Option  | Default |                          Options                           |               Description               |
+|:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
+| `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
+|  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |    The number of artists to display     |
+
+
+### 💿 Top Albums
+
+Display the top listened to albums over a given period of time.
+
+#### <u>Example</u>
+
+```html
+<!--START_LASTFM_ALBUMS:{"period": "1month", "rows": 3}-->
+<!--END_LASTFM_ALBUMS-->
+```
+
+#### <u>Output</u>
+
+![top-albums.png](./public/images/top-albums.png)
+
+#### <u>Configuration</u>
+
+|  Option  | Default |                          Options                           |               Description               |
+|:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
+| `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
+|  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |     The number of albums to display     |
+
+### 🎵 Top Tracks
+
+Display the top listened to tracks over a given period of time.
+
+#### <u>Example</u>
+
+```html
+<!--START_LASTFM_TRACKS:{"period": "1month", "rows": 3}-->
+<!--END_LASTFM_TRACKS-->
+```
+
+#### <u>Output</u>
+
+![top-tracks.png](./public/images/top-tracks.png)
+
+#### <u>Configuration</u>
+
+|  Option  | Default |                          Options                           |               Description               |
+|:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
+| `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
+|  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |     The number of tracks to display     |
+
+### 🔊 Recent Tracks
+
+Display recently listened to tracks.
+
+#### <u>Example</u>
+
+```html
+<!--START_LASTFM_RECENT:{"rows": 3}-->
+<!--END_LASTFM_RECENT-->
+```
+
+#### <u>Output</u>
+
+**Default**
+
+![recent-tracks.png](./public/images/recent-tracks.png)
+
+**Track currently playing**
+
+![recent-tracks-now-playing.png](./public/images/recent-tracks-now-playing.png)
+
+#### <u>Configuration</u>
+
+|  Option  | Default |                          Options                           |              Description               |
+|:--------:|:-------:|:----------------------------------------------------------:|:--------------------------------------:|
+|  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      | The number of recent tracks to display |
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- [JasonEtco/rss-to-readme](https://github.com/JasonEtco/rss-to-readme)
+- [vnphanquang/monkeytype-readme](https://github.com/vnphanquang/monkeytype-readme)
+- [athul/waka-readme](https://github.com/athul/waka-readme)
+- [actions-js/profile-readme](https://github.com/actions-js/profile-readme)

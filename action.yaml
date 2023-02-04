@@ -1,0 +1,40 @@
+name: 'Last.fm - Readme'
+description: 'Last.fm listening metrics for your GitHub profile'
+author: 'dxnter'
+branding:
+  color: 'red'
+  icon: 'music'
+
+inputs:
+  GITHUB_TOKEN:
+    description: 'GitHub access token with Repo scope'
+    default: ${{ github.token }}
+    required: true
+
+  REPOSITORY:
+    description: 'Your GitHub repository'
+    default: ${{ github.repository }}
+    required: false
+
+  LASTFM_API_KEY:
+    description: 'Your Last.fm API Key'
+    required: true
+
+  LASTFM_USER:
+    description: 'Last.fm username to fetch metrics for'
+    required: true
+
+  COMMIT_MESSAGE:
+    description: 'Add a commit message of your choice'
+    default: 'Updated lastfm-readme graph with new metrics'
+    required: false
+
+  SHOW_TITLE:
+    description: 'Toggle the title shown above chart sections'
+    default: 'true'
+    required: false
+
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
