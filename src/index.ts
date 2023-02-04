@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { parseInput } from './input';
-import { getReadmeFile, updateReadmeFile } from './readme';
+import { getReadmeFile, updateReadmeFile } from './readmeFile';
 import { getSectionsFromReadme } from './chart';
 import {
   createTrackChart,

@@ -11,7 +11,7 @@ import type {
   RecentTrack,
 } from './lastfm/types';
 
-enum SectionName {
+export enum SectionName {
   RECENT = 'RECENT',
   TRACKS = 'TRACKS',
   ARTISTS = 'ARTISTS',

@@ -22,51 +22,51 @@ export const isValidTimePeriod = (
   timePeriod: ConfigTimePeriod,
 ): timePeriod is ConfigTimePeriod => timePeriods.has(timePeriod);
 
-export function readableTimePeriod(chart: Section): ReadableTimePeriod {
-  const period = chart.config.period || '7day';
+export function readableTimePeriod(section: Section): ReadableTimePeriod {
+  const period = section.config.period || '7day';
   return timePeriods.get(period)!;
 }
 
 export async function getRecentTracks(
   input: Input,
-  chart: Section,
+  section: Section,
 ): Promise<getRecentTracks> {
   const lastfm = new LastFMTyped(input.lastfm_api_key);
   return lastfm.user.getRecentTracks(input.lastfm_user, {
-    limit: chart.config.rows ?? 8,
+    limit: section.config.rows ?? 8,
     extended: true,
   });
 }
 
 export async function getTopArtists(
   input: Input,
-  chart: Section,
+  section: Section,
 ): Promise<getTopArtists> {
   const lastfm = new LastFMTyped(input.lastfm_api_key);
   return lastfm.user.getTopArtists(input.lastfm_user, {
-    limit: chart.config.rows ?? 8,
-    period: chart.config.period ?? '7day',
+    limit: section.config.rows ?? 8,
+    period: section.config.period ?? '7day',
   });
 }
 
 export async function getTopTracks(
   input: Input,
-  chart: Section,
+  section: Section,
 ): Promise<getTopTracks> {
   const lastfm = new LastFMTyped(input.lastfm_api_key);
   return lastfm.user.getTopTracks(input.lastfm_user, {
-    limit: chart.config.rows ?? 8,
-    period: chart.config.period ?? '7day',
+    limit: section.config.rows ?? 8,
+    period: section.config.period ?? '7day',
   });
 }
 
 export async function getTopAlbums(
   input: Input,
-  chart: Section,
+  section: Section,
 ): Promise<getTopAlbums> {
   const lastfm = new LastFMTyped(input.lastfm_api_key);
   return lastfm.user.getTopAlbums(input.lastfm_user, {
-    limit: chart.config.rows ?? 8,
-    period: chart.config.period ?? '7day',
+    limit: section.config.rows ?? 8,
+    period: section.config.period ?? '7day',
   });
 }
