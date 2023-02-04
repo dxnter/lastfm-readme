@@ -44,6 +44,12 @@ const options = {
         message: `chore(release): <%= nextRelease.version %> [skip ci]`,
       },
     ],
+    [
+      '@semantic-release/npm',
+      {
+        npmPublish: true,
+      },
+    ],
   ],
 };
 
