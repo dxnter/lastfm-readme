@@ -1,0 +1,11 @@
+import type { Section } from '../chart';
+import type { ConfigTimePeriod, ReadableTimePeriod } from './types';
+import type { Input } from 'src/input';
+import type { getRecentTracks, getTopAlbums, getTopArtists, getTopTracks } from 'lastfm-typed/dist/interfaces/userInterface';
+export declare const timePeriods: Map<ConfigTimePeriod, ReadableTimePeriod>;
+export declare const isValidTimePeriod: (timePeriod: ConfigTimePeriod) => timePeriod is ConfigTimePeriod;
+export declare function readableTimePeriod(chart: Section): ReadableTimePeriod;
+export declare function getRecentTracks(input: Input, chart: Section): Promise<getRecentTracks>;
+export declare function getTopArtists(input: Input, chart: Section): Promise<getTopArtists>;
+export declare function getTopTracks(input: Input, chart: Section): Promise<getTopTracks>;
+export declare function getTopAlbums(input: Input, chart: Section): Promise<getTopAlbums>;
