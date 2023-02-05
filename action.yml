@@ -6,16 +6,6 @@ branding:
   icon: 'music'
 
 inputs:
-  GH_TOKEN:
-    description: 'GitHub access token with Repo scope'
-    default: ${{ github.token }}
-    required: true
-
-  REPOSITORY:
-    description: 'Your GitHub repository'
-    default: ${{ github.repository }}
-    required: false
-
   LASTFM_API_KEY:
     description: 'Your Last.fm API Key'
     required: true
@@ -23,6 +13,16 @@ inputs:
   LASTFM_USER:
     description: 'Last.fm username to fetch metrics for'
     required: true
+
+  GH_TOKEN:
+    description: 'GitHub access token with Repo scope'
+    default: ${{ github.token }}
+    required: false
+
+  REPOSITORY:
+    description: 'Your GitHub repository'
+    default: ${{ github.repository }}
+    required: false
 
   COMMIT_MESSAGE:
     description: 'Add a commit message of your choice'
