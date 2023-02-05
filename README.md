@@ -36,7 +36,7 @@ Navigate to your repositories `Settings → Actions → General → Workflow per
 
 The `README.md` file must contain HTML comments that identify where the charts should be inserted. Commonly, a [profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme) is used to host the `README.md` file.
 
-> **Info**
+> **Note**
 > See the [Charts](#-charts) section for configuration details.
 
 ### Example Workflow
