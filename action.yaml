@@ -1,5 +1,5 @@
 name: 'Last.fm - Readme'
-description: 'Last.fm listening metrics for your GitHub profile'
+description: 'Dynamically update your README with Last.fm metrics'
 author: 'dxnter'
 branding:
   color: 'red'

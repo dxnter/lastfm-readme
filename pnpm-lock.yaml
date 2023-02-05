@@ -26,6 +26,7 @@ specifiers:
   prettier: ^2.8.3
   ramda: ^0.28.0
   semantic-release: ^20.1.0
+  semantic-release-major-tag: ^0.2.1
   typescript: ^4.9.4
   vitest: ^0.27.2
 
@@ -57,6 +58,7 @@ devDependencies:
   eslint-plugin-prettier: 4.2.1_jqplj6qf3uqpxpu4gdyhwwasnq
   prettier: 2.8.3
   semantic-release: 20.1.0
+  semantic-release-major-tag: 0.2.1
   typescript: 4.9.5
   vitest: 0.27.3
 
@@ -3743,6 +3745,11 @@ packages:
       call-bind: 1.0.2
       get-intrinsic: 1.2.0
       is-regex: 1.1.4
+    dev: true
+
+  /semantic-release-major-tag/0.2.1:
+    resolution: {integrity: sha512-kEhbX4LYWY8adBLa6OEdv6mcVv28MALGeGR1H8Gb73YCYnrh/jmAi5c3I5VbFwxOr2ASb7MidUY3LVXf7BODDQ==}
+    engines: {node: '>=14'}
     dev: true
 
   /semantic-release/20.1.0:

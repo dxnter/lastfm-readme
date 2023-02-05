@@ -50,6 +50,7 @@ const options = {
         npmPublish: true,
       },
     ],
+    'semantic-release-major-tag',
   ],
 };
 
