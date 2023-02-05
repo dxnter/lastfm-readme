@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3](https://github.com/dxnter/lastfm-readme/compare/v1.3.2...v1.3.3) (2023-02-05)
+
+
+### Bug Fixes
+
+* **README:** drop shadow clipping ([0393169](https://github.com/dxnter/lastfm-readme/commit/0393169178add2edce273f5c06d4946e1c49353b))
+
 ## [1.3.2](https://github.com/dxnter/lastfm-readme/compare/v1.3.1...v1.3.2) (2023-02-05)
 
 
