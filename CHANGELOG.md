@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/dxnter/lastfm-readme/compare/v1.3.0...v1.3.1) (2023-02-05)
+
+
+### Bug Fixes
+
+* **action:** change extension to yml for extension support ([015efcf](https://github.com/dxnter/lastfm-readme/commit/015efcf407e8bb6b5ae46f899253c87833b5d563))
+
 # [1.3.0](https://github.com/dxnter/lastfm-readme/compare/v1.2.1...v1.3.0) (2023-02-05)
 
 
