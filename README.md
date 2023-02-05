@@ -47,8 +47,8 @@ name: Last.fm Charts
 on:
   workflow_dispatch: # Allow manual triggering of workflow
   schedule:
-    # Run every day at midnight
-    - cron: '0 0 * * *'
+    # Run every 6 hours
+    - cron: "0 */6 * * *"
 
 jobs:
   lastfm-metrics:
