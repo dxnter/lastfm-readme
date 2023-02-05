@@ -1,40 +1,33 @@
-name: 'Last.fm - Readme'
-description: 'Dynamically update your README with Last.fm metrics'
-author: 'dxnter'
+---
+name: Last.fm - Readme
+description: Dynamically update your README with Last.fm metrics
+author: dxnter
 branding:
-  color: 'red'
-  icon: 'music'
-
+  color: red
+  icon: music
 inputs:
   LASTFM_API_KEY:
-    description: 'Your Last.fm API Key'
+    description: Your Last.fm API Key
     required: true
-
   LASTFM_USER:
-    description: 'Last.fm username to fetch metrics for'
+    description: Last.fm username to fetch metrics for
     required: true
-
   GH_TOKEN:
-    description: 'GitHub access token with Repo scope'
+    description: GitHub access token with Repo scope
     default: ${{ github.token }}
     required: false
-
   REPOSITORY:
-    description: 'Your GitHub repository'
+    description: Your GitHub repository
     default: ${{ github.repository }}
     required: false
-
   COMMIT_MESSAGE:
-    description: 'Add a commit message of your choice'
-    default: 'Updated lastfm-readme graph with new metrics'
+    description: Add a commit message of your choice
+    default: Updated lastfm-readme graph with new metrics
     required: false
-
   SHOW_TITLE:
-    description: 'Toggle the title shown above chart sections'
-    default: 'true'
+    description: Toggle the title shown above chart sections
+    default: "true"
     required: false
-
-
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: node16
+  main: dist/index.js
