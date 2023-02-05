@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.4](https://github.com/dxnter/lastfm-readme/compare/v1.3.3...v1.3.4) (2023-02-05)
+
+
+### Bug Fixes
+
+* **action:** reformat yaml ([85a71a9](https://github.com/dxnter/lastfm-readme/commit/85a71a92805fa3b1dcf4e15e1782e9bee4f66025))
+
 ## [1.3.3](https://github.com/dxnter/lastfm-readme/compare/v1.3.2...v1.3.3) (2023-02-05)
 
 
