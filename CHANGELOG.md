@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.3.0](https://github.com/dxnter/lastfm-readme/compare/v1.2.1...v1.3.0) (2023-02-05)
+
+
+### Features
+
+* **ci:** add semantic-release-major-tag ([6bc94c4](https://github.com/dxnter/lastfm-readme/commit/6bc94c4b5ff445c204f9474ae7298c175d86973e))
+
 ## [1.2.1](https://github.com/dxnter/lastfm-readme/compare/v1.2.0...v1.2.1) (2023-02-04)
 
 
