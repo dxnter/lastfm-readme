@@ -10,7 +10,6 @@ A GitHub Action to dynamically update your GitHub `README.md` with [Last.fm](htt
 
 <div align="center"><img src="./static/images/readme-preview.png" alt="lastfm-readme preview output"></div>
 
----
 
 ## ⚡ Usage
 
