@@ -1,4 +1,4 @@
-<div align="center"><img src="./public/images/readme-hero.png" alt="lastfm-readme branding hero" width="700px"></div>
+<div align="center"><img src="./static/images/readme-hero.png" alt="lastfm-readme branding hero" width="700px"></div>
 <div align="center">
 
 # GitHub README Last.fm Metrics
@@ -7,6 +7,10 @@ A GitHub Action to dynamically update your GitHub `README.md` with [Last.fm](htt
 [![MIT][license.badge]][license] [![github.release.badge]][github.release] [![actions.codeql.badge]][actions.codeql]
 
 </div>
+
+<div align="center"><img src="./static/images/readme-preview.png" alt="lastfm-readme preview output"></div>
+
+---
 
 ## ⚡ Usage
 
@@ -30,7 +34,7 @@ Navigate to your repositories `Settings → Secrets and variables → Actions �
 
 Navigate to your repositories `Settings → Actions → General → Workflow permissions` and select the **Read and write permissions** option.
 
-![workflow-permissions.png](./public/images/workflow-permissions.png)
+![workflow-permissions.png](./static/images/workflow-permissions.png)
 
 #### <ins>Add chart HTML comments to your README</ins>
 
@@ -102,7 +106,7 @@ Display the top listened to artists over a given period of time.
 
 #### <ins>Output</ins>
 
-![top-artists.png](./public/images/top-artists.png)
+![top-artists.png](./static/images/top-artists.png)
 
 
 #### <ins>Configuration</ins>
@@ -126,7 +130,7 @@ Display the top listened to albums over a given period of time.
 
 #### <ins>Output</ins>
 
-![top-albums.png](./public/images/top-albums.png)
+![top-albums.png](./static/images/top-albums.png)
 
 #### <ins>Configuration</ins>
 
@@ -148,7 +152,7 @@ Display the top listened to tracks over a given period of time.
 
 #### <ins>Output</ins>
 
-![top-tracks.png](./public/images/top-tracks.png)
+![top-tracks.png](./static/images/top-tracks.png)
 
 #### <ins>Configuration</ins>
 
@@ -172,11 +176,11 @@ Display recently listened to tracks.
 
 **Default**
 
-![recent-tracks.png](./public/images/recent-tracks.png)
+![recent-tracks.png](./static/images/recent-tracks.png)
 
 **Track currently playing**
 
-![recent-tracks-now-playing.png](./public/images/recent-tracks-now-playing.png)
+![recent-tracks-now-playing.png](./static/images/recent-tracks-now-playing.png)
 
 #### <ins>Configuration</ins>
 
