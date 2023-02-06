@@ -8,7 +8,7 @@ A GitHub Action to dynamically update your GitHub `README.md` with [Last.fm](htt
 
 </div>
 
-<div align="center"><img src="./static/images/readme-preview.png" alt="lastfm-readme preview output"></div>
+<div align="center"><img src="./static/images/readme-preview.png" alt="lastfm-readme preview output" height="300"></div>
 
 
 ## ⚡ Usage
