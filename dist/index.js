@@ -21853,7 +21853,7 @@ class InvalidRowsError extends Error {
  * @returns The parsed and validated workflow input
  */
 async function parseInput() {
-    core.info('Parsing workflow input...');
+    core.debug('Validating input variables');
     const input = {
         lastfm_api_key: core.getInput('LASTFM_API_KEY', { required: true }),
         lastfm_user: core.getInput('LASTFM_USER', { required: true }),
@@ -21882,6 +21882,7 @@ async function parseInput() {
     if (!input.commit_message) {
         throw new InvalidInputError('The COMMIT_MESSAGE input cannot be empty.');
     }
+    core.debug('Input validation complete\n');
     core.setOutput('input_parsed', 'true');
     return input;
 }
@@ -21890,12 +21891,13 @@ async function parseInput() {
 
 
 async function getReadmeFile(input) {
+    core.debug('Connecting to GitHub API');
     const octokit = github.getOctokit(input.gh_token);
     const { owner, repo } = input.repository;
-    core.info(`Getting README content from ${owner}/${repo}`);
     const readme = await octokit.rest.repos.getReadme({ owner, repo });
     core.setOutput('readme_content', readme.data.content);
     core.setOutput('readme_hash', readme.data.sha);
+    core.debug(`Fetched README content from ${owner}/${repo}\n`);
     return {
         content: Buffer.from(readme.data.content, readme.data.encoding).toString('utf-8'),
         hash: readme.data.sha,
@@ -21904,6 +21906,7 @@ async function getReadmeFile(input) {
 async function updateReadmeFile(input, fileHash, newContent) {
     const octokit = github.getOctokit(input.gh_token);
     const { owner, repo } = input.repository;
+    core.debug(`Updating README.md content for ${owner}/${repo}\n`);
     octokit.rest.repos.createOrUpdateFileContents({
         owner,
         repo,
@@ -21916,7 +21919,7 @@ async function updateReadmeFile(input, fileHash, newContent) {
             email: 'lastfm-readme@proton.me',
         },
     });
-    core.info(`Updated README.md contents for ${owner}/${repo}`);
+    core.info(`✅ README successfully updated with new charts`);
 }
 
 ;// CONCATENATED MODULE: ./src/lastfm/index.ts
@@ -21988,6 +21991,7 @@ const SectionNameMap = {
  * @throws {@link InvalidPeriodError} if the time period is invalid for a section.
  */
 function getSectionsFromReadme(sectionComment, readmeContent) {
+    core.debug(`Searching for ${sectionComment} sections in README`);
     const sections = {};
     const sectionStack = [];
     const startPrefix = `<!--START_${sectionComment}`;
@@ -22089,9 +22093,12 @@ function generateMarkdownChart(input, section, title, content) {
     const chartTitle = input.show_title
         ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
         : '';
-    return `${section.start}${chartTitle}
+    const markdownChart = `${section.start}${chartTitle}
 ${content}
 ${section.end}`;
+    core.debug(`${section.start} content:\n
+  ${markdownChart}`);
+    return markdownChart;
 }
 
 ;// CONCATENATED MODULE: ./src/charts/album.ts
@@ -22154,12 +22161,14 @@ function generateNewTrackChartSection(input, section, trackChart) {
 
 
 async function run() {
+    core.debug('Initializing lastfm-readme');
     const input = await parseInput();
     const readme = await getReadmeFile(input);
     const trackCharts = getSectionsFromReadme('LASTFM_TRACKS', readme.content);
     if (trackCharts) {
+        core.debug(`Found ${trackCharts.length} track sections\n`);
         for (const chart of trackCharts) {
-            core.info(`Generating chart for ${chart.start}...\n`);
+            core.debug(`Generating ${chart.name} chart for ${chart.start}`);
             const trackChart = await createTrackChart(chart, input);
             const newSection = generateNewTrackChartSection(input, chart, trackChart);
             readme.content = readme.content.replace(chart.currentSection, newSection);
@@ -22168,8 +22177,9 @@ async function run() {
     core.setOutput('track-charts', trackCharts ? trackCharts.length : 0);
     const artistCharts = getSectionsFromReadme('LASTFM_ARTISTS', readme.content);
     if (artistCharts) {
+        core.debug(`Found ${artistCharts.length} artist sections\n`);
         for (const chart of artistCharts) {
-            core.info(`Generating chart for ${chart.start}...\n`);
+            core.debug(`Generating ${chart.name} chart for ${chart.start}`);
             const artistChart = await createArtistChart(chart, input);
             const newSection = generateNewArtistChartSection(input, chart, artistChart);
             readme.content = readme.content.replace(chart.currentSection, newSection);
@@ -22178,8 +22188,9 @@ async function run() {
     core.setOutput('artist-charts', artistCharts ? artistCharts.length : 0);
     const albumCharts = getSectionsFromReadme('LASTFM_ALBUMS', readme.content);
     if (albumCharts) {
+        core.debug(`Found ${albumCharts.length} album sections\n`);
         for (const chart of albumCharts) {
-            core.info(`Generating chart for ${chart.start}...\n`);
+            core.debug(`Generating ${chart.name} chart for ${chart.start}`);
             const albumChart = await createAlbumChart(chart, input);
             const newSection = generateNewAlbumChartSection(input, chart, albumChart);
             readme.content = readme.content.replace(chart.currentSection, newSection);
@@ -22188,8 +22199,9 @@ async function run() {
     core.setOutput('album-charts', albumCharts ? albumCharts.length : 0);
     const recentCharts = getSectionsFromReadme('LASTFM_RECENT', readme.content);
     if (recentCharts) {
+        core.debug(`Found ${recentCharts.length} album sections\n`);
         for (const chart of recentCharts) {
-            core.info(`Generating chart for ${chart.start}...\n`);
+            core.debug(`Generating ${chart.name} chart for ${chart.start}`);
             const recentChart = await createRecentChart(chart, input);
             const newSection = generateNewRecentChartSection(input, chart, recentChart);
             readme.content = readme.content.replace(chart.currentSection, newSection);
@@ -22198,7 +22210,7 @@ async function run() {
     core.setOutput('recent-charts', recentCharts ? recentCharts.length : 0);
     const unmodifiedReadme = await getReadmeFile(input);
     unmodifiedReadme.content === readme.content
-        ? core.info('Chart content is up to date. Skipping update...')
+        ? core.info('🕓 Skipping update, chart content is up to date')
         : await updateReadmeFile(input, readme.hash, readme.content);
     core.setOutput('readme-updated', readme.content !== unmodifiedReadme.content);
     core.setOutput('readme-content', readme.content);

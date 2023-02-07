@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.5](https://github.com/dxnter/lastfm-readme/compare/v1.3.4...v1.3.5) (2023-02-07)
+
+
+### Bug Fixes
+
+* **debug:** add additional context to debug ([1e96588](https://github.com/dxnter/lastfm-readme/commit/1e9658833174034b8efc56615d49f9e21a40de53))
+
 ## [1.3.4](https://github.com/dxnter/lastfm-readme/compare/v1.3.3...v1.3.4) (2023-02-05)
 
 
