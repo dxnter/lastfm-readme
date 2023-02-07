@@ -20,7 +20,7 @@ export interface Input {
  * @returns The parsed and validated workflow input
  */
 export async function parseInput(): Promise<Input> {
-  core.info('Parsing workflow input...');
+  core.debug('Validating input variables');
 
   const input = {
     lastfm_api_key: core.getInput('LASTFM_API_KEY', { required: true }),
@@ -57,6 +57,7 @@ export async function parseInput(): Promise<Input> {
     throw new InvalidInputError('The COMMIT_MESSAGE input cannot be empty.');
   }
 
+  core.debug('Input validation complete\n');
   core.setOutput('input_parsed', 'true');
   return input;
 }

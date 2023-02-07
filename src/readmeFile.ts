@@ -8,13 +8,14 @@ interface Readme {
 }
 
 export async function getReadmeFile(input: Input): Promise<Readme> {
+  core.debug('Connecting to GitHub API');
   const octokit = github.getOctokit(input.gh_token);
   const { owner, repo } = input.repository;
-  core.info(`Getting README content from ${owner}/${repo}`);
 
   const readme = await octokit.rest.repos.getReadme({ owner, repo });
   core.setOutput('readme_content', readme.data.content);
   core.setOutput('readme_hash', readme.data.sha);
+  core.debug(`Fetched README content from ${owner}/${repo}\n`);
 
   return {
     content: Buffer.from(
@@ -32,6 +33,7 @@ export async function updateReadmeFile(
 ): Promise<void> {
   const octokit = github.getOctokit(input.gh_token);
   const { owner, repo } = input.repository;
+  core.debug(`Updating README.md content for ${owner}/${repo}\n`);
 
   octokit.rest.repos.createOrUpdateFileContents({
     owner,
@@ -46,5 +48,5 @@ export async function updateReadmeFile(
     },
   });
 
-  core.info(`Updated README.md contents for ${owner}/${repo}`);
+  core.info(`✅ README successfully updated with new charts`);
 }

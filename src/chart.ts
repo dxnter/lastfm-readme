@@ -50,6 +50,7 @@ export function getSectionsFromReadme(
   sectionComment: SectionComment,
   readmeContent: string,
 ): Section[] | undefined {
+  core.debug(`Searching for ${sectionComment} sections in README`);
   const sections: { [key: string]: Section } = {};
   const sectionStack: string[] = [];
   const startPrefix = `<!--START_${sectionComment}`;
@@ -199,7 +200,12 @@ export function generateMarkdownChart(
     ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
     : '';
 
-  return `${section.start}${chartTitle}
+  const markdownChart = `${section.start}${chartTitle}
 ${content}
 ${section.end}`;
+
+  core.debug(`${section.start} content:\n
+  ${markdownChart}`);
+
+  return markdownChart;
 }

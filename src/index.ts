@@ -14,13 +14,16 @@ import {
 } from './charts';
 
 async function run() {
+  core.debug('Initializing lastfm-readme');
+
   const input = await parseInput();
   const readme = await getReadmeFile(input);
 
   const trackCharts = getSectionsFromReadme('LASTFM_TRACKS', readme.content);
   if (trackCharts) {
+    core.debug(`Found ${trackCharts.length} track sections\n`);
     for (const chart of trackCharts) {
-      core.info(`Generating chart for ${chart.start}...\n`);
+      core.debug(`Generating ${chart.name} chart for ${chart.start}`);
       const trackChart = await createTrackChart(chart, input);
       const newSection = generateNewTrackChartSection(input, chart, trackChart);
       readme.content = readme.content.replace(chart.currentSection, newSection);
@@ -30,8 +33,9 @@ async function run() {
 
   const artistCharts = getSectionsFromReadme('LASTFM_ARTISTS', readme.content);
   if (artistCharts) {
+    core.debug(`Found ${artistCharts.length} artist sections\n`);
     for (const chart of artistCharts) {
-      core.info(`Generating chart for ${chart.start}...\n`);
+      core.debug(`Generating ${chart.name} chart for ${chart.start}`);
       const artistChart = await createArtistChart(chart, input);
       const newSection = generateNewArtistChartSection(
         input,
@@ -45,8 +49,9 @@ async function run() {
 
   const albumCharts = getSectionsFromReadme('LASTFM_ALBUMS', readme.content);
   if (albumCharts) {
+    core.debug(`Found ${albumCharts.length} album sections\n`);
     for (const chart of albumCharts) {
-      core.info(`Generating chart for ${chart.start}...\n`);
+      core.debug(`Generating ${chart.name} chart for ${chart.start}`);
       const albumChart = await createAlbumChart(chart, input);
       const newSection = generateNewAlbumChartSection(input, chart, albumChart);
       readme.content = readme.content.replace(chart.currentSection, newSection);
@@ -56,8 +61,9 @@ async function run() {
 
   const recentCharts = getSectionsFromReadme('LASTFM_RECENT', readme.content);
   if (recentCharts) {
+    core.debug(`Found ${recentCharts.length} album sections\n`);
     for (const chart of recentCharts) {
-      core.info(`Generating chart for ${chart.start}...\n`);
+      core.debug(`Generating ${chart.name} chart for ${chart.start}`);
       const recentChart = await createRecentChart(chart, input);
       const newSection = generateNewRecentChartSection(
         input,
@@ -71,7 +77,7 @@ async function run() {
 
   const unmodifiedReadme = await getReadmeFile(input);
   unmodifiedReadme.content === readme.content
-    ? core.info('Chart content is up to date. Skipping update...')
+    ? core.info('🕓 Skipping update, chart content is up to date')
     : await updateReadmeFile(input, readme.hash, readme.content);
 
   core.setOutput('readme-updated', readme.content !== unmodifiedReadme.content);

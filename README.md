@@ -2,7 +2,7 @@
 <div align="center">
 
 # GitHub README Last.fm Metrics
-A GitHub Action to dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.
+Dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.
 
 [![MIT][license.badge]][license] [![github.release.badge]][github.release] [![actions.codeql.badge]][actions.codeql]
 
