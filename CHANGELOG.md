@@ -1,5 +1,18 @@
 # Changelog
 
+# [1.4.0](https://github.com/dxnter/lastfm-readme/compare/v1.3.5...v1.4.0) (2023-02-12)
+
+
+### Bug Fixes
+
+* **action:** update default COMMIT_MESSAGE value ([7c39cb3](https://github.com/dxnter/lastfm-readme/commit/7c39cb34fef4d2635cea5457582ac07faa56e264))
+* **build:** update Node.js engine range ([c239264](https://github.com/dxnter/lastfm-readme/commit/c239264b5539b352dbc65674157a65e293a8ecf8))
+
+
+### Features
+
+* add User Info section ([423f2a4](https://github.com/dxnter/lastfm-readme/commit/423f2a4d95c4f0d330cf0f34604fb26a562957c0))
+
 ## [1.3.5](https://github.com/dxnter/lastfm-readme/compare/v1.3.4...v1.3.5) (2023-02-07)
 
 
