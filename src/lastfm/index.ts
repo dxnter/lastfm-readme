@@ -1,14 +1,15 @@
+import LastFMTyped from 'lastfm-typed';
 import * as R from 'ramda';
+import type { Input } from 'src/input';
+
 import type { Section } from '../section';
 import type {
   ConfigTimePeriod,
-  ReadableTimePeriod,
-  LastFmDataRetrieverKey,
   ConfigUserInfoDisplayOption,
+  LastFmDataRetrieverKey,
+  ReadableTimePeriod,
   ReadableUserInfoDisplayOption,
 } from './types';
-import LastFMTyped from 'lastfm-typed';
-import type { Input } from 'src/input';
 
 export const timePeriods = new Map<ConfigTimePeriod, ReadableTimePeriod>([
   ['7day', 'Past Week'],

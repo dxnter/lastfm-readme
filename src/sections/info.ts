@@ -1,9 +1,10 @@
 import type { Input } from 'src/input';
 import { getLastFMData } from 'src/lastfm';
+
 import {
-  Section,
   formatSectionData,
   generateMarkdownSection,
+  Section,
 } from '../section';
 
 export async function updateUserInfoSection(

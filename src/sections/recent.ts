@@ -1,6 +1,7 @@
-import type { Section } from '../section';
 import type { Input } from 'src/input';
 import { getLastFMData } from 'src/lastfm';
+
+import type { Section } from '../section';
 import { formatSectionData, generateMarkdownSection } from '../section';
 
 export async function updateRecentSection(

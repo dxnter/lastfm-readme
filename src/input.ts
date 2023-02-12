@@ -1,7 +1,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import * as R from 'ramda';
 import LastFMTyped from 'lastfm-typed';
+import * as R from 'ramda';
+
 import { InvalidInputError } from './error';
 
 export interface Input {

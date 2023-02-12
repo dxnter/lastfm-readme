@@ -1,12 +1,13 @@
 import * as core from '@actions/core';
+
 import { Input, parseInput } from './input';
 import { getReadmeFile, updateReadmeFile } from './readmeFile';
 import { getSectionsFromReadme, Section, SectionComment } from './section';
 import {
-  updateTrackSection,
   updateAlbumSection,
   updateArtistSection,
   updateRecentSection,
+  updateTrackSection,
   updateUserInfoSection,
 } from './sections';
 

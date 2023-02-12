@@ -16,12 +16,33 @@
     "plugin:import/typescript",
     "prettier"
   ],
-  "plugins": ["@typescript-eslint", "prettier", "import"],
+  "plugins": [
+    "@typescript-eslint",
+    "prettier",
+    "import",
+    "simple-import-sort",
+    "vitest"
+  ],
   "ignorePatterns": ["node_modules", "dist"],
   "rules": {
     "@typescript-eslint/no-non-null-assertion": "off",
     "prettier/prettier": 2,
-    "import/no-unresolved": "error"
+    "import/no-unresolved": "error",
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "vitest/max-nested-describe": [
+      "error",
+      {
+        "max": 3
+      }
+    ],
+    "vitest/consistent-test-it": "error",
+    "vitest/no-identical-title": "error",
+    "vitest/prefer-to-be": "error",
+    "vitest/prefer-lowercase-title": "error"
   },
   "settings": {
     "import/parsers": {

@@ -2,6 +2,7 @@
 <div align="center">
 
 # GitHub README Last.fm Metrics
+
 Dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.
 
 [![MIT][license.badge]][license] [![github.release.badge]][github.release] [![actions.codeql.badge]][actions.codeql]
@@ -10,24 +11,24 @@ Dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) m
 
 <div align="center"><img src="./static/images/readme-preview.png" alt="lastfm-readme preview output" height="300"></div>
 
-
 ## ⚡ Usage
 
 ### Preparation
 
 #### <ins>Last.fm API Key</ins>
+
 Create a [Last.fm API account](https://www.last.fm/api/account/create) if you don't have one to receive an **API Key**.
 
 #### <ins>Save GitHub Action Secrets</ins>
+
 Navigate to your repositories `Settings → Secrets and variables → Actions → New repository secret` to add the following secrets:
 
 |       Name       |                        Value                        |
-|:----------------:|:---------------------------------------------------:|
+| :--------------: | :-------------------------------------------------: |
 | `LASTFM_API_KEY` |             A valid **Last.fm API Key**             |
-|   `GH_TOKEN`*    | A GitHub Access Token with the `repo` scope granted |
+|   `GH_TOKEN`\*   | A GitHub Access Token with the `repo` scope granted |
 
 > \* `GH_TOKEN` is only required when the intention is to modify a `README.md` file in a repository outside where the workflow is running.
-
 
 #### <ins>Update the workflow permissions on your repository</ins>
 
@@ -51,7 +52,7 @@ on:
   workflow_dispatch: # Allow manual triggering of workflow
   schedule:
     # Run every 6 hours
-    - cron: "0 */6 * * *"
+    - cron: '0 */6 * * *'
 
 jobs:
   lastfm-metrics:
@@ -70,7 +71,7 @@ jobs:
 ### Inputs
 
 |     Setting      |             Default              |                                   Accepted Values                                   |                        Description                        |
-|:----------------:|:--------------------------------:|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------:|
+| :--------------: | :------------------------------: | :---------------------------------------------------------------------------------: | :-------------------------------------------------------: |
 | `LASTFM_API_KEY` |               N/A                |                                   Last.fm API Key                                   |                A valid **Last.fm API Key**                |
 |  `LASTFM_USER`   |               N/A                |                                  Last.fm username                                   |          The Last.fm user to fetch metrics from           |
 |    `GH_TOKEN`    |      `${{ github.token }}`       |                                 GitHub access token                                 |      An access token with the `repo` scope granted.       |
@@ -109,14 +110,12 @@ Display the top listened to artists over a given period of time.
 
 ![top-artists.png](./static/images/top-artists.png)
 
-
 #### <ins>Configuration</ins>
 
 |  Option  | Default |                          Options                           |               Description               |
-|:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
+| :------: | :-----: | :--------------------------------------------------------: | :-------------------------------------: |
 | `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
 |  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |    The number of artists to display     |
-
 
 ### 💿 Top Albums
 
@@ -136,7 +135,7 @@ Display the top listened to albums over a given period of time.
 #### <ins>Configuration</ins>
 
 |  Option  | Default |                          Options                           |               Description               |
-|:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
+| :------: | :-----: | :--------------------------------------------------------: | :-------------------------------------: |
 | `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
 |  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |     The number of albums to display     |
 
@@ -158,7 +157,7 @@ Display the top listened to tracks over a given period of time.
 #### <ins>Configuration</ins>
 
 |  Option  | Default |                          Options                           |               Description               |
-|:--------:|:-------:|:----------------------------------------------------------:|:---------------------------------------:|
+| :------: | :-----: | :--------------------------------------------------------: | :-------------------------------------: |
 | `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
 |  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |     The number of tracks to display     |
 
@@ -185,13 +184,13 @@ Display recently listened to tracks.
 
 #### <ins>Configuration</ins>
 
-|  Option  | Default |                          Options                           |              Description               |
-|:--------:|:-------:|:----------------------------------------------------------:|:--------------------------------------:|
-|  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      | The number of recent tracks to display |
+| Option | Default |     Options      |              Description               |
+| :----: | :-----: | :--------------: | :------------------------------------: |
+| `rows` |   `8`   | 1 ≤ integer ≤ 50 | The number of recent tracks to display |
 
 ### ℹ️ User Info
 
-Display information about a Last.fm user. An optional configuration object can be passed to specify which properties to display. 
+Display information about a Last.fm user. An optional configuration object can be passed to specify which properties to display.
 
 #### <ins>Example (Default)</ins>
 
@@ -218,7 +217,7 @@ Display information about a Last.fm user. An optional configuration object can b
 #### <ins>Configuration</ins>
 
 |  Option   |                                 Default                                  |                           Options                            |                    Description                     |
-|:---------:|:------------------------------------------------------------------------:|:------------------------------------------------------------:|:--------------------------------------------------:|
+| :-------: | :----------------------------------------------------------------------: | :----------------------------------------------------------: | :------------------------------------------------: |
 | `display` | `["registered", "playcount", "artistCount", "albumCount", "trackCount"]` | `registered, playcount, artistCount, albumCount, trackCount` | A list of properties to be included in the section |
 
 ## 🌟 Acknowledgements
@@ -230,9 +229,7 @@ Display information about a Last.fm user. An optional configuration object can b
 
 [license.badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license]: ./LICENSE
-
 [github.release.badge]: https://img.shields.io/github/v/release/dxnter/lastfm-readme
 [github.release]: https://github.com/dxnter/lastfm-readme/releases
-
 [actions.codeql.badge]: https://github.com/dxnter/lastfm-readme/actions/workflows/codeql.yaml/badge.svg
 [actions.codeql]: https://github.com/dxnter/lastfm-readme/actions/workflows/codeql.yaml

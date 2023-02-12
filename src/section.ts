@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
-import * as R from 'ramda';
 import { format as dateFormat } from 'date-fns';
+import * as R from 'ramda';
+
 import {
   InvalidPeriodError,
   InvalidRowsError,
@@ -8,14 +9,14 @@ import {
   InvalidUserInfoDisplayOptionError,
 } from './error';
 import type { Input } from './input';
-import { isValidTimePeriod, isValidDisplayOptions } from './lastfm';
+import { isValidDisplayOptions, isValidTimePeriod } from './lastfm';
 import type {
-  ConfigTimePeriod,
   Album,
   Artist,
-  Track,
-  RecentTrack,
+  ConfigTimePeriod,
   ConfigUserInfoDisplayOption,
+  RecentTrack,
+  Track,
   UserInfo,
 } from './lastfm/types';
 

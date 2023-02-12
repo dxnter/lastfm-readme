@@ -21,11 +21,11 @@ inputs:
     required: false
   COMMIT_MESSAGE:
     description: Add a commit message of your choice
-    default: "chore: update Last.fm sections"
+    default: 'chore: update Last.fm sections'
     required: false
   SHOW_TITLE:
     description: Toggle the title shown above chart sections
-    default: "true"
+    default: 'true'
     required: false
   LOCALE:
     description: Locale used for formatting numbers
