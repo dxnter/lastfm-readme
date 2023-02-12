@@ -1,4 +1,3 @@
----
 name: Last.fm - Readme
 description: Dynamically update your README with Last.fm metrics
 author: dxnter
@@ -22,7 +21,7 @@ inputs:
     required: false
   COMMIT_MESSAGE:
     description: Add a commit message of your choice
-    default: 'chore: update Last.fm sections'
+    default: "chore: update Last.fm sections"
     required: false
   SHOW_TITLE:
     description: Toggle the title shown above chart sections
@@ -30,11 +29,11 @@ inputs:
     required: false
   LOCALE:
     description: Locale used for formatting numbers
-    default: "en-US"
+    default: en-US
     required: false
   DATE_FORMAT:
     description: Date format used in the User Info section
-    default: "MM/dd/yyyy"
+    default: MM/dd/yyyy
     required: false
 runs:
   using: node16
