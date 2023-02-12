@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/dxnter/lastfm-readme/compare/v1.4.0...v1.4.1) (2023-02-12)
+
+
+### Bug Fixes
+
+* **eslint:** fix linting errors ([817380c](https://github.com/dxnter/lastfm-readme/commit/817380c50f67a622836edd3ca9cffbd3c908a3d0))
+
 # [1.4.0](https://github.com/dxnter/lastfm-readme/compare/v1.3.5...v1.4.0) (2023-02-12)
 
 ### Bug Fixes
