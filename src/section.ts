@@ -1,14 +1,22 @@
 import * as core from '@actions/core';
 import * as R from 'ramda';
-import { InvalidPeriodError, InvalidRowsError } from './error';
+import { format as dateFormat } from 'date-fns';
+import {
+  InvalidPeriodError,
+  InvalidRowsError,
+  InvalidUserInfoDisplayError,
+  InvalidUserInfoDisplayOptionError,
+} from './error';
 import type { Input } from './input';
-import { isValidTimePeriod } from './lastfm';
+import { isValidTimePeriod, isValidDisplayOptions } from './lastfm';
 import type {
   ConfigTimePeriod,
   Album,
   Artist,
   Track,
   RecentTrack,
+  ConfigUserInfoDisplayOption,
+  UserInfo,
 } from './lastfm/types';
 
 export enum SectionName {
@@ -16,6 +24,7 @@ export enum SectionName {
   TRACKS = 'TRACKS',
   ARTISTS = 'ARTISTS',
   ALBUMS = 'ALBUMS',
+  USER_INFO = 'USER_INFO',
 }
 
 export interface Section {
@@ -24,20 +33,26 @@ export interface Section {
   end: string;
   content: string[];
   currentSection: string;
-  config: Partial<{ rows: number; period: ConfigTimePeriod }>;
+  config: Partial<{
+    rows: number;
+    period: ConfigTimePeriod;
+    display: ConfigUserInfoDisplayOption[];
+  }>;
 }
 
 export type SectionComment =
   | 'LASTFM_RECENT'
   | 'LASTFM_TRACKS'
   | 'LASTFM_ARTISTS'
-  | 'LASTFM_ALBUMS';
+  | 'LASTFM_ALBUMS'
+  | 'LASTFM_USER_INFO';
 
 const SectionNameMap: { [key in SectionComment]: SectionName } = {
   LASTFM_RECENT: SectionName.RECENT,
   LASTFM_TRACKS: SectionName.TRACKS,
   LASTFM_ARTISTS: SectionName.ARTISTS,
   LASTFM_ALBUMS: SectionName.ALBUMS,
+  LASTFM_USER_INFO: SectionName.USER_INFO,
 };
 
 /**
@@ -72,6 +87,15 @@ export function getSectionsFromReadme(
 
             if (key === 'rows' && (value < 1 || value > 50)) {
               throw new InvalidRowsError(value);
+            }
+
+            if (key === 'display') {
+              if (!Array.isArray(value)) {
+                throw new InvalidUserInfoDisplayError(value);
+              }
+              if (!isValidDisplayOptions(value)) {
+                throw new InvalidUserInfoDisplayOptionError(value);
+              }
             }
 
             return value;
@@ -121,23 +145,30 @@ ${sections[lastStart]!.end}`,
     process.exit(1);
   }
 
+  core.debug(
+    `Found ${R.length(R.keys(sections))} ${sectionComment} sections in README`,
+  );
+
   return R.length(R.keys(sections)) > 0 ? R.values(sections) : undefined;
 }
 
 /**
- * Format the chart data for a section.
+ * Format the listening data for a section.
  *
- * @returns A string containing the formatted chart data.
+ * @returns A string containing the formatted listening data.
  */
-export const formatChartData = (
+export const formatSectionData = (
+  input: Input,
   section: Section,
   listeningData: unknown[],
 ): string => {
-  const formatTracks = <T>(section: Section, data: T[]): string[] => {
+  const formatMarkdownData = <T>(section: Section, data: T[]): string[] => {
+    const numberFormat = new Intl.NumberFormat(input.locale);
+
     switch (section.name) {
       case SectionName.ALBUMS:
         return (data as Album[]).map((album: Album) => {
-          return `> \`${album.playcount.toLocaleString()} ▶️\` ∙ **[${
+          return `> \`${numberFormat.format(album.playcount)} ▶️\` ∙ **[${
             album.name
           }](${album.url})** - [${album.artist.name}](${
             album.artist.url
@@ -145,21 +176,20 @@ export const formatChartData = (
         });
       case SectionName.ARTISTS:
         return (data as Artist[]).map((artist: Artist) => {
-          return `> \`${artist.playcount.toLocaleString()} ▶️\` ∙ **[${
+          return `> \`${numberFormat.format(artist.playcount)} ▶️\` ∙ **[${
             artist.name
           }](${artist.url})**<br/>`;
         });
       case SectionName.TRACKS:
         return (data as Track[]).map((track: Track) => {
-          return `> \`${track.playcount.toLocaleString()} ▶️\` ∙ **[${
+          return `> \`${numberFormat.format(track.playcount)} ▶️\` ∙ **[${
             track.name
           }](${track.url})** - [${track.artist.name}](${
             track.artist.url
           })<br/>`;
         });
       case SectionName.RECENT: {
-        const tracks = data as RecentTrack[];
-        return tracks
+        return (data as RecentTrack[])
           .map(
             (track, index) =>
               `> ${
@@ -173,6 +203,13 @@ export const formatChartData = (
           .slice(0, section.config.rows || 8);
       }
 
+      case SectionName.USER_INFO: {
+        const userInfo = data.at(0) as UserInfo;
+        return Object.entries(userInfo).map(([key, value]) => {
+          return `> **${key}**: ${formatUserInfoValue(input, key, value)}<br/>`;
+        });
+      }
+
       default:
         return [];
     }
@@ -181,7 +218,7 @@ export const formatChartData = (
   return R.ifElse(
     R.isEmpty,
     () => 'No listening data found for the selected time period.',
-    () => formatTracks(section, listeningData).join('\n'),
+    () => formatMarkdownData(section, listeningData).join('\n'),
   )(listeningData);
 };
 
@@ -190,22 +227,37 @@ export const formatChartData = (
  *
  * @returns An updated Markdown chart surrounded by the section start and end comments.
  */
-export function generateMarkdownChart(
+export function generateMarkdownSection(
   input: Input,
   section: Section,
   title: string,
   content: string,
 ) {
+  core.debug(`Generating ${section.name} section for ${section.start}`);
+
   const chartTitle = input.show_title
     ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
     : '';
 
-  const markdownChart = `${section.start}${chartTitle}
+  return `${section.start}${chartTitle}
 ${content}
 ${section.end}`;
+}
 
-  core.debug(`${section.start} content:\n
-  ${markdownChart}`);
+function formatUserInfoValue(
+  input: Input,
+  key: string,
+  value: string | number,
+) {
+  const numberFormat = new Intl.NumberFormat(input.locale);
 
-  return markdownChart;
+  if (typeof value === 'number') {
+    if (['Playcount', 'Artists', 'Albums', 'Tracks'].includes(key)) {
+      return numberFormat.format(value);
+    } else if (key === 'Registered') {
+      return dateFormat(value * 1000, input.date_format);
+    }
+  }
+
+  return value;
 }

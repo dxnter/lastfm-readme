@@ -28,6 +28,14 @@ inputs:
     description: Toggle the title shown above chart sections
     default: "true"
     required: false
+  LOCALE:
+    description: Locale used for formatting numbers
+    default: "en-US"
+    required: false
+  DATE_FORMAT:
+    description: Date format used in the User Info section
+    default: "MM/dd/yyyy"
+    required: false
 runs:
   using: node16
   main: dist/index.js

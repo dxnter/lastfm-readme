@@ -22,3 +22,19 @@ export class InvalidRowsError extends Error {
     this.name = 'InvalidRowsError';
   }
 }
+
+export class InvalidUserInfoDisplayError extends Error {
+  constructor(option: string) {
+    super(
+      `Invalid display value provided: "${option}". Valid value is an array of strings`,
+    );
+    this.name = 'InvalidUserInfoDisplayError';
+  }
+}
+
+export class InvalidUserInfoDisplayOptionError extends Error {
+  constructor(options: string[]) {
+    super(`Invalid display option provided: "${options}" `);
+    this.name = 'InvalidUserInfoDisplayError';
+  }
+}

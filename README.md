@@ -69,14 +69,16 @@ jobs:
 
 ### Inputs
 
-|     Setting      |            Default             |       Accepted Values       |                        Description                        |
-|:----------------:|:------------------------------:|:---------------------------:|:---------------------------------------------------------:|
-| `LASTFM_API_KEY` |              N/A               |       Last.fm API Key       |                A valid **Last.fm API Key**                |
-|  `LASTFM_USER`   |              N/A               |      Last.fm username       |          The Last.fm user to fetch metrics from           |
-|    `GH_TOKEN`    |     `${{ github.token }}`      |     GitHub access token     |      An access token with the `repo` scope granted.       |
-|   `REPOSITORY`   | `<gh_username>/<gh_username>`  | `<gh_username>/<repo_name>` | Repository that should have the `README.md` file updated. |
-| `COMMIT_MESSAGE` | `chore: update Last.fm charts` |         Any string          |    Commit message used when chart metrics are updated     |
-|   `SHOW_TITLE`   |             `true`             |      `true` / `false`       |        Toggle the title shown above chart sections        |
+|     Setting      |             Default              |                                   Accepted Values                                   |                        Description                        |
+|:----------------:|:--------------------------------:|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------:|
+| `LASTFM_API_KEY` |               N/A                |                                   Last.fm API Key                                   |                A valid **Last.fm API Key**                |
+|  `LASTFM_USER`   |               N/A                |                                  Last.fm username                                   |          The Last.fm user to fetch metrics from           |
+|    `GH_TOKEN`    |      `${{ github.token }}`       |                                 GitHub access token                                 |      An access token with the `repo` scope granted.       |
+|   `REPOSITORY`   |  `<gh_username>/<gh_username>`   |                             `<gh_username>/<repo_name>`                             | Repository that should have the `README.md` file updated. |
+| `COMMIT_MESSAGE` | `chore: update Last.fm sections` |                                     Any string                                      |       Commit message used when sections are updated       |
+|   `SHOW_TITLE`   |              `true`              |                                  `true` / `false`                                   |           Toggle the title shown above sections           |
+|     `LOCALE`     |             `en-US`              | [BCP 47 tag](https://gist.github.com/raushankrjha/d1c7e35cf87e69aa8b4208a8171a8416) |            Locale used for formatting numbers             |
+|  `DATE_FORMAT`   |           `MM/dd/yyyy`           |    [date-fns date format](https://date-fns.org/v1.29.0/docs/format#description)     |       Date format used in the **User Info** section       |
 
 ## 📊 Charts
 
@@ -186,6 +188,38 @@ Display recently listened to tracks.
 |  Option  | Default |                          Options                           |              Description               |
 |:--------:|:-------:|:----------------------------------------------------------:|:--------------------------------------:|
 |  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      | The number of recent tracks to display |
+
+### ℹ️ User Info
+
+Display information about a Last.fm user. An optional configuration object can be passed to specify which properties to display. 
+
+#### <ins>Example (Default)</ins>
+
+```html
+<!--START_LASTFM_USER_INFO-->
+<!--END_LASTFM_USER_INFO-->
+```
+
+#### <ins>Output</ins>
+
+![recent-tracks.png](./static/images/user-info-default.png)
+
+#### <ins>Example (Custom Configuration)</ins>
+
+```html
+<!--START_LASTFM_USER_INFO:{"display": ["playcount", "artistCount"]}-->
+<!--END_LASTFM_USER_INFO-->
+```
+
+#### <ins>Output</ins>
+
+![user-info-custom.png](./static/images/user-info-custom.png)
+
+#### <ins>Configuration</ins>
+
+|  Option   |                                 Default                                  |                           Options                            |                    Description                     |
+|:---------:|:------------------------------------------------------------------------:|:------------------------------------------------------------:|:--------------------------------------------------:|
+| `display` | `["registered", "playcount", "artistCount", "albumCount", "trackCount"]` | `registered, playcount, artistCount, albumCount, trackCount` | A list of properties to be included in the section |
 
 ## 🌟 Acknowledgements
 

@@ -17,6 +17,7 @@ specifiers:
   '@vercel/ncc': ^0.36.0
   '@vitest/coverage-c8': ^0.28.4
   conventional-changelog-conventionalcommits: ^5.0.0
+  date-fns: ^2.29.3
   eslint: ^8.32.0
   eslint-config-prettier: ^8.6.0
   eslint-import-resolver-typescript: ^3.5.3
@@ -34,6 +35,7 @@ dependencies:
   '@actions/core': 1.10.0
   '@actions/github': 5.1.1
   '@octokit/core': 4.2.0
+  date-fns: 2.29.3
   lastfm-typed: 2.1.0
   ramda: 0.28.0
 
@@ -1459,6 +1461,11 @@ packages:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}
     engines: {node: '>=8'}
     dev: true
+
+  /date-fns/2.29.3:
+    resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
+    engines: {node: '>=0.11'}
+    dev: false
 
   /dateformat/3.0.3:
     resolution: {integrity: sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==}
