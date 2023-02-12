@@ -39,4 +39,8 @@ node_modules/
 .env.local
 .github/workflows/lastfm.yaml
 
+dist/src/*
+dist/test/*
+dist/vitest.config.d.ts
+
 vitest.config.ts.*
