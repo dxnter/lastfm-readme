@@ -22,7 +22,7 @@ inputs:
     required: false
   COMMIT_MESSAGE:
     description: Add a commit message of your choice
-    default: Updated lastfm-readme graph with new metrics
+    default: 'chore: update Last.fm sections'
     required: false
   SHOW_TITLE:
     description: Toggle the title shown above chart sections
