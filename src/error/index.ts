@@ -23,6 +23,20 @@ export class InvalidRowsError extends Error {
   }
 }
 
+export class EndTagWithoutStartTagError extends Error {
+  constructor(endTag: string) {
+    super(`End tag found without a corresponding start tag: "${endTag}"`);
+    this.name = 'EndTagWithoutStartTagError';
+  }
+}
+
+export class StartTagWithoutEndTagError extends Error {
+  constructor(startTag: string) {
+    super(`Start tag found without a corresponding end tag: "${startTag}"`);
+    this.name = 'StartTagWithoutEndTagError';
+  }
+}
+
 export class InvalidUserInfoDisplayError extends Error {
   constructor(option: string) {
     super(

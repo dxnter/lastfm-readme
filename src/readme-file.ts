@@ -21,7 +21,7 @@ export async function getReadmeFile(input: Input): Promise<Readme> {
     content: Buffer.from(
       readme.data.content,
       readme.data.encoding as BufferEncoding,
-    ).toString('utf-8'),
+    ).toString('utf8'),
     hash: readme.data.sha,
   };
 }

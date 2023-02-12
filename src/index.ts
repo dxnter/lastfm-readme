@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 
 import { Input, parseInput } from './input';
-import { getReadmeFile, updateReadmeFile } from './readmeFile';
+import { getReadmeFile, updateReadmeFile } from './readme-file';
 import { getSectionsFromReadme, Section, SectionComment } from './section';
 import {
   updateAlbumSection,
@@ -51,7 +51,8 @@ async function run() {
   core.setOutput('readme-updated', updated);
 }
 
-run().catch((error) => {
-  core.setFailed(error);
-  process.exit(1);
-});
+try {
+  await run();
+} catch (error: unknown) {
+  error instanceof Error && core.setFailed(error.message);
+}

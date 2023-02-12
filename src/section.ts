@@ -3,10 +3,12 @@ import { format as dateFormat } from 'date-fns';
 import * as R from 'ramda';
 
 import {
+  EndTagWithoutStartTagError,
   InvalidPeriodError,
   InvalidRowsError,
   InvalidUserInfoDisplayError,
   InvalidUserInfoDisplayOptionError,
+  StartTagWithoutEndTagError,
 } from './error';
 import type { Input } from './input';
 import { isValidDisplayOptions, isValidTimePeriod } from './lastfm';
@@ -72,7 +74,7 @@ export function getSectionsFromReadme(
   const startPrefix = `<!--START_${sectionComment}`;
   const endPrefix = `<!--END_${sectionComment}`;
 
-  readmeContent.split('\n').forEach((line) => {
+  for (const line of readmeContent.split('\n')) {
     if (line.startsWith(startPrefix)) {
       const startComment = line.match(
         `(?<start>${startPrefix}(?::(?<config>{.*}))?-->)`,
@@ -115,10 +117,7 @@ export function getSectionsFromReadme(
       }
     } else if (line.startsWith(endPrefix)) {
       if (sectionStack.length === 0) {
-        core.error(
-          `Found an end tag without a corresponding start tag: ${line}`,
-        );
-        process.exit(1);
+        throw new EndTagWithoutStartTagError(line);
       } else {
         const lastStart = sectionStack.shift()!;
         sections[lastStart]!.end = line;
@@ -137,13 +136,10 @@ ${sections[lastStart]!.end}`,
         sections[currentGroup]!.content.push(line);
       }
     }
-  });
+  }
 
   if (sectionStack.length > 0) {
-    core.error(
-      `Start section(s) without end section found: ${sectionStack.join('')}`,
-    );
-    process.exit(1);
+    throw new StartTagWithoutEndTagError(sectionStack.join(''));
   }
 
   core.debug(
@@ -167,7 +163,7 @@ export const formatSectionData = (
     const numberFormat = new Intl.NumberFormat(input.locale);
 
     switch (section.name) {
-      case SectionName.ALBUMS:
+      case SectionName.ALBUMS: {
         return (data as Album[]).map((album: Album) => {
           return `> \`${numberFormat.format(album.playcount)} ▶️\` ∙ **[${
             album.name
@@ -175,13 +171,15 @@ export const formatSectionData = (
             album.artist.url
           })<br/>`;
         });
-      case SectionName.ARTISTS:
+      }
+      case SectionName.ARTISTS: {
         return (data as Artist[]).map((artist: Artist) => {
           return `> \`${numberFormat.format(artist.playcount)} ▶️\` ∙ **[${
             artist.name
           }](${artist.url})**<br/>`;
         });
-      case SectionName.TRACKS:
+      }
+      case SectionName.TRACKS: {
         return (data as Track[]).map((track: Track) => {
           return `> \`${numberFormat.format(track.playcount)} ▶️\` ∙ **[${
             track.name
@@ -189,6 +187,7 @@ export const formatSectionData = (
             track.artist.url
           })<br/>`;
         });
+      }
       case SectionName.RECENT: {
         return (data as RecentTrack[])
           .map(
@@ -211,8 +210,9 @@ export const formatSectionData = (
         });
       }
 
-      default:
+      default: {
         return [];
+      }
     }
   };
 
