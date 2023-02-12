@@ -4,7 +4,7 @@
     "node": true
   },
   "parserOptions": {
-    "ecmaVersion": 2020,
+    "ecmaVersion": "latest",
     "sourceType": "module",
     "project": ["tsconfig.json"]
   },
@@ -14,6 +14,7 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
+    "plugin:unicorn/recommended",
     "prettier"
   ],
   "plugins": [
@@ -21,9 +22,10 @@
     "prettier",
     "import",
     "simple-import-sort",
-    "vitest"
+    "vitest",
+    "unicorn"
   ],
-  "ignorePatterns": ["node_modules", "dist"],
+  "ignorePatterns": ["node_modules", "dist", "coverage"],
   "rules": {
     "@typescript-eslint/no-non-null-assertion": "off",
     "prettier/prettier": 2,
