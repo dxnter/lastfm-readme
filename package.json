@@ -65,7 +65,8 @@
     "@octokit/core": "^4.2.0",
     "date-fns": "^2.29.3",
     "lastfm-typed": "^2.1.0",
-    "ramda": "^0.28.0"
+    "ramda": "^0.28.0",
+    "zod": "^3.20.6"
   },
   "prettier": {
     "singleQuote": true,
