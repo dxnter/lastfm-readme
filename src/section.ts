@@ -1,18 +1,14 @@
 import * as core from '@actions/core';
-import { format as dateFormat } from 'date-fns';
 import * as R from 'ramda';
+import { z } from 'zod';
 
 import {
   EndTagWithoutStartTagError,
-  InvalidPeriodError,
-  InvalidRowsError,
-  InvalidUserInfoDisplayError,
-  InvalidUserInfoDisplayOptionError,
   StartTagWithoutEndTagError,
 } from './error';
 import type { Input } from './input';
-import { isValidDisplayOptions, isValidTimePeriod } from './lastfm';
-import type {
+import { userInfoDisplayOptions } from './lastfm';
+import {
   Album,
   Artist,
   ConfigTimePeriod,
@@ -22,7 +18,7 @@ import type {
   UserInfo,
 } from './lastfm/types';
 
-export enum SectionName {
+enum SectionName {
   RECENT = 'RECENT',
   TRACKS = 'TRACKS',
   ARTISTS = 'ARTISTS',
@@ -30,17 +26,21 @@ export enum SectionName {
   USER_INFO = 'USER_INFO',
 }
 
+const SectionConfigSchema = z.object({
+  rows: z.number().min(1).max(50).optional(),
+  period: z.nativeEnum(ConfigTimePeriod).optional(),
+  display: z.array(z.nativeEnum(ConfigUserInfoDisplayOption)).optional(),
+});
+
+type SectionConfig = z.infer<typeof SectionConfigSchema>;
+
 export interface Section {
   name: SectionName;
   start: string;
   end: string;
   content: string[];
   currentSection: string;
-  config: Partial<{
-    rows: number;
-    period: ConfigTimePeriod;
-    display: ConfigUserInfoDisplayOption[];
-  }>;
+  config: SectionConfig;
 }
 
 export type SectionComment =
@@ -58,12 +58,7 @@ const SectionNameMap: { [key in SectionComment]: SectionName } = {
   LASTFM_USER_INFO: SectionName.USER_INFO,
 };
 
-/**
- * Get the existing chart sections from a README file.
- *
- * @throws {@link InvalidRowsError} if the number of rows is invalid for a section.
- * @throws {@link InvalidPeriodError} if the time period is invalid for a section.
- */
+/** Get the existing chart sections from a README file. */
 export function getSectionsFromReadme(
   sectionComment: SectionComment,
   readmeContent: string,
@@ -81,29 +76,13 @@ export function getSectionsFromReadme(
       );
       if (startComment && startComment.groups?.start) {
         const startSectionComment = startComment.groups.start;
-        const config = JSON.parse(
-          startComment.groups?.config || '{}',
-          (key, value) => {
-            if (key === 'period' && !isValidTimePeriod(value)) {
-              throw new InvalidPeriodError(value);
-            }
-
-            if (key === 'rows' && (value < 1 || value > 50)) {
-              throw new InvalidRowsError(value);
-            }
-
-            if (key === 'display') {
-              if (!Array.isArray(value)) {
-                throw new InvalidUserInfoDisplayError(value);
-              }
-              if (!isValidDisplayOptions(value)) {
-                throw new InvalidUserInfoDisplayOptionError(value);
-              }
-            }
-
-            return value;
-          },
+        const config = SectionConfigSchema.safeParse(
+          JSON.parse(startComment.groups?.config || '{}'),
         );
+
+        if (!config.success) {
+          throw new Error(config.error.message);
+        }
 
         sections[startSectionComment] = {
           name: SectionNameMap[sectionComment],
@@ -111,7 +90,7 @@ export function getSectionsFromReadme(
           end: '',
           content: [],
           currentSection: '',
-          config,
+          config: config.data,
         };
         sectionStack.push(startSectionComment);
       }
@@ -206,7 +185,9 @@ export const formatSectionData = (
       case SectionName.USER_INFO: {
         const userInfo = data.at(0) as UserInfo;
         return Object.entries(userInfo).map(([key, value]) => {
-          return `> **${key}**: ${formatUserInfoValue(input, key, value)}<br/>`;
+          return `> **${userInfoDisplayOptions.get(
+            key as ConfigUserInfoDisplayOption,
+          )}**: ${value}<br/>`;
         });
       }
 
@@ -243,22 +224,4 @@ export function generateMarkdownSection(
   return `${section.start}${chartTitle}
 ${content}
 ${section.end}`;
-}
-
-function formatUserInfoValue(
-  input: Input,
-  key: string,
-  value: string | number,
-) {
-  const numberFormat = new Intl.NumberFormat(input.locale);
-
-  if (typeof value === 'number') {
-    if (['Playcount', 'Artists', 'Albums', 'Tracks'].includes(key)) {
-      return numberFormat.format(value);
-    } else if (key === 'Registered') {
-      return dateFormat(value * 1000, input.date_format);
-    }
-  }
-
-  return value;
 }

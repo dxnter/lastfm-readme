@@ -1,12 +1,13 @@
 import type { ArtistOptionalMBID } from 'lastfm-typed/dist/interfaces/shared';
 
-export type ConfigTimePeriod =
-  | '7day'
-  | '1month'
-  | '3month'
-  | '6month'
-  | '12month'
-  | 'overall';
+export enum ConfigTimePeriod {
+  '7day' = '7day',
+  '1month' = '1month',
+  '3month' = '3month',
+  '6month' = '6month',
+  '12month' = '12month',
+  'overall' = 'overall',
+}
 
 export type ReadableTimePeriod =
   | 'Past Week'
@@ -47,20 +48,15 @@ export interface RecentTrack extends Track {
   date: { uts: number };
 }
 
-export interface UserInfo {
-  playcount: number;
-  registered: number;
-  artistCount: number;
-  albumCount: number;
-  trackCount: number;
-}
+export type UserInfo = { [key in ConfigUserInfoDisplayOption]: string };
 
-export type ConfigUserInfoDisplayOption =
-  | 'registered'
-  | 'playcount'
-  | 'artistCount'
-  | 'albumCount'
-  | 'trackCount';
+export enum ConfigUserInfoDisplayOption {
+  'registered' = 'registered',
+  'playcount' = 'playcount',
+  'artistCount' = 'artistCount',
+  'albumCount' = 'albumCount',
+  'trackCount' = 'trackCount',
+}
 
 export type ReadableUserInfoDisplayOption =
   | 'Registered'
