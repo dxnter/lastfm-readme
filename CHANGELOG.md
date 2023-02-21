@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.2](https://github.com/dxnter/lastfm-readme/compare/v1.4.1...v1.4.2) (2023-02-21)
+
+
+### Bug Fixes
+
+* add missing export ([c95bc63](https://github.com/dxnter/lastfm-readme/commit/c95bc63a193bc3d80cee3a0cdca6d518495e01ad))
+* schema validation with zod ([d41eca7](https://github.com/dxnter/lastfm-readme/commit/d41eca7188694689ab7d69f12281699ec7341cc4))
+
 ## [1.4.1](https://github.com/dxnter/lastfm-readme/compare/v1.4.0...v1.4.1) (2023-02-12)
 
 
