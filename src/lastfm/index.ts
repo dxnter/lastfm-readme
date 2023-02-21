@@ -27,6 +27,17 @@ export function readableTimePeriod(section: Section): ReadableTimePeriod {
   return timePeriods.get(ConfigTimePeriod[period])!;
 }
 
+export const userInfoDisplayOptions = new Map<
+  ConfigUserInfoDisplayOption,
+  ReadableUserInfoDisplayOption
+>([
+  [ConfigUserInfoDisplayOption.registered, 'Registered'],
+  [ConfigUserInfoDisplayOption.playcount, 'Playcount'],
+  [ConfigUserInfoDisplayOption.artistCount, 'Artists'],
+  [ConfigUserInfoDisplayOption.albumCount, 'Albums'],
+  [ConfigUserInfoDisplayOption.trackCount, 'Tracks'],
+]);
+
 const lastFMDataMethods = {
   RecentTracks: (lastfm: LastFMTyped, input: Input, section: Section) =>
     lastfm.user.getRecentTracks(input.lastfm_user, {
@@ -56,52 +67,35 @@ const lastFMDataMethods = {
     return lastfm.user.getInfo(input.lastfm_user).then((info) => {
       const filteredInfo = R.pick(displayOptions, info);
 
-      const UserInfoSchema = z
-        .object({
-          registered: z
-            .number()
-            .transform((value) => dateFormat(value * 1000, input.date_format))
-            .optional(),
-          playcount: z
-            .number()
-            .transform((value) => numberFormat.format(value))
-            .optional(),
-          artistCount: z
-            .number()
-            .transform((value) => numberFormat.format(value))
-            .optional(),
-          albumCount: z
-            .number()
-            .transform((value) => numberFormat.format(value))
-            .optional(),
-          trackCount: z
-            .number()
-            .transform((value) => numberFormat.format(value))
-            .optional(),
-        })
-        .transform((result) => {
-          return {
-            Registered: result.registered,
-            Playcount: result.playcount,
-            Artists: result.artistCount,
-            Albums: result.albumCount,
-            Tracks: result.trackCount,
-          };
-        });
+      const UserInfoSchema = z.object({
+        registered: z
+          .number()
+          .transform((value) => dateFormat(value * 1000, input.date_format))
+          .optional(),
+        playcount: z
+          .number()
+          .transform((value) => numberFormat.format(value))
+          .optional(),
+        artistCount: z
+          .number()
+          .transform((value) => numberFormat.format(value))
+          .optional(),
+        albumCount: z
+          .number()
+          .transform((value) => numberFormat.format(value))
+          .optional(),
+        trackCount: z
+          .number()
+          .transform((value) => numberFormat.format(value))
+          .optional(),
+      });
 
       const parsedInfo = UserInfoSchema.safeParse(filteredInfo);
       if (!parsedInfo.success) {
         throw new Error(parsedInfo.error.message);
       }
 
-      return R.fromPairs(
-        Object.entries(
-          R.pickBy(Boolean, parsedInfo.data) as Record<
-            ReadableUserInfoDisplayOption,
-            string
-          >,
-        ),
-      );
+      return R.fromPairs(Object.entries(parsedInfo.data));
     });
   },
 };
