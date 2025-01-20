@@ -1,11 +1,11 @@
-import type { Input } from 'src/input';
+import type { GithubActionInput } from 'src/input';
 import { getLastFMData } from 'src/lastfm';
 
 import type { Section } from '../section';
 import { formatSectionData, generateMarkdownSection } from '../section';
 
 export async function updateRecentSection(
-  input: Input,
+  input: GithubActionInput,
   section: Section,
   readme: string,
 ): Promise<string> {

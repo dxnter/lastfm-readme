@@ -6,18 +6,21 @@ import {
   EndTagWithoutStartTagError,
   StartTagWithoutEndTagError,
 } from './error';
-import type { Input } from './input';
+import type { GithubActionInput } from './input';
 import { userInfoDisplayOptions } from './lastfm';
 import {
-  Album,
-  Artist,
+  type Album,
+  type Artist,
   ConfigTimePeriod,
   ConfigUserInfoDisplayOption,
-  RecentTrack,
-  Track,
-  UserInfo,
+  type RecentTrack,
+  type Track,
+  type UserInfo,
 } from './lastfm/types';
 
+/**
+ * Enum representing possible section names.
+ */
 enum SectionName {
   RECENT = 'RECENT',
   TRACKS = 'TRACKS',
@@ -26,6 +29,9 @@ enum SectionName {
   USER_INFO = 'USER_INFO',
 }
 
+/**
+ * Zod schema for validating section configuration.
+ */
 const SectionConfigSchema = z.object({
   rows: z.number().min(1).max(50).optional(),
   period: z.nativeEnum(ConfigTimePeriod).optional(),
@@ -34,6 +40,9 @@ const SectionConfigSchema = z.object({
 
 type SectionConfig = z.infer<typeof SectionConfigSchema>;
 
+/**
+ * Interface representing a section in the README.
+ */
 export interface Section {
   name: SectionName;
   start: string;
@@ -58,41 +67,47 @@ const SectionNameMap: { [key in SectionComment]: SectionName } = {
   LASTFM_USER_INFO: SectionName.USER_INFO,
 };
 
-/** Get the existing chart sections from a README file. */
+/**
+ * Extract existing sections from the README content.
+ * @param sectionComment - The section comment identifier.
+ * @param readmeContent - The full README content.
+ * @returns Extracted sections or undefined if none are found.
+ */
 export function getSectionsFromReadme(
   sectionComment: SectionComment,
   readmeContent: string,
 ): Section[] | undefined {
-  core.debug(`Searching for ${sectionComment} sections in README`);
-  const sections: { [key: string]: Section } = {};
+  core.debug(`🔍 Searching for ${sectionComment} sections in README`);
+
+  const sections: Record<string, Section> = {};
   const sectionStack: string[] = [];
   const startPrefix = `<!--START_${sectionComment}`;
   const endPrefix = `<!--END_${sectionComment}`;
 
   for (const line of readmeContent.split('\n')) {
     if (line.startsWith(startPrefix)) {
-      const startComment = line.match(
+      const startMatch = line.match(
         `(?<start>${startPrefix}(?::(?<config>{.*}))?-->)`,
       );
-      if (startComment && startComment.groups?.start) {
-        const startSectionComment = startComment.groups.start;
+
+      if (startMatch?.groups?.start) {
         const config = SectionConfigSchema.safeParse(
-          JSON.parse(startComment.groups?.config || '{}'),
+          JSON.parse(startMatch.groups.config || '{}'),
         );
 
         if (!config.success) {
           throw new Error(config.error.message);
         }
 
-        sections[startSectionComment] = {
+        sections[startMatch.groups.start] = {
           name: SectionNameMap[sectionComment],
-          start: startSectionComment,
+          start: startMatch.groups.start,
           end: '',
           content: [],
           currentSection: '',
           config: config.data,
         };
-        sectionStack.push(startSectionComment);
+        sectionStack.push(startMatch.groups.start);
       }
     } else if (line.startsWith(endPrefix)) {
       if (sectionStack.length === 0) {
@@ -129,12 +144,14 @@ ${sections[lastStart]!.end}`,
 }
 
 /**
- * Format the listening data for a section.
- *
- * @returns A string containing the formatted listening data.
+ * Format the listening data into a markdown-compatible string.
+ * @param input - The GitHub action input.
+ * @param section - The section to format data for.
+ * @param listeningData - The listening data retrieved.
+ * @returns A formatted markdown string.
  */
 export const formatSectionData = (
-  input: Input,
+  input: GithubActionInput,
   section: Section,
   listeningData: unknown[],
 ): string => {
@@ -210,12 +227,12 @@ export const formatSectionData = (
  * @returns An updated Markdown chart surrounded by the section start and end comments.
  */
 export function generateMarkdownSection(
-  input: Input,
+  input: GithubActionInput,
   section: Section,
   title: string,
   content: string,
 ) {
-  core.debug(`Generating ${section.name} section for ${section.start}`);
+  core.debug(`🔧 Generating ${section.name} section for ${section.start}`);
 
   const chartTitle = input.show_title
     ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`

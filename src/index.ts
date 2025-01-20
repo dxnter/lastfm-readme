@@ -1,8 +1,12 @@
 import * as core from '@actions/core';
 
-import { Input, parseInput } from './input';
+import { type GithubActionInput, parseInput } from './input';
 import { getReadmeFile, updateReadmeFile } from './readme-file';
-import { getSectionsFromReadme, Section, SectionComment } from './section';
+import {
+  getSectionsFromReadme,
+  type Section,
+  type SectionComment,
+} from './section';
 import {
   updateAlbumSection,
   updateArtistSection,
@@ -11,19 +15,20 @@ import {
   updateUserInfoSection,
 } from './sections';
 
-async function run() {
+/**
+ * Represents a section update function.
+ */
+type SectionUpdater = {
+  name: SectionComment;
+  update: (input: GithubActionInput, section: Section, content: string) => Promise<string>;
+};
+
+async function run(): Promise<void> {
   const input = await parseInput();
   const readme = await getReadmeFile(input);
   let updated = false;
 
-  const sections: {
-    name: SectionComment;
-    update: (
-      input: Input,
-      section: Section,
-      content: string,
-    ) => Promise<string>;
-  }[] = [
+  const sections: SectionUpdater[] = [
     { name: 'LASTFM_TRACKS', update: updateTrackSection },
     { name: 'LASTFM_ARTISTS', update: updateArtistSection },
     { name: 'LASTFM_ALBUMS', update: updateAlbumSection },
@@ -33,7 +38,7 @@ async function run() {
 
   for (const { name, update } of sections) {
     const matchingSections = getSectionsFromReadme(name, readme.content);
-    if (!matchingSections) continue;
+    if (!matchingSections?.length) continue;
 
     for (const section of matchingSections) {
       readme.content = await update(input, section, readme.content);
@@ -41,6 +46,7 @@ async function run() {
   }
 
   const unmodifiedReadme = await getReadmeFile(input);
+
   if (unmodifiedReadme.content === readme.content) {
     core.info('🕓 Skipping update, chart content is up to date');
   } else {
@@ -54,5 +60,7 @@ async function run() {
 try {
   await run();
 } catch (error: unknown) {
-  error instanceof Error && core.setFailed(error.message);
+  if (error instanceof Error) {
+    core.setFailed(error.message);
+  }
 }

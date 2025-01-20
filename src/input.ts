@@ -5,7 +5,10 @@ import * as R from 'ramda';
 
 import { InvalidInputError } from './error';
 
-export interface Input {
+/**
+ * Structure representing parsed input parameters for the GitHub Action.
+ */
+export interface GithubActionInput {
   lastfm_api_key: string;
   lastfm_user: string;
   gh_token: string;
@@ -17,39 +20,31 @@ export interface Input {
 }
 
 /**
- * Parse and validate the provided workflow input
- * @returns The parsed and validated workflow input
+ * Parses and validates the provided workflow input.
+ * @returns A promise resolving to the validated input.
+ * @throws InvalidInputError if any required input is missing or in an invalid format.
  */
-export async function parseInput(): Promise<Input> {
-  core.debug('Validating input variables');
+export async function parseInput(): Promise<GithubActionInput> {
+  core.debug('🔍 Validating input variables');
 
-  const lastfmApiKey = core.getInput('LASTFM_API_KEY', { required: true });
-  const lastfmUser = core.getInput('LASTFM_USER', { required: true });
-  const ghToken = core.getInput('GH_TOKEN');
-  const commitMessage =
-    core.getInput('COMMIT_MESSAGE') || 'chore: update Last.fm sections';
+  // Required inputs
+  const lastfmApiKey = core.getInput('LASTFM_API_KEY', { required: true }).trim();
+  const lastfmUser = core.getInput('LASTFM_USER', { required: true }).trim();
+
+  // Optional inputs
+  const ghToken = core.getInput('GH_TOKEN').trim();
+  const commitMessage = core.getInput('COMMIT_MESSAGE').trim() || 'chore: update Last.fm sections';
   const showTitle =
     R.defaultTo('true', core.getInput('SHOW_TITLE') || 'true') === 'true'
       ? 'true'
       : 'false';
-  const locale = core.getInput('LOCALE') || 'en-US';
-  const dateFormat = core.getInput('DATE_FORMAT') || 'MM/dd/yyyy';
+  const locale = core.getInput('LOCALE').trim() || 'en-US';
+  const dateFormat = core.getInput('DATE_FORMAT').trim() || 'MM/dd/yyyy';
 
-  const repositoryInput = core.getInput('REPOSITORY');
-  let repository: { owner: string; repo: string };
-  if (repositoryInput) {
-    const [owner, repo] = repositoryInput.split('/');
-    if (!owner || !repo) {
-      throw new InvalidInputError(
-        'The REPOSITORY input was provided in an invalid format. Please provide it in the format of "owner/repo"',
-      );
-    }
-    repository = { owner, repo };
-  } else {
-    repository = github.context.repo;
-  }
+  const repositoryInput = core.getInput('REPOSITORY').trim();
+  const repository = parseRepository(repositoryInput);
 
-  await new LastFMTyped(lastfmApiKey).auth.getToken();
+  await validateLastFmApiKey(lastfmApiKey);
 
   return {
     lastfm_api_key: lastfmApiKey,
@@ -61,4 +56,37 @@ export async function parseInput(): Promise<Input> {
     locale,
     date_format: dateFormat,
   };
+}
+
+/**
+ * Parses and validates the repository input.
+ * @param repositoryInput - The repository string input.
+ * @returns An object containing owner and repo properties.
+ * @throws InvalidInputError if the repository input format is invalid.
+ */
+function parseRepository(repositoryInput: string): { owner: string; repo: string } {
+  if (repositoryInput) {
+    const [owner, repo] = repositoryInput.split('/').map((s) => s.trim());
+    if (!owner || !repo) {
+      throw new InvalidInputError(
+        '❌ Invalid REPOSITORY input. Please provide it in the format "owner/repo".'
+      );
+    }
+    return { owner, repo };
+  }
+  return github.context.repo;
+}
+
+/**
+ * Validates the provided Last.fm API key by making a test request.
+ * @param apiKey - The Last.fm API key to validate.
+ * @throws Error if the API key is invalid.
+ */
+async function validateLastFmApiKey(apiKey: string): Promise<void> {
+  try {
+    await new LastFMTyped(apiKey).auth.getToken();
+    core.debug('✅ Last.fm API key validation successful');
+  } catch (error) {
+    throw new InvalidInputError('❌ Failed to validate Last.fm API key. Please check its validity.');
+  }
 }

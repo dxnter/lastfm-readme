@@ -1,18 +1,21 @@
 import { format as dateFormat } from 'date-fns';
 import LastFMTyped from 'lastfm-typed';
 import * as R from 'ramda';
-import type { Input } from 'src/input';
+import type { GithubActionInput } from 'src/input';
 import { z } from 'zod';
 
 import type { Section } from '../section';
 import {
   ConfigTimePeriod,
   ConfigUserInfoDisplayOption,
-  LastFmDataRetrieverKey,
-  ReadableTimePeriod,
-  ReadableUserInfoDisplayOption,
+  type LastFmDataRetrieverKey,
+  type ReadableTimePeriod,
+  type ReadableUserInfoDisplayOption,
 } from './types';
 
+/**
+ * Map Last.fm API time periods to readable format.
+ */
 const timePeriods = new Map<ConfigTimePeriod, ReadableTimePeriod>([
   [ConfigTimePeriod['7day'], 'Past Week'],
   [ConfigTimePeriod['1month'], 'Past Month'],
@@ -22,9 +25,14 @@ const timePeriods = new Map<ConfigTimePeriod, ReadableTimePeriod>([
   [ConfigTimePeriod['overall'], 'All Time'],
 ]);
 
+/**
+ * Retrieves a human-readable time period for the provided section configuration.
+ * @param section - The section object containing the configuration.
+ * @returns ReadableTimePeriod
+ */
 export function readableTimePeriod(section: Section): ReadableTimePeriod {
-  const period = section.config.period || '7day';
-  return timePeriods.get(ConfigTimePeriod[period])!;
+  const period = section.config.period ?? '7day';
+  return timePeriods.get(ConfigTimePeriod[period]) ?? 'Past Week';
 }
 
 export const userInfoDisplayOptions = new Map<
@@ -39,32 +47,33 @@ export const userInfoDisplayOptions = new Map<
 ]);
 
 const lastFMDataMethods = {
-  RecentTracks: (lastfm: LastFMTyped, input: Input, section: Section) =>
+  RecentTracks: (lastfm: LastFMTyped, input: GithubActionInput, section: Section) =>
     lastfm.user.getRecentTracks(input.lastfm_user, {
       limit: section.config.rows ?? 8,
       extended: true,
     }),
-  TopArtists: (lastfm: LastFMTyped, input: Input, section: Section) =>
+  TopArtists: (lastfm: LastFMTyped, input: GithubActionInput, section: Section) =>
     lastfm.user.getTopArtists(input.lastfm_user, {
       limit: section.config.rows ?? 8,
       period: section.config.period ?? '7day',
     }),
-  TopTracks: (lastfm: LastFMTyped, input: Input, section: Section) =>
+  TopTracks: (lastfm: LastFMTyped, input: GithubActionInput, section: Section) =>
     lastfm.user.getTopTracks(input.lastfm_user, {
       limit: section.config.rows ?? 8,
       period: section.config.period ?? '7day',
     }),
-  TopAlbums: (lastfm: LastFMTyped, input: Input, section: Section) =>
+  TopAlbums: (lastfm: LastFMTyped, input: GithubActionInput, section: Section) =>
     lastfm.user.getTopAlbums(input.lastfm_user, {
       limit: section.config.rows ?? 8,
       period: section.config.period ?? '7day',
     }),
-  UserInfo: (lastfm: LastFMTyped, input: Input, section: Section) => {
+  UserInfo: async (lastfm: LastFMTyped, input: GithubActionInput, section: Section) => {
     const displayOptions =
-      section.config.display || Object.values(ConfigUserInfoDisplayOption);
+      section.config.display ?? Object.values(ConfigUserInfoDisplayOption);
     const numberFormat = new Intl.NumberFormat(input.locale);
 
-    return lastfm.user.getInfo(input.lastfm_user).then((info) => {
+    try {
+      const info = await lastfm.user.getInfo(input.lastfm_user);
       const filteredInfo = R.pick(displayOptions, info);
 
       const UserInfoSchema = z.object({
@@ -96,16 +105,30 @@ const lastFMDataMethods = {
       }
 
       return R.fromPairs(Object.entries(parsedInfo.data));
-    });
+    } catch (error) {
+      throw new Error(`Failed to fetch user info: ${(error as Error).message}`);
+    }
   },
 };
 
+/**
+ * Fetches data from Last.fm based on the specified type.
+ * @param type - The type of data to retrieve.
+ * @param input - User input parameters.
+ * @param section - Section configuration for the request.
+ * @returns The retrieved Last.fm data.
+ */
 export async function getLastFMData<T extends LastFmDataRetrieverKey>(
   type: T,
-  input: Input,
+  input: GithubActionInput,
   section: Section,
 ): Promise<ReturnType<(typeof lastFMDataMethods)[T]>> {
   const lastfm = new LastFMTyped(input.lastfm_api_key);
+
+  if (!(type in lastFMDataMethods)) {
+    throw new Error(`Invalid data retriever key: ${type}`);
+  }
+
   return lastFMDataMethods[type](lastfm, input, section) as Promise<
     ReturnType<(typeof lastFMDataMethods)[T]>
   >;

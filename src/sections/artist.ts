@@ -1,14 +1,14 @@
-import type { Input } from 'src/input';
+import type { GithubActionInput } from 'src/input';
 import { getLastFMData, readableTimePeriod } from 'src/lastfm';
 
 import {
   formatSectionData,
   generateMarkdownSection,
-  Section,
+  type Section,
 } from '../section';
 
 export async function updateArtistSection(
-  input: Input,
+  input: GithubActionInput,
   section: Section,
   readme: string,
 ): Promise<string> {
