@@ -35485,7 +35485,7 @@ async function run() {
     ];
     for (const { name, update } of sections) {
         const matchingSections = (0,_section__WEBPACK_IMPORTED_MODULE_3__/* .getSectionsFromReadme */ .ZU)(name, readme.content);
-        if (!matchingSections)
+        if (!matchingSections?.length)
             continue;
         for (const section of matchingSections) {
             readme.content = await update(input, section, readme.content);
@@ -35565,7 +35565,7 @@ var defaultTo = /*#__PURE__*/(0,_curry2/* default */.A)(function defaultTo(d, v)
 });
 /* harmony default export */ const es_defaultTo = (defaultTo);
 // EXTERNAL MODULE: ./src/error/index.ts
-var error = __nccwpck_require__(5504);
+var src_error = __nccwpck_require__(5504);
 ;// CONCATENATED MODULE: ./src/input.ts
 
 
@@ -35573,33 +35573,26 @@ var error = __nccwpck_require__(5504);
 
 
 /**
- * Parse and validate the provided workflow input
- * @returns The parsed and validated workflow input
+ * Parses and validates the provided workflow input.
+ * @returns A promise resolving to the validated input.
+ * @throws InvalidInputError if any required input is missing or in an invalid format.
  */
 async function parseInput() {
-    core.debug('Validating input variables');
-    const lastfmApiKey = core.getInput('LASTFM_API_KEY', { required: true });
-    const lastfmUser = core.getInput('LASTFM_USER', { required: true });
-    const ghToken = core.getInput('GH_TOKEN');
-    const commitMessage = core.getInput('COMMIT_MESSAGE') || 'chore: update Last.fm sections';
+    core.debug('🔍 Validating input variables');
+    // Required inputs
+    const lastfmApiKey = core.getInput('LASTFM_API_KEY', { required: true }).trim();
+    const lastfmUser = core.getInput('LASTFM_USER', { required: true }).trim();
+    // Optional inputs
+    const ghToken = core.getInput('GH_TOKEN').trim();
+    const commitMessage = core.getInput('COMMIT_MESSAGE').trim() || 'chore: update Last.fm sections';
     const showTitle = es_defaultTo('true', core.getInput('SHOW_TITLE') || 'true') === 'true'
         ? 'true'
         : 'false';
-    const locale = core.getInput('LOCALE') || 'en-US';
-    const dateFormat = core.getInput('DATE_FORMAT') || 'MM/dd/yyyy';
-    const repositoryInput = core.getInput('REPOSITORY');
-    let repository;
-    if (repositoryInput) {
-        const [owner, repo] = repositoryInput.split('/');
-        if (!owner || !repo) {
-            throw new error/* InvalidInputError */.oC('The REPOSITORY input was provided in an invalid format. Please provide it in the format of "owner/repo"');
-        }
-        repository = { owner, repo };
-    }
-    else {
-        repository = github.context.repo;
-    }
-    await new (dist_default())(lastfmApiKey).auth.getToken();
+    const locale = core.getInput('LOCALE').trim() || 'en-US';
+    const dateFormat = core.getInput('DATE_FORMAT').trim() || 'MM/dd/yyyy';
+    const repositoryInput = core.getInput('REPOSITORY').trim();
+    const repository = parseRepository(repositoryInput);
+    await validateLastFmApiKey(lastfmApiKey);
     return {
         lastfm_api_key: lastfmApiKey,
         lastfm_user: lastfmUser,
@@ -35610,6 +35603,36 @@ async function parseInput() {
         locale,
         date_format: dateFormat,
     };
+}
+/**
+ * Parses and validates the repository input.
+ * @param repositoryInput - The repository string input.
+ * @returns An object containing owner and repo properties.
+ * @throws InvalidInputError if the repository input format is invalid.
+ */
+function parseRepository(repositoryInput) {
+    if (repositoryInput) {
+        const [owner, repo] = repositoryInput.split('/').map((s) => s.trim());
+        if (!owner || !repo) {
+            throw new src_error/* InvalidInputError */.oC('❌ Invalid REPOSITORY input. Please provide it in the format "owner/repo".');
+        }
+        return { owner, repo };
+    }
+    return github.context.repo;
+}
+/**
+ * Validates the provided Last.fm API key by making a test request.
+ * @param apiKey - The Last.fm API key to validate.
+ * @throws Error if the API key is invalid.
+ */
+async function validateLastFmApiKey(apiKey) {
+    try {
+        await new (dist_default())(apiKey).auth.getToken();
+        core.debug('✅ Last.fm API key validation successful');
+    }
+    catch (error) {
+        throw new src_error/* InvalidInputError */.oC('❌ Failed to validate Last.fm API key. Please check its validity.');
+    }
 }
 
 
@@ -38850,6 +38873,9 @@ var types = __nccwpck_require__(2638);
 
 
 
+/**
+ * Map Last.fm API time periods to readable format.
+ */
 const timePeriods = new Map([
     [types/* ConfigTimePeriod */.H['7day'], 'Past Week'],
     [types/* ConfigTimePeriod */.H['1month'], 'Past Month'],
@@ -38858,9 +38884,14 @@ const timePeriods = new Map([
     [types/* ConfigTimePeriod */.H['12month'], 'Past Year'],
     [types/* ConfigTimePeriod */.H['overall'], 'All Time'],
 ]);
+/**
+ * Retrieves a human-readable time period for the provided section configuration.
+ * @param section - The section object containing the configuration.
+ * @returns ReadableTimePeriod
+ */
 function readableTimePeriod(section) {
-    const period = section.config.period || '7day';
-    return timePeriods.get(types/* ConfigTimePeriod */.H[period]);
+    const period = section.config.period ?? '7day';
+    return timePeriods.get(types/* ConfigTimePeriod */.H[period]) ?? 'Past Week';
 }
 const userInfoDisplayOptions = new Map([
     [types/* ConfigUserInfoDisplayOption */.v.registered, 'Registered'],
@@ -38886,10 +38917,11 @@ const lastFMDataMethods = {
         limit: section.config.rows ?? 8,
         period: section.config.period ?? '7day',
     }),
-    UserInfo: (lastfm, input, section) => {
-        const displayOptions = section.config.display || Object.values(types/* ConfigUserInfoDisplayOption */.v);
+    UserInfo: async (lastfm, input, section) => {
+        const displayOptions = section.config.display ?? Object.values(types/* ConfigUserInfoDisplayOption */.v);
         const numberFormat = new Intl.NumberFormat(input.locale);
-        return lastfm.user.getInfo(input.lastfm_user).then((info) => {
+        try {
+            const info = await lastfm.user.getInfo(input.lastfm_user);
             const filteredInfo = es_pick(displayOptions, info);
             const UserInfoSchema = lib.z.object({
                 registered: lib.z
@@ -38918,11 +38950,24 @@ const lastFMDataMethods = {
                 throw new Error(parsedInfo.error.message);
             }
             return es_fromPairs(Object.entries(parsedInfo.data));
-        });
+        }
+        catch (error) {
+            throw new Error(`Failed to fetch user info: ${error.message}`);
+        }
     },
 };
+/**
+ * Fetches data from Last.fm based on the specified type.
+ * @param type - The type of data to retrieve.
+ * @param input - User input parameters.
+ * @param section - Section configuration for the request.
+ * @returns The retrieved Last.fm data.
+ */
 async function getLastFMData(type, input, section) {
     const lastfm = new (dist_default())(input.lastfm_api_key);
+    if (!(type in lastFMDataMethods)) {
+        throw new Error(`Invalid data retriever key: ${type}`);
+    }
     return lastFMDataMethods[type](lastfm, input, section);
 }
 
@@ -38972,35 +39017,59 @@ var ConfigUserInfoDisplayOption;
 /* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_1__);
 
 
+/**
+ * Fetches the README file content from the specified GitHub repository.
+ * @param input - The input containing GitHub credentials and repository details.
+ * @returns A promise resolving to the README content and hash.
+ * @throws Error if the README file cannot be retrieved.
+ */
 async function getReadmeFile(input) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Connecting to GitHub API');
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('🔍 Connecting to GitHub API to fetch README');
     const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(input.gh_token);
     const { owner, repo } = input.repository;
-    const readme = await octokit.rest.repos.getReadme({ owner, repo });
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('readme_hash', readme.data.sha);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Fetched README content from ${owner}/${repo}\n`);
-    return {
-        content: Buffer.from(readme.data.content, readme.data.encoding).toString('utf8'),
-        hash: readme.data.sha,
-    };
+    try {
+        const readme = await octokit.rest.repos.getReadme({ owner, repo });
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('readme_hash', readme.data.sha);
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`📥 Successfully fetched README content from ${owner}/${repo}`);
+        return {
+            content: Buffer.from(readme.data.content, readme.data.encoding).toString('utf8'),
+            hash: readme.data.sha,
+        };
+    }
+    catch (error) {
+        throw new Error(`❌ Failed to fetch README.md from ${owner}/${repo}: ${error.message}`);
+    }
 }
+/**
+ * Updates the README file with new content in the specified GitHub repository.
+ * @param input - The input containing GitHub credentials and repository details.
+ * @param fileHash - The current hash of the README file to ensure content integrity.
+ * @param newContent - The updated content to be written to the README.
+ * @returns A promise resolving when the update is complete.
+ * @throws Error if the update operation fails.
+ */
 async function updateReadmeFile(input, fileHash, newContent) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`🚀 Preparing to update README.md for ${input.repository.owner}/${input.repository.repo}`);
     const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(input.gh_token);
     const { owner, repo } = input.repository;
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Updating README.md content for ${owner}/${repo}\n`);
-    octokit.rest.repos.createOrUpdateFileContents({
-        owner,
-        repo,
-        path: 'README.md',
-        message: input.commit_message,
-        content: Buffer.from(newContent).toString('base64'),
-        sha: fileHash,
-        committer: {
-            name: 'lastfm-readme-bot',
-            email: 'lastfm-readme@proton.me',
-        },
-    });
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`✅ README successfully updated with new charts`);
+    try {
+        await octokit.rest.repos.createOrUpdateFileContents({
+            owner,
+            repo,
+            path: 'README.md',
+            message: input.commit_message,
+            content: Buffer.from(newContent, 'utf8').toString('base64'),
+            sha: fileHash,
+            committer: {
+                name: 'lastfm-readme-bot',
+                email: 'lastfm-readme@proton.me',
+            },
+        });
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('✅ README successfully updated with new charts');
+    }
+    catch (error) {
+        throw new Error(`❌ Failed to update README.md for ${owner}/${repo}: ${error.message}`);
+    }
 }
 
 
@@ -39802,6 +39871,9 @@ var types = __nccwpck_require__(2638);
 
 
 
+/**
+ * Enum representing possible section names.
+ */
 var SectionName;
 (function (SectionName) {
     SectionName["RECENT"] = "RECENT";
@@ -39810,6 +39882,9 @@ var SectionName;
     SectionName["ALBUMS"] = "ALBUMS";
     SectionName["USER_INFO"] = "USER_INFO";
 })(SectionName || (SectionName = {}));
+/**
+ * Zod schema for validating section configuration.
+ */
 const SectionConfigSchema = lib.z.object({
     rows: lib.z.number().min(1).max(50).optional(),
     period: lib.z.nativeEnum(types/* ConfigTimePeriod */.H).optional(),
@@ -39822,31 +39897,35 @@ const SectionNameMap = {
     LASTFM_ALBUMS: SectionName.ALBUMS,
     LASTFM_USER_INFO: SectionName.USER_INFO,
 };
-/** Get the existing chart sections from a README file. */
+/**
+ * Extract existing sections from the README content.
+ * @param sectionComment - The section comment identifier.
+ * @param readmeContent - The full README content.
+ * @returns Extracted sections or undefined if none are found.
+ */
 function getSectionsFromReadme(sectionComment, readmeContent) {
-    core.debug(`Searching for ${sectionComment} sections in README`);
+    core.debug(`🔍 Searching for ${sectionComment} sections in README`);
     const sections = {};
     const sectionStack = [];
     const startPrefix = `<!--START_${sectionComment}`;
     const endPrefix = `<!--END_${sectionComment}`;
     for (const line of readmeContent.split('\n')) {
         if (line.startsWith(startPrefix)) {
-            const startComment = line.match(`(?<start>${startPrefix}(?::(?<config>{.*}))?-->)`);
-            if (startComment && startComment.groups?.start) {
-                const startSectionComment = startComment.groups.start;
-                const config = SectionConfigSchema.safeParse(JSON.parse(startComment.groups?.config || '{}'));
+            const startMatch = line.match(`(?<start>${startPrefix}(?::(?<config>{.*}))?-->)`);
+            if (startMatch?.groups?.start) {
+                const config = SectionConfigSchema.safeParse(JSON.parse(startMatch.groups.config || '{}'));
                 if (!config.success) {
                     throw new Error(config.error.message);
                 }
-                sections[startSectionComment] = {
+                sections[startMatch.groups.start] = {
                     name: SectionNameMap[sectionComment],
-                    start: startSectionComment,
+                    start: startMatch.groups.start,
                     end: '',
                     content: [],
                     currentSection: '',
                     config: config.data,
                 };
-                sectionStack.push(startSectionComment);
+                sectionStack.push(startMatch.groups.start);
             }
         }
         else if (line.startsWith(endPrefix)) {
@@ -39876,9 +39955,11 @@ ${sections[lastStart].end}`)();
     return es_length(es_keys(sections)) > 0 ? es_values(sections) : undefined;
 }
 /**
- * Format the listening data for a section.
- *
- * @returns A string containing the formatted listening data.
+ * Format the listening data into a markdown-compatible string.
+ * @param input - The GitHub action input.
+ * @param section - The section to format data for.
+ * @param listeningData - The listening data retrieved.
+ * @returns A formatted markdown string.
  */
 const formatSectionData = (input, section, listeningData) => {
     const formatMarkdownData = (section, data) => {
@@ -39927,7 +40008,7 @@ const formatSectionData = (input, section, listeningData) => {
  * @returns An updated Markdown chart surrounded by the section start and end comments.
  */
 function generateMarkdownSection(input, section, title, content) {
-    core.debug(`Generating ${section.name} section for ${section.start}`);
+    core.debug(`🔧 Generating ${section.name} section for ${section.start}`);
     const chartTitle = input.show_title
         ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
         : '';

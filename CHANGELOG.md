@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.5.0](https://github.com/dxnter/lastfm-readme/compare/v1.4.2...v1.5.0) (2025-01-20)
+
+
+### Features
+
+* error handling and dependency upgrades ([8b42fdf](https://github.com/dxnter/lastfm-readme/commit/8b42fdf1127fd8bb83ae49962021b52f67e36445))
+
 ## [1.4.2](https://github.com/dxnter/lastfm-readme/compare/v1.4.1...v1.4.2) (2023-02-21)
 
 ### Bug Fixes
