@@ -20,10 +20,14 @@ import {
  */
 type SectionUpdater = {
   name: SectionComment;
-  update: (input: GithubActionInput, section: Section, content: string) => Promise<string>;
+  update: (
+    input: GithubActionInput,
+    section: Section,
+    content: string,
+  ) => Promise<string>;
 };
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   const input = await parseInput();
   const readme = await getReadmeFile(input);
   let updated = false;

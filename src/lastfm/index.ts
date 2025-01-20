@@ -47,27 +47,47 @@ export const userInfoDisplayOptions = new Map<
 ]);
 
 const lastFMDataMethods = {
-  RecentTracks: (lastfm: LastFMTyped, input: GithubActionInput, section: Section) =>
+  RecentTracks: (
+    lastfm: LastFMTyped,
+    input: GithubActionInput,
+    section: Section,
+  ) =>
     lastfm.user.getRecentTracks(input.lastfm_user, {
       limit: section.config.rows ?? 8,
       extended: true,
     }),
-  TopArtists: (lastfm: LastFMTyped, input: GithubActionInput, section: Section) =>
+  TopArtists: (
+    lastfm: LastFMTyped,
+    input: GithubActionInput,
+    section: Section,
+  ) =>
     lastfm.user.getTopArtists(input.lastfm_user, {
       limit: section.config.rows ?? 8,
       period: section.config.period ?? '7day',
     }),
-  TopTracks: (lastfm: LastFMTyped, input: GithubActionInput, section: Section) =>
+  TopTracks: (
+    lastfm: LastFMTyped,
+    input: GithubActionInput,
+    section: Section,
+  ) =>
     lastfm.user.getTopTracks(input.lastfm_user, {
       limit: section.config.rows ?? 8,
       period: section.config.period ?? '7day',
     }),
-  TopAlbums: (lastfm: LastFMTyped, input: GithubActionInput, section: Section) =>
+  TopAlbums: (
+    lastfm: LastFMTyped,
+    input: GithubActionInput,
+    section: Section,
+  ) =>
     lastfm.user.getTopAlbums(input.lastfm_user, {
       limit: section.config.rows ?? 8,
       period: section.config.period ?? '7day',
     }),
-  UserInfo: async (lastfm: LastFMTyped, input: GithubActionInput, section: Section) => {
+  UserInfo: async (
+    lastfm: LastFMTyped,
+    input: GithubActionInput,
+    section: Section,
+  ) => {
     const displayOptions =
       section.config.display ?? Object.values(ConfigUserInfoDisplayOption);
     const numberFormat = new Intl.NumberFormat(input.locale);

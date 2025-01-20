@@ -5,8 +5,10 @@ pnpm-lock.yaml
 yarn.lock
 
 # build artifacts
-dist
+dist/*
 
 # test artifacts
 coverage
 vite.config.ts
+
+CHANGELOG.md

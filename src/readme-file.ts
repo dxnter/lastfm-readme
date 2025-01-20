@@ -25,13 +25,16 @@ export async function getReadmeFile(input: GithubActionInput): Promise<Readme> {
     core.debug(`📥 Successfully fetched README content from ${owner}/${repo}`);
 
     return {
-      content: Buffer.from(readme.data.content, readme.data.encoding as BufferEncoding).toString(
-        'utf8',
-      ),
+      content: Buffer.from(
+        readme.data.content,
+        readme.data.encoding as BufferEncoding,
+      ).toString('utf8'),
       hash: readme.data.sha,
     };
   } catch (error) {
-    throw new Error(`❌ Failed to fetch README.md from ${owner}/${repo}: ${(error as Error).message}`);
+    throw new Error(
+      `❌ Failed to fetch README.md from ${owner}/${repo}: ${(error as Error).message}`,
+    );
   }
 }
 
@@ -48,7 +51,9 @@ export async function updateReadmeFile(
   fileHash: string,
   newContent: string,
 ): Promise<void> {
-  core.debug(`🚀 Preparing to update README.md for ${input.repository.owner}/${input.repository.repo}`);
+  core.debug(
+    `🚀 Preparing to update README.md for ${input.repository.owner}/${input.repository.repo}`,
+  );
   const octokit = github.getOctokit(input.gh_token);
   const { owner, repo } = input.repository;
 
@@ -68,6 +73,8 @@ export async function updateReadmeFile(
 
     core.info('✅ README successfully updated with new charts');
   } catch (error) {
-    throw new Error(`❌ Failed to update README.md for ${owner}/${repo}: ${(error as Error).message}`);
+    throw new Error(
+      `❌ Failed to update README.md for ${owner}/${repo}: ${(error as Error).message}`,
+    );
   }
 }

@@ -27,7 +27,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dxnter/lastfm-readme"
+    "url": "git+https://github.com/dxnter/lastfm-readme.git"
   },
   "bugs": {
     "url": "https://github.com/dxnter/lastfm-readme/issues"

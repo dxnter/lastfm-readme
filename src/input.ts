@@ -28,12 +28,15 @@ export async function parseInput(): Promise<GithubActionInput> {
   core.debug('🔍 Validating input variables');
 
   // Required inputs
-  const lastfmApiKey = core.getInput('LASTFM_API_KEY', { required: true }).trim();
+  const lastfmApiKey = core
+    .getInput('LASTFM_API_KEY', { required: true })
+    .trim();
   const lastfmUser = core.getInput('LASTFM_USER', { required: true }).trim();
 
   // Optional inputs
   const ghToken = core.getInput('GH_TOKEN').trim();
-  const commitMessage = core.getInput('COMMIT_MESSAGE').trim() || 'chore: update Last.fm sections';
+  const commitMessage =
+    core.getInput('COMMIT_MESSAGE').trim() || 'chore: update Last.fm sections';
   const showTitle =
     R.defaultTo('true', core.getInput('SHOW_TITLE') || 'true') === 'true'
       ? 'true'
@@ -64,12 +67,15 @@ export async function parseInput(): Promise<GithubActionInput> {
  * @returns An object containing owner and repo properties.
  * @throws InvalidInputError if the repository input format is invalid.
  */
-function parseRepository(repositoryInput: string): { owner: string; repo: string } {
+function parseRepository(repositoryInput: string): {
+  owner: string;
+  repo: string;
+} {
   if (repositoryInput) {
     const [owner, repo] = repositoryInput.split('/').map((s) => s.trim());
     if (!owner || !repo) {
       throw new InvalidInputError(
-        '❌ Invalid REPOSITORY input. Please provide it in the format "owner/repo".'
+        '❌ Invalid REPOSITORY input. Please provide it in the format "owner/repo".',
       );
     }
     return { owner, repo };
@@ -86,7 +92,9 @@ async function validateLastFmApiKey(apiKey: string): Promise<void> {
   try {
     await new LastFMTyped(apiKey).auth.getToken();
     core.debug('✅ Last.fm API key validation successful');
-  } catch (error) {
-    throw new InvalidInputError('❌ Failed to validate Last.fm API key. Please check its validity.');
+  } catch {
+    throw new InvalidInputError(
+      '❌ Failed to validate Last.fm API key. Please check its validity.',
+    );
   }
 }
