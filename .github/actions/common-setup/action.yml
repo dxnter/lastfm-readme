@@ -47,4 +47,5 @@ runs:
           ${{ runner.os }}-eslint-
 
     - name: 💾 Install pnpm Dependencies
+      shell: bash
       run: pnpm install --frozen-lockfile --prefer-offline
