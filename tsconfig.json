@@ -1,4 +1,6 @@
 {
+  "include": ["src"],
+  "exclude" : ["node_modules", "dist"],
   "compilerOptions": {
     "module": "esnext",
     "target": "es2022",
@@ -20,8 +22,6 @@
     "baseUrl": "./",
     "paths": {
       "src/*": ["src/*"]
-    },
-    "include": ["src"],
-    "exclude": ["node_modules", "dist"]
+    }
   }
 }
