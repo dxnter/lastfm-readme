@@ -67,7 +67,6 @@ jobs:
           
   types:
     name: 🧩 Type Check
-    needs: lint
     runs-on: ubuntu-latest
     
     steps:

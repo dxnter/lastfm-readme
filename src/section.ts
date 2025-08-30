@@ -29,6 +29,8 @@ enum SectionName {
   USER_INFO = 'USER_INFO',
 }
 
+const x: number = 'hello';
+
 /**
  * Zod schema for validating section configuration.
  */
