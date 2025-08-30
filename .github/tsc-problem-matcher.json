@@ -44,7 +44,7 @@
     },
     {
       "owner": "tsc-info",
-      "severity": "info",
+      "severity": "warning",
       "pattern": [
         {
           "regexp": "^(.*):(\\d+):(\\d+) - info TS(\\d+): (.*)$",
