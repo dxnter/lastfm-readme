@@ -64,7 +64,7 @@ export default [
       sourceType: 'module',
 
       parserOptions: {
-        project: ['tsconfig.json'],
+        project: ['tsconfig.eslint.json'],
         tsconfigRootDir: __dirname,
       },
     },
@@ -77,6 +77,7 @@ export default [
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
+          project: ['tsconfig.eslint.json'],
         },
       },
     },

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm test:*)",
+      "Bash(pkill:*)",
+      "Bash(pnpm coverage:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(UPDATE_GOLDEN=1 pnpm test --run tests/golden/readme-generation.test.ts)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

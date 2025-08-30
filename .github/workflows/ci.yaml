@@ -123,5 +123,35 @@ jobs:
           name: tsc-report
           path: tsc-report.txt
           retention-days: 7
+          
+  tests:
+    name: 🧪 Tests
+    needs: [format, lint, types]
+    runs-on: ubuntu-latest
     
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          
+      - name: 🔁 Setup Environment
+        uses: ./.github/actions/common-setup
+        
+      - name: 🧪 Vitest
+        run: pnpm vitest run
+        
+      - name: 🧾 Test Report
+        uses: dorny/test-reporter@v2
+        if: always()
+        with:
+          name: Vitest
+          path: reports/junit.xml
+          reporter: java-junit    
+          use-actions-summary: true
+
+      - name: 🧾 Coverage Report
+        uses: dorny/test-reporter@v2
+        if: always()
+        uses: davelosert/vitest-coverage-report-action@v2
 

@@ -45,3 +45,4 @@ dist/vitest.config.d.ts
 
 vitest.config.ts.*
 .prettier-cache
+reports/junit.xml

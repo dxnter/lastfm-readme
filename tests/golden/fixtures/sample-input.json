@@ -1,0 +1,10 @@
+{
+  "lastfm_api_key": "test-api-key",
+  "lastfm_user": "testuser",
+  "gh_token": "test-token",
+  "repository": { "owner": "testuser", "repo": "testuser" },
+  "commit_message": "chore: update Last.fm sections",
+  "show_title": "true",
+  "locale": "en-US",
+  "date_format": "MM/dd/yyyy"
+}

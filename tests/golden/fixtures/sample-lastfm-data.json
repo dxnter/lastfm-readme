@@ -1,0 +1,100 @@
+{
+  "artists": [
+    {
+      "name": "Radiohead",
+      "url": "https://www.last.fm/music/Radiohead",
+      "playcount": 256
+    },
+    {
+      "name": "Pink Floyd",
+      "url": "https://www.last.fm/music/Pink+Floyd",
+      "playcount": 180
+    },
+    {
+      "name": "The Beatles",
+      "url": "https://www.last.fm/music/The+Beatles",
+      "playcount": 145
+    }
+  ],
+  "albums": [
+    {
+      "name": "OK Computer",
+      "url": "https://www.last.fm/music/Radiohead/OK+Computer",
+      "playcount": 89,
+      "artist": {
+        "name": "Radiohead",
+        "url": "https://www.last.fm/music/Radiohead"
+      }
+    },
+    {
+      "name": "The Dark Side of the Moon",
+      "url": "https://www.last.fm/music/Pink+Floyd/The+Dark+Side+of+the+Moon",
+      "playcount": 67,
+      "artist": {
+        "name": "Pink Floyd",
+        "url": "https://www.last.fm/music/Pink+Floyd"
+      }
+    }
+  ],
+  "tracks": [
+    {
+      "name": "Paranoid Android",
+      "url": "https://www.last.fm/music/Radiohead/_/Paranoid+Android",
+      "playcount": 42,
+      "artist": {
+        "name": "Radiohead",
+        "url": "https://www.last.fm/music/Radiohead"
+      }
+    },
+    {
+      "name": "Comfortably Numb",
+      "url": "https://www.last.fm/music/Pink+Floyd/_/Comfortably+Numb",
+      "playcount": 38,
+      "artist": {
+        "name": "Pink Floyd",
+        "url": "https://www.last.fm/music/Pink+Floyd"
+      }
+    }
+  ],
+  "recentTracks": [
+    {
+      "name": "Everything In Its Right Place",
+      "url": "https://www.last.fm/music/Radiohead/_/Everything+In+Its+Right+Place",
+      "playcount": 1,
+      "artist": {
+        "name": "Radiohead",
+        "url": "https://www.last.fm/music/Radiohead"
+      },
+      "date": { "uts": 1640995200 }
+    },
+    {
+      "name": "Time",
+      "url": "https://www.last.fm/music/Pink+Floyd/_/Time",
+      "playcount": 1,
+      "artist": {
+        "name": "Pink Floyd",
+        "url": "https://www.last.fm/music/Pink+Floyd"
+      },
+      "date": { "uts": 1640991600 }
+    },
+    {
+      "name": "Come Together",
+      "url": "https://www.last.fm/music/The+Beatles/_/Come+Together",
+      "playcount": 1,
+      "artist": {
+        "name": "The Beatles",
+        "url": "https://www.last.fm/music/The+Beatles"
+      },
+      "date": { "uts": 1640988000 }
+    }
+  ],
+  "userInfo": [
+    {
+      "registered": "01/01/2010",
+      "playcount": "12,345",
+      "artistCount": "1,234",
+      "albumCount": "5,678",
+      "trackCount": "23,456"
+    }
+  ]
+}
