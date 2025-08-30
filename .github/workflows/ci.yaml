@@ -79,8 +79,6 @@ jobs:
         uses: ./.github/actions/common-setup
         
       - name: 📄 TypeScript Report
-        uses: fersilva16/ts-report-action@1.1.0
-        with:
-          project: tsconfig.json
+        uses: andoshin11/typescript-error-reporter-action@v1.0.2
     
 
