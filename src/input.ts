@@ -18,7 +18,7 @@ export interface GithubActionInput {
   locale: string;
   date_format: string;
 }
-const foo = [1, 2, 3];
+
 /**
  * Parses and validates the provided workflow input.
  * @returns A promise resolving to the validated input.

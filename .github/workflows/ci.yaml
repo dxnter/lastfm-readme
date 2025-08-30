@@ -108,8 +108,10 @@ jobs:
       
       - name: 🔍 Run ESLint
         run: |
-          pnpm exec eslint --cache -f gha .
+          ESLINT_EXIT=0
+          pnpm exec eslint --cache -f gha . || ESLINT_EXIT=$?
           pnpm exec eslint --cache -f json . > eslint-report.json || true
+          exit $ESLINT_EXIT
 
       - name: 📎 Upload ESLint Report
         uses: actions/upload-artifact@v4
