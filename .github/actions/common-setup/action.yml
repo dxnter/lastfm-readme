@@ -1,0 +1,50 @@
+$schema: 'https://json.schemastore.org/github-action'
+name: 'Common Setup'
+description: 'Runs common setup steps for caching, installing dependencies, and preparing the environment'
+inputs:
+  pnpm-version:
+    description: 'pnpm version'
+    required: false
+    default: '9.x.x'
+runs:
+  using: 'composite'
+  steps:
+    - name: 📦 Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ inputs['pnpm-version'] }}
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: pnpm
+
+    - name: 🗄️ pnpm Dependencies Cache
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-
+
+    - name: 🗄️ Prettier Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules/.cache/prettier
+          .prettier-cache
+        key: ${{ runner.os }}-prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc*') }}
+        restore-keys: |
+          ${{ runner.os }}-prettier-
+
+    - name: 🗄️ ESLint Cache
+      uses: actions/cache@v4
+      with:
+        path: .eslintcache
+        key: ${{ runner.os }}-eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.*', 'package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-eslint-
+
+    - name: 💾 Install pnpm Dependencies
+      run: pnpm install --frozen-lockfile --prefer-offline

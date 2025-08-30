@@ -20,37 +20,8 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           ref: ${{ github.head_ref }}
           
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: pnpm
-
-      - name: 🗄️ pnpm Dependencies Cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      - name: 💾 Install pnpm Dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
-          
-      - name: 🗄️ Prettier Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules/.cache/prettier
-            .prettier-cache
-          key: ${{ runner.os }}-prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc*') }}
-          restore-keys: |
-            ${{ runner.os }}-prettier-
+      - name: 🔁 Setup Environment
+        uses: ./.github/actions/common-setup
             
       - name: ✨ Run Prettier
         run: pnpm format
@@ -76,35 +47,8 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: pnpm
-          
-      - name: 🗄️ pnpm Dependencies Cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-            
-      - name: 💾 Install pnpm Dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
-        
-      - name: 🗄️ ESLint Cache
-        uses: actions/cache@v4
-        with:
-          path: .eslintcache
-          key: ${{ runner.os }}-eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.*', 'package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-eslint-
+      - name: 🔁 Setup Environment
+        uses: ./.github/actions/common-setup
       
       - name: 🔍 Run ESLint
         run: |
