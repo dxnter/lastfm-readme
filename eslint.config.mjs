@@ -23,7 +23,14 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ['**/node_modules', '**/dist', '**/coverage', '.releaserc.js'],
+    ignores: [
+      '**/node_modules',
+      '**/dist',
+      '**/coverage',
+      '.releaserc.js',
+      'eslint.config.*',
+      'vitest.config.*',
+     ],
   },
   ...fixupConfigRules(
     compat.extends(
@@ -37,6 +44,7 @@ export default [
     ),
   ),
   {
+    files: ['**/*.ts'],
     plugins: {
       '@typescript-eslint': fixupPluginRules(typescriptEslint),
       prettier,
@@ -57,6 +65,7 @@ export default [
 
       parserOptions: {
         project: ['tsconfig.json'],
+        tsconfigRootDir: __dirname,
       },
     },
 
