@@ -9,8 +9,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-and-format:
-    name: 🔍 Lint and Format
+  format:
+    name: 🎨 Format
     runs-on: ubuntu-latest
     
     steps:
@@ -31,28 +31,25 @@ jobs:
           node-version-file: '.nvmrc'
           cache: pnpm
 
-      - name: 📷 pnpm Dependencies Cache
+      - name: 🗄️ pnpm Dependencies Cache
         uses: actions/cache@v4
         with:
-          path: |
-            node_modules
+          path: node_modules
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
       - name: 💾 Install pnpm Dependencies
-        run: |
-          pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile --prefer-offline
           
-      - name: 📷 Prettier Cache
+      - name: 🗄️ Prettier Cache
         uses: actions/cache@v4
         with:
           path: |
             node_modules/.cache/prettier
             .prettier-cache
-          key: prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc') }}
+          key: prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc*') }}
           restore-keys: |
-            prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc') }}-
             prettier-
             
       - name: ✨ Run Prettier
@@ -67,4 +64,58 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: 'ci: apply code style fixes'
+          
+  lint:
+    name: 🔍 Lint
+    needs: format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+          
+      - name: 🗄️ pnpm Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+            
+      - name: 💾 Install pnpm Dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+        
+      - name: 🗄️ ESLint Cache
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.*', 'package.json') }}
+          restore-keys: |
+            eslint-
+      
+      - name: 🔍 Run ESLint
+        run: |
+          pnpm exec eslint -f @eslint-formatter-gha .
+          pnpm exec eslint -f json . > eslint-report.json || true
+
+      - name: 📎 Upload ESLint report (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-report
+          path: eslint-report.json
+          if-no-files-found: ignore
+          retention-days: 7
 
