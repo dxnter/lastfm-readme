@@ -84,6 +84,9 @@ importers:
       eslint-config-prettier:
         specifier: ^10.0.1
         version: 10.0.1(eslint@9.18.0)
+      eslint-formatter-gha:
+        specifier: ^1.6.0
+        version: 1.6.0
       eslint-import-resolver-typescript:
         specifier: ^3.7.0
         version: 3.7.0(eslint-plugin-import@2.31.0)(eslint@9.18.0)
@@ -1208,6 +1211,17 @@ packages:
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
+
+  eslint-formatter-gha@1.6.0:
+    resolution: {integrity: sha512-f+jY9I1qAlN4/bM6Cyiob/0W97yGbalp4uoMyHA4gelR0vp0sbusTlPXqRKtedBkq4MbEziAuL+0+STsaphM5Q==}
+
+  eslint-formatter-json@8.40.0:
+    resolution: {integrity: sha512-0bXo4At1EoEU23gFfN7wcDeqRXDHLJnvDOuQKD3Q6FkBlk7L2oVNPYg/sciIWdYrUnCBcKuMit3IWXkdSfzChg==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  eslint-formatter-stylish@8.40.0:
+    resolution: {integrity: sha512-blbD5ZSQnjNEUaG38VCO4WG9nfDQWE8/IOmt8DFRHXUIfZikaIXmsQTdWNFk0/e0j7RgIVRza86MpsJ+aHgFLg==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
   eslint-import-resolver-node@0.3.9:
     resolution: {integrity: sha512-WFj2isz22JahUv+B788TlO3N6zL3nNJGU8CcZbPZvVEkBPaJdCV4vy5wyghty5ROFbCRnm132v8BScu5/1BQ8g==}
@@ -2650,6 +2664,9 @@ packages:
   tempy@3.1.0:
     resolution: {integrity: sha512-7jDLIdD2Zp0bDe5r3D2qtkd1QOCacylBuL7oa4udvN6v2pqr4+LcCr67C8DR1zkpaZ8XosF5m1yQSabKAW6f2g==}
     engines: {node: '>=14.16'}
+
+  text-table@0.2.0:
+    resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
 
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
@@ -4119,6 +4136,19 @@ snapshots:
     dependencies:
       eslint: 9.18.0
 
+  eslint-formatter-gha@1.6.0:
+    dependencies:
+      eslint-formatter-json: 8.40.0
+      eslint-formatter-stylish: 8.40.0
+
+  eslint-formatter-json@8.40.0: {}
+
+  eslint-formatter-stylish@8.40.0:
+    dependencies:
+      chalk: 4.1.2
+      strip-ansi: 6.0.1
+      text-table: 0.2.0
+
   eslint-import-resolver-node@0.3.9:
     dependencies:
       debug: 3.2.7
@@ -5576,6 +5606,8 @@ snapshots:
       temp-dir: 3.0.0
       type-fest: 2.19.0
       unique-string: 3.0.0
+
+  text-table@0.2.0: {}
 
   thenify-all@1.6.0:
     dependencies:

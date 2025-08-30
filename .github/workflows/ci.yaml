@@ -48,9 +48,9 @@ jobs:
           path: |
             node_modules/.cache/prettier
             .prettier-cache
-          key: prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc*') }}
+          key: ${{ runner.os }}-prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc*') }}
           restore-keys: |
-            prettier-
+            ${{ runner.os }}-prettier-
             
       - name: ✨ Run Prettier
         run: pnpm format
@@ -102,16 +102,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .eslintcache
-          key: eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.*', 'package.json') }}
+          key: ${{ runner.os }}-eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.*', 'package.json') }}
           restore-keys: |
-            eslint-
+            ${{ runner.os }}-eslint-
       
       - name: 🔍 Run ESLint
         run: |
-          pnpm exec eslint -f @eslint-formatter-gha .
-          pnpm exec eslint -f json . > eslint-report.json || true
+          pnpm exec eslint --cache -f gha .
+          pnpm exec eslint --cache -f json . > eslint-report.json || true
 
-      - name: 📎 Upload ESLint report (artifact)
+      - name: 📎 Upload ESLint Report
         uses: actions/upload-artifact@v4
         with:
           name: eslint-report
