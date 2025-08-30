@@ -2,37 +2,40 @@
   "name": "lastfm-readme",
   "version": "1.5.0",
   "description": "GitHub Action to dynamically update your GitHub README with Last.fm metrics",
-  "author": "Danny Foster <danny@foster.sh>",
-  "license": "MIT",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "ncc build src/index.ts -o dist",
-    "test": "vitest",
-    "coverage": "vitest --coverage",
-    "lint": "eslint --cache --fix .",
-    "format": "prettier --write --cache .",
-    "types": "tsc --noEmit",
-    "semantic-release": "semantic-release"
-  },
-  "engines": {
-    "node": ">=22.0.0",
-    "pnpm": ">=9.0.0",
-    "npm": "please-use-pnpm",
-    "yarn": "please-use-pnpm"
-  },
   "keywords": [
     "lastfm",
     "actions",
     "readme"
   ],
+  "homepage": "https://github.com/dxnter/lastfm-readme#readme",
+  "bugs": {
+    "url": "https://github.com/dxnter/lastfm-readme/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dxnter/lastfm-readme.git"
   },
-  "bugs": {
-    "url": "https://github.com/dxnter/lastfm-readme/issues"
+  "license": "MIT",
+  "author": "Danny Foster <danny@foster.sh>",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist",
+    "coverage": "vitest --coverage",
+    "format": "prettier --write --cache --cache-location=.prettier-cache \"**/*.{ts,js,md,json,yml}\"",
+    "lint": "eslint --cache --fix .",
+    "semantic-release": "semantic-release",
+    "test": "vitest",
+    "types": "tsc --noEmit"
   },
-  "homepage": "https://github.com/dxnter/lastfm-readme#readme",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "@octokit/core": "^6.0.0",
+    "date-fns": "^4.1.0",
+    "lastfm-typed": "^2.1.0",
+    "ramda": "^0.30.0",
+    "zod": "^3.24.1"
+  },
   "devDependencies": {
     "@eslint/compat": "^1.2.5",
     "@eslint/eslintrc": "^3.2.0",
@@ -59,25 +62,17 @@
     "eslint-plugin-unicorn": "^56.0.0",
     "globals": "^15.14.0",
     "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^4.2.0",
+    "prettier-plugin-packagejson": "^2.5.19",
     "semantic-release": "^24.0.0",
     "semantic-release-major-tag": "^0.3.0",
     "typescript": "^5.0.0",
     "vitest": "^3.0.0"
   },
-  "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.0",
-    "@octokit/core": "^6.0.0",
-    "date-fns": "^4.1.0",
-    "lastfm-typed": "^2.1.0",
-    "ramda": "^0.30.0",
-    "zod": "^3.24.1"
-  },
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "all",
-    "semi": true,
-    "printWidth": 80,
-    "tabWidth": 2
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": "please-use-pnpm",
+    "pnpm": ">=9.0.0",
+    "yarn": "please-use-pnpm"
   }
 }

@@ -1,0 +1,70 @@
+name: 🔁 CI
+
+on:
+  pull_request: 
+    branches: [ main ]
+    
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-format:
+    name: 🔍 Lint and Format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: ${{ github.head_ref }}
+          
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: 📷 pnpm Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: 💾 Install pnpm Dependencies
+        run: |
+          pnpm install --frozen-lockfile --prefer-offline
+          
+      - name: 📷 Prettier Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.cache/prettier
+            .prettier-cache
+          key: prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc') }}
+          restore-keys: |
+            prettier-${{ hashFiles('package.json', 'pnpm-lock.yaml', '.prettierrc') }}-
+            prettier-
+            
+      - name: ✨ Run Prettier
+        run: pnpm format
+        
+      - name: 🔍 Check for Uncommitted Changes
+        id: file-changes
+        run: echo "changes=$(if git diff --quiet; then echo 'false'; else echo 'true'; fi)" >> $GITHUB_OUTPUT
+        
+      - name: 📝 Auto-Commit Code Style Fixes
+        if: steps.file-changes.outputs.changes == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: 'ci: apply code style fixes'
+

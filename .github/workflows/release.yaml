@@ -1,4 +1,4 @@
-name: Release
+name: 🚀 Release
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
       contents: write
 
     steps:
-      - name: 🛎️ Checkout repository
+      - name: 📂 Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -23,29 +23,21 @@ jobs:
         with:
           version: 9
 
-      - name: 🛠️ Setup Node.js
+      - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: '.nvmrc'
           cache: pnpm
 
-      - name: 💾 Restore cached dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      - name: 📥 Install dependencies
+      - name: 💾 Install pnpm Dependencies
         run: pnpm install --frozen-lockfile
         continue-on-error: false
 
-      - name: 🏗️ Build package
+      - name: 🏗️ Build
         run: pnpm build
         continue-on-error: false
 
-      - name: 🚀 Release package
+      - name: 🚀 Release
         run: pnpm semantic-release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
