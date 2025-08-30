@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   codeql:
-    name: 🛡️ CodeQL Analysis
+    name: 🛡️ CodeQL
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

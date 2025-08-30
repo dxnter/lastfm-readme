@@ -78,7 +78,11 @@ jobs:
       - name: 🔁 Setup Environment
         uses: ./.github/actions/common-setup
         
-      - name: 📄 TypeScript Report
-        uses: andoshin11/typescript-error-reporter-action@v1.0.2
+      - name: 📄 Compile TypeScript
+        run: |
+          TSC_EXIT=0
+          pnpm exec tsc --noEmit || TSC_EXIT=$?
+          pnpm exec tsc --noEmit --pretty false --outFile tsc-report.txt || true
+          exit $TSC_EXIT
     
 
