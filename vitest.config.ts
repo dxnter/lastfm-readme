@@ -9,12 +9,7 @@ export default defineConfig({
     globals: true,
     coverage: {
       provider: 'v8',
-      reporter: [
-        'text',
-        'json',
-        'json-summary',
-        'html',
-      ],
+      reporter: ['text', 'json', 'json-summary', 'html'],
       reportOnFailure: true,
       exclude: ['node_modules/', 'dist/', 'coverage/', '**/*.d.ts'],
       thresholds: {
@@ -26,11 +21,7 @@ export default defineConfig({
         },
       },
     },
-    reporters: [
-      'default',
-      'github-actions',
-      ['junit', { outputFile: 'reports/junit.xml' }],
-    ],
+    reporters: ['default', 'github-actions'],
     setupFiles: ['./tests/setup.ts'],
     testTimeout: 10_000,
   },

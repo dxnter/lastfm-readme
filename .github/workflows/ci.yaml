@@ -51,19 +51,7 @@ jobs:
         uses: ./.github/actions/common-setup
       
       - name: 🔍 Run ESLint
-        run: |
-          ESLINT_EXIT=0
-          pnpm exec eslint --cache -f gha . || ESLINT_EXIT=$?
-          pnpm exec eslint --cache -f json . > eslint-report.json || true
-          exit $ESLINT_EXIT
-
-      - name: 📎 Upload ESLint Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: eslint-report
-          path: eslint-report.json
-          if-no-files-found: ignore
-          retention-days: 7
+        run: pnpm exec eslint --cache -f gha . || true
           
   types:
     name: 🧩 Type Check
@@ -115,42 +103,65 @@ jobs:
           if [ "$ERROR_COUNT" -gt 0 ]; then
             exit 1
           fi
-              
-      - name: 📎 Upload TypeScript Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tsc-report
-          path: tsc-report.txt
-          retention-days: 7
-          
+
   tests:
     name: 🧪 Tests
     needs: [format, lint, types]
     runs-on: ubuntu-latest
-    
+    strategy: 
+      matrix:
+        include:
+          - branch: main
+            artifact: main
+          - branch: ${{ github.head_ref }}
+            artifact: pull-request
+            
+    permissions:
+      contents: read
+      
     steps:
       - name: 📂 Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
-          
+          ref: ${{ matrix.branch }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}      
+      
       - name: 🔁 Setup Environment
         uses: ./.github/actions/common-setup
         
       - name: 🧪 Vitest
         run: pnpm vitest run
         
-      - name: 🧾 Test Report
-        uses: dorny/test-reporter@v2
-        if: always()
+      - name: 📤 Upload Coverage
+        uses: actions/upload-artifact@v4
         with:
-          name: Vitest
-          path: reports/junit.xml
-          reporter: java-junit    
-          use-actions-summary: true
+          name: coverage-${{ matrix.artifact }}
+          path: coverage
+  
+  report-coverage:
+    name: 📊 Report Coverage
+    needs: tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}  
+            
+      - name: 📥 Download Pull Request Coverage Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-pull-request
+          path: coverage
 
-      - name: 🧾 Coverage Report
-        if: always()
+      - name: 📥 Download Main Branch Coverage Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-main
+          path: coverage-main
+          
+      - name: 📊 Report Coverage
         uses: davelosert/vitest-coverage-report-action@v2
-
+        with:
+          json-summary-compare-path: coverage-main/coverage-summary.json
