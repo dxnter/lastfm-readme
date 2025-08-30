@@ -78,11 +78,50 @@ jobs:
       - name: 🔁 Setup Environment
         uses: ./.github/actions/common-setup
         
-      - name: 📄 Compile TypeScript
+      - name: ➕ Add Matcher
+        run: echo "::add-matcher::.github/tsc-problem-matcher.json"
+        
+      - name: ⚙️ Compile TypeScript
         run: |
-          TSC_EXIT=0
-          pnpm exec tsc --noEmit || TSC_EXIT=$?
-          pnpm exec tsc --noEmit --pretty false --outFile tsc-report.txt || true
-          exit $TSC_EXIT
+          set -o pipefail
+          pnpm exec tsc --noEmit --pretty false --listFiles false | tee tsc-report.txt
+          
+      - name: 🧾 TypeScript Summary
+        if: always()
+        run: |
+          ERRORS=$(grep -cE "(error|warning) TS[0-9]+" tsc-report.txt || true)
+          ERROR_COUNT=$(grep -cE "error TS[0-9]+" tsc-report.txt || true)
+          WARNING_COUNT=$(grep -cE "warning TS[0-9]+" tsc-report.txt || true)
+          
+          {
+            echo "## 🧩 Type Check Summary"
+            echo "- Errors: **$ERROR_COUNT**"
+            echo "- Warnings: **$WARNING_COUNT**"
+            echo ""
+            
+            if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
+              echo "<details><summary>📋 First 50 lines of output</summary>"
+              echo ""
+              echo '```'
+              head -n 50 tsc-report.txt
+              echo '```'
+              echo ""
+              echo "</details>"
+            else
+              echo "✅ **No issues found!**"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+            
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+          exit 1
+          fi
+              
+      - name: 📎 Upload TypeScript Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tsc-report
+          path: tsc-report.txt
+          retention-days: 7
     
 
