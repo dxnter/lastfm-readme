@@ -151,7 +151,6 @@ jobs:
           use-actions-summary: true
 
       - name: 🧾 Coverage Report
-        uses: dorny/test-reporter@v2
         if: always()
         uses: davelosert/vitest-coverage-report-action@v2
 
