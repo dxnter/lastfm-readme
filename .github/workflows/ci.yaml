@@ -64,4 +64,24 @@ jobs:
           path: eslint-report.json
           if-no-files-found: ignore
           retention-days: 7
+          
+  types:
+    name: 🧩 Type Check
+    needs: lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          
+      - name: 🔁 Setup Environment
+        uses: ./.github/actions/common-setup
+        
+      - name: 📄 TypeScript Report
+        uses: fersilva16/ts-report-action@1.1.0
+        with:
+          project: tsconfig.json
+    
 
