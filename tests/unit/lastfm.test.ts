@@ -385,5 +385,76 @@ describe('last.fm integration', () => {
 
       expect(result.playcount).toBe('12.345');
     });
+
+    it('should handle UserInfo schema validation errors', async () => {
+      const mockUserInfo = {
+        registered: 'invalid-date-string',
+        playcount: 'not-a-number-string',
+        artistCount: 'invalid-artist-count',
+      };
+
+      const mockLastFM = {
+        user: {
+          getInfo: vi.fn().mockResolvedValue(mockUserInfo),
+        },
+      };
+
+      vi.mocked(LastFMTyped).mockImplementation(
+        () => mockLastFM as unknown as LastFMTyped,
+      );
+
+      const userInfoSection: Section = {
+        ...mockSection,
+        name: SectionName.USER_INFO,
+        config: {
+          display: [
+            ConfigUserInfoDisplayOption.registered,
+            ConfigUserInfoDisplayOption.playcount,
+            ConfigUserInfoDisplayOption.artistCount,
+          ],
+        },
+      };
+
+      await expect(
+        getLastFMData('UserInfo', mockInput, userInfoSection),
+      ).rejects.toThrow('Failed to fetch user info');
+    });
+
+    it('should fetch top albums with specific config parameters', async () => {
+      const mockAlbums = {
+        albums: [
+          {
+            name: 'Test Album',
+            artist: { name: 'Test Artist', url: 'https://test.com' },
+            url: 'https://test-album.com',
+            playcount: 25,
+          },
+        ],
+      };
+
+      const mockLastFM = {
+        user: {
+          getTopAlbums: vi.fn().mockResolvedValue(mockAlbums),
+        },
+      };
+
+      vi.mocked(LastFMTyped).mockImplementation(
+        () => mockLastFM as unknown as LastFMTyped,
+      );
+
+      const albumSection: Section = {
+        ...mockSection,
+        name: SectionName.ALBUMS,
+        config: { rows: 10, period: '1month' as ConfigTimePeriod },
+      };
+
+      const result = await getLastFMData('TopAlbums', mockInput, albumSection);
+
+      expect(mockLastFM.user.getTopAlbums).toHaveBeenCalledWith('test-user', {
+        limit: 10,
+        period: '1month',
+      });
+      expect(result).toEqual(mockAlbums);
+    });
   });
 });

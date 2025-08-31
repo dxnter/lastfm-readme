@@ -108,6 +108,41 @@ Some content`;
         StartTagWithoutEndTagError,
       );
     });
+
+    it('should handle nested section processing correctly', () => {
+      const readme = `<!--START_LASTFM_RECENT-->
+Line 1
+Line 2
+<!--END_LASTFM_RECENT-->`;
+
+      const sections = getSectionsFromReadme('LASTFM_RECENT', readme);
+
+      expect(sections).toHaveLength(1);
+      expect(sections![0]?.content).toEqual(['Line 1', 'Line 2']);
+      expect(sections![0]?.end).toBe('<!--END_LASTFM_RECENT-->');
+    });
+
+    it('should initialize sections with empty end and content arrays', () => {
+      const readme = `Before section
+<!--START_LASTFM_ARTISTS:{"period":"1month"}-->
+Content line 1
+Content line 2
+<!--END_LASTFM_ARTISTS-->
+After section`;
+
+      const sections = getSectionsFromReadme('LASTFM_ARTISTS', readme);
+
+      expect(sections).toHaveLength(1);
+      expect(sections![0]?.start).toBe(
+        '<!--START_LASTFM_ARTISTS:{"period":"1month"}-->',
+      );
+      expect(sections![0]?.end).toBe('<!--END_LASTFM_ARTISTS-->');
+      expect(sections![0]?.content).toEqual([
+        'Content line 1',
+        'Content line 2',
+      ]);
+      expect(sections![0]?.config.period).toBe('1month');
+    });
   });
 
   describe('formatSectionData', () => {
