@@ -1,0 +1,8 @@
+{
+  "name": "ARTISTS",
+  "start": "<!--START_LASTFM_ARTISTS-->",
+  "end": "<!--END_LASTFM_ARTISTS-->",
+  "content": [],
+  "currentSection": "",
+  "config": { "rows": 3, "period": "7day" }
+}

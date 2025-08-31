@@ -21,7 +21,7 @@ import {
 /**
  * Enum representing possible section names.
  */
-enum SectionName {
+export enum SectionName {
   RECENT = 'RECENT',
   TRACKS = 'TRACKS',
   ARTISTS = 'ARTISTS',
@@ -222,7 +222,7 @@ export const formatSectionData = (
 };
 
 /**
- * Generate a markdown chart for a section.
+ * Generate a Markdown chart for a section.
  *
  * @returns An updated Markdown chart surrounded by the section start and end comments.
  */
@@ -234,9 +234,10 @@ export function generateMarkdownSection(
 ) {
   core.debug(`🔧 Generating ${section.name} section for ${section.start}`);
 
-  const chartTitle = input.show_title
-    ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
-    : '';
+  const chartTitle =
+    input.show_title === 'true'
+      ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
+      : '';
 
   return `${section.start}${chartTitle}
 ${content}

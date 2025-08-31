@@ -1,0 +1,168 @@
+name: CI
+
+on:
+  pull_request: 
+    branches: [ main ]
+    
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: 🎨 Format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: ${{ github.head_ref }}
+          
+      - name: 🔁 Setup Environment
+        uses: ./.github/actions/common-setup
+            
+      - name: ✨ Run Prettier
+        run: pnpm format
+        
+      - name: 🔍 Check for Uncommitted Changes
+        id: file-changes
+        run: echo "changes=$(if git diff --quiet; then echo 'false'; else echo 'true'; fi)" >> $GITHUB_OUTPUT
+        
+      - name: 📝 Auto-Commit Code Style Fixes
+        if: steps.file-changes.outputs.changes == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: 'ci: apply code style fixes'
+          
+  lint:
+    name: 🔍 Lint
+    needs: format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: 🔁 Setup Environment
+        uses: ./.github/actions/common-setup
+      
+      - name: 🔍 Run ESLint
+        run: pnpm exec eslint --cache -f gha . || true
+          
+  types:
+    name: 🧩 Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          
+      - name: 🔁 Setup Environment
+        uses: ./.github/actions/common-setup
+        
+      - name: ➕ Add Matcher
+        run: echo "::add-matcher::.github/tsc-problem-matcher.json"
+        
+      - name: ⚙️ Compile TypeScript
+        run: |
+          set -o pipefail
+          pnpm exec tsc --noEmit --pretty false --listFiles false | tee tsc-report.txt
+          
+      - name: 🧾 TypeScript Summary
+        if: always()
+        run: |
+          ERRORS=$(grep -cE "(error|warning) TS[0-9]+" tsc-report.txt || true)
+          ERROR_COUNT=$(grep -cE "error TS[0-9]+" tsc-report.txt || true)
+          WARNING_COUNT=$(grep -cE "warning TS[0-9]+" tsc-report.txt || true)
+          
+          {
+            echo "## 🧩 Type Check Summary"
+            echo "- Errors: **$ERROR_COUNT**"
+            echo "- Warnings: **$WARNING_COUNT**"
+            echo ""
+            
+            if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
+              echo "<details><summary>📋 First 50 lines of output</summary>"
+              echo ""
+              echo '```'
+              head -n 50 tsc-report.txt
+              echo '```'
+              echo ""
+              echo "</details>"
+            else
+              echo "✅ **No issues found!**"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+            
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            exit 1
+          fi
+
+  tests:
+    name: 🧪 Tests
+    needs: [format, lint, types]
+    runs-on: ubuntu-latest
+    strategy: 
+      matrix:
+        include:
+#          - branch: main
+#            artifact: main
+          - branch: ${{ github.head_ref }}
+            artifact: pull-request
+            
+    permissions:
+      contents: read
+      
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}      
+      
+      - name: 🔁 Setup Environment
+        uses: ./.github/actions/common-setup
+        
+      - name: 🧪 Vitest
+        run: pnpm vitest run
+        
+      - name: 📤 Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.artifact }}
+          path: coverage
+          
+  
+#  report-coverage:
+#    name: 📊 Report Coverage
+#    needs: tests
+#    runs-on: ubuntu-latest
+#    
+#    steps:
+#      - name: 📂 Checkout Repository
+#        uses: actions/checkout@v4
+#        with:
+#          ref: ${{ github.head_ref }}  
+#            
+#      - name: 📥 Download Pull Request Coverage Artifact
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: coverage-pull-request
+#          path: coverage
+#
+#      - name: 📥 Download Main Branch Coverage Artifact
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: coverage-main
+#          path: coverage-main
+#          
+#      - name: 📊 Report Coverage
+#        uses: davelosert/vitest-coverage-report-action@v2
+#        with:
+#          json-summary-compare-path: coverage-main/coverage-summary.json

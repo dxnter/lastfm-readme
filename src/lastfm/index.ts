@@ -119,12 +119,9 @@ const lastFMDataMethods = {
           .optional(),
       });
 
-      const parsedInfo = UserInfoSchema.safeParse(filteredInfo);
-      if (!parsedInfo.success) {
-        throw new Error(parsedInfo.error.message);
-      }
+      const parsedInfo = UserInfoSchema.parse(filteredInfo);
 
-      return R.fromPairs(Object.entries(parsedInfo.data));
+      return R.fromPairs(Object.entries(parsedInfo));
     } catch (error) {
       throw new Error(`Failed to fetch user info: ${(error as Error).message}`);
     }

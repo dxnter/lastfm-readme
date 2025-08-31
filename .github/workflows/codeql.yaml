@@ -1,11 +1,23 @@
 name: CodeQL
 
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 1'
   workflow_dispatch:
 
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  CodeGL:
+  codeql:
+    name: 🛡️ CodeQL
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       actions: read
       contents: read
@@ -17,16 +29,21 @@ jobs:
         language: ['typescript']
 
     steps:
-      - name: 🛎️ Checkout repository
+      - name: 📂 Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 🛠️ Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
 
-      - name: ⚙️ Autobuild project
+      - name: ⚙️ Build Project
         uses: github/codeql-action/autobuild@v3
 
       - name: 🔍 Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{matrix.language}}'
