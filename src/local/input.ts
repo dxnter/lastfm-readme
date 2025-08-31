@@ -1,6 +1,6 @@
 import path from 'node:path';
+import { loadEnvFile } from 'node:process';
 
-import { config as dotenvConfig } from 'dotenv';
 import { z } from 'zod';
 
 import { InvalidInputError } from '../error';
@@ -10,7 +10,7 @@ import type { LocalConfig, LocalInput } from './types';
 const LocalInputSchema = z.object({
   LASTFM_API_KEY: z.string().min(1, 'LASTFM_API_KEY is required'),
   LASTFM_USER: z.string().min(1, 'LASTFM_USER is required'),
-  README_PATH: z.string().optional().default('./README.md'),
+  README_PATH: z.string().optional().default('local/README.md'),
   SHOW_TITLE: z.string().optional().default('true'),
   LOCALE: z.string().optional().default('en-US'),
   DATE_FORMAT: z.string().optional().default('MM/dd/yyyy'),
@@ -23,11 +23,11 @@ const LocalInputSchema = z.object({
 export function parseLocalInput(): LocalConfig {
   console.log('🔍 Loading local environment configuration...');
 
-  const result = dotenvConfig();
-  if (result.error) {
-    console.warn('⚠️ No .env file found, using environment variables');
-  } else {
+  try {
+    loadEnvFile('.env');
     console.log('✅ Loaded .env file');
+  } catch {
+    console.warn('⚠️ No .env file found, using environment variables');
   }
 
   const environmentValidation = LocalInputSchema.safeParse(process.env);

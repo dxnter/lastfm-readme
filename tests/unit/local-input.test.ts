@@ -1,11 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/unbound-method */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { convertToGithubActionInput, parseLocalInput } from '../../src/local';
 
-vi.mock('dotenv', () => ({
-  config: vi.fn(() => ({ error: undefined })),
-}));
+vi.mock('node:process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:process')>();
+  return {
+    ...actual,
+    loadEnvFile: vi.fn(),
+  };
+});
 
 describe('local input parsing', () => {
   const originalEnvironment = process.env;
@@ -35,7 +39,7 @@ describe('local input parsing', () => {
 
       const config = parseLocalInput();
 
-      expect(config.input.readme_path).toBe('./README.md');
+      expect(config.input.readme_path).toBe('local/README.md');
       expect(config.input.show_title).toBe('true');
       expect(config.input.locale).toBe('en-US');
       expect(config.input.date_format).toBe('MM/dd/yyyy');
@@ -139,10 +143,13 @@ describe('local input parsing', () => {
     });
   });
 
-  describe('dotenv integration', () => {
+  describe('native environment loading', () => {
     it('should handle missing .env file gracefully', async () => {
-      const { config } = await import('dotenv');
-      (config as any).mockReturnValue({ error: new Error('File not found') });
+      const { loadEnvFile } = await import('node:process');
+
+      (loadEnvFile as any).mockImplementation(() => {
+        throw new Error('ENOENT: no such file or directory');
+      });
 
       process.env.LASTFM_API_KEY = 'test-key';
       process.env.LASTFM_USER = 'testuser';
@@ -151,8 +158,11 @@ describe('local input parsing', () => {
     });
 
     it('should load .env file successfully', async () => {
-      const { config } = await import('dotenv');
-      (config as any).mockReturnValue({ error: undefined });
+      const { loadEnvFile } = await import('node:process');
+
+      (loadEnvFile as any).mockImplementation(() => {
+        // Simulate successful loading
+      });
 
       process.env.LASTFM_API_KEY = 'test-key';
       process.env.LASTFM_USER = 'testuser';
