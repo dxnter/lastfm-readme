@@ -1,178 +1,393 @@
-<div align="center"><img src="./static/images/readme-hero.png" alt="lastfm-readme branding hero" width="700px"></div>
 <div align="center">
-
-# GitHub README Last.fm Metrics
-
-Dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.
-
-[![MIT][license.badge]][license] [![github.release.badge]][github.release]
-
+  <img src="./static/images/readme-hero.png" alt="lastfm-readme branding hero" width="700px">
+  
+  # 🎵 Last.fm README GitHub Action
+  
+  **Dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.**
+  
+  [![MIT License][license.badge]][license]
+  [![GitHub Release][github.release.badge]][github.release]
 </div>
 
-<div align="center"><img src="./static/images/readme-preview.png" alt="lastfm-readme preview output" height="300"></div>
+<div align="center">
+  <img src="./static/images/readme-preview.png" alt="lastfm-readme preview output" height="300">
+</div>
 
-## ⚡ Usage
+## 🚀 Quick Start
 
-### Preparation
+> [!TIP]
+> **New to GitHub Actions?** Check out the [GitHub Actions documentation](https://docs.github.com/en/actions) to get started.
 
-#### <ins>Last.fm API Key</ins>
+### 🔧 Setup
 
-Create a [Last.fm API account](https://www.last.fm/api/account/create) if you don't have one to receive an **API Key**.
+#### 🎵 Last.fm API Key
 
-#### <ins>Save GitHub Action Secrets</ins>
+1. **Create a Last.fm API account**: Visit [Last.fm API](https://www.last.fm/api/account/create)
+2. **Get your API key**: You'll receive an API key immediately after account creation
+3. **Save your API key**: You'll need this for the next step
 
-Navigate to your repositories `Settings → Secrets and variables → Actions → New repository secret` to add the following secrets:
+> [!WARNING]
+> Keep your API key secure and never commit it directly to your repository.
 
-|       Name       |                        Value                        |
-| :--------------: | :-------------------------------------------------: |
-| `LASTFM_API_KEY` |             A valid **Last.fm API Key**             |
-|   `GH_TOKEN`\*   | A GitHub Access Token with the `repo` scope granted |
+#### 🔒 Configure Repository Secrets
 
-> \* `GH_TOKEN` is only required when the intention is to modify a `README.md` file in a repository outside where the workflow is running.
+**Step 1**: Navigate to your repository's secrets:
 
-#### <ins>Update the workflow permissions on your repository</ins>
+```
+Your Repository → Settings → Secrets and variables → Actions → New repository secret
+```
 
-Navigate to your repositories `Settings → Actions → General → Workflow permissions` and select the **Read and write permissions** option.
+**Step 2**: Add the required secrets:
 
-![workflow-permissions.png](./static/images/workflow-permissions.png)
+<table>
+<thead>
+<tr><th width="200px">Secret Name</th><th>Description</th><th>Required</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LASTFM_API_KEY</code></td>
+<td>Your Last.fm API key from the previous step</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><code>GH_TOKEN</code></td>
+<td>GitHub Personal Access Token with <code>repo</code> scope<br/><small><em>Only needed for cross-repository updates</em></small></td>
+<td>⚠️ Conditional</td>
+</tr>
+</tbody>
+</table>
 
-#### <ins>Add chart HTML comments to your README</ins>
+#### ⚙️ Configure Workflow Permissions
 
-The `README.md` file must contain HTML comments that identify where the charts should be inserted. Commonly, a [profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme) is used to host the `README.md` file.
+> [!IMPORTANT]
+> This step is crucial for the action to update your README file.
 
-> **Note**<br/>
-> See the [Charts](#-charts) section for configuration details.
+**Path**: `Settings → Actions → General → Workflow permissions`
 
-### Example Workflow
+**Setting**: Select **"Read and write permissions"**
+
+<div align="center">
+  <img src="./static/images/workflow-permissions.png" alt="Workflow permissions configuration" width="500">
+</div>
+
+#### 📝 Add Section Markers to Your README
+
+Add HTML comments to your `README.md` where you want your Last.fm data to appear:
+
+```html
+<!-- Add this where you want your music stats -->
+<!--START_LASTFM_ARTISTS-->
+<!--END_LASTFM_ARTISTS-->
+
+<!--START_LASTFM_RECENT-->
+<!--END_LASTFM_RECENT-->
+```
+
+### 💼 Create Your Workflow
+
+Create `.github/workflows/lastfm.yml` in your repository:
 
 ```yaml
-name: Last.fm Charts
+name: 🎵 Update Last.fm Stats
 
 on:
-  workflow_dispatch: # Allow manual triggering of workflow
+  # Run automatically every 6 hours
   schedule:
-    # Run every 6 hours
     - cron: '0 */6 * * *'
 
+  # Allow manual runs
+  workflow_dispatch:
+
+  # Run on push to main (optional)
+  push:
+    branches: [main]
+
 jobs:
-  lastfm-metrics:
-    name: Update Last.fm Charts
+  update-lastfm:
+    name: 🎤 Update Music Stats
     runs-on: ubuntu-latest
+
     steps:
-      - uses: dxnter/lastfm-readme@v1
+      - name: 🎵 Update Last.fm README
+        uses: dxnter/lastfm-readme@v1.5.0 # Use latest version
         with:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_USER: dxnter
-          # The following inputs below are only required when the intention is to modify a README.md file in a repository outside where the workflow is running
-          #GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          #REPOSITORY: <gh_username/gh_username>
+          LASTFM_USER: your-lastfm-username # Replace with your username!
+
+          # Optional: Customize the commit message
+          COMMIT_MESSAGE: '🎵 Updated music stats'
+
+          # Optional: For cross-repository updates
+          # GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          # REPOSITORY: username/username
 ```
 
-### Inputs
+<details>
+<summary><strong>⏰ Scheduling Examples</strong></summary>
+<br>
 
-|     Setting      |             Default              |                                   Accepted Values                                   |                        Description                        |
-| :--------------: | :------------------------------: | :---------------------------------------------------------------------------------: | :-------------------------------------------------------: |
-| `LASTFM_API_KEY` |               N/A                |                                   Last.fm API Key                                   |                A valid **Last.fm API Key**                |
-|  `LASTFM_USER`   |               N/A                |                                  Last.fm username                                   |          The Last.fm user to fetch metrics from           |
-|    `GH_TOKEN`    |      `${{ github.token }}`       |                                 GitHub access token                                 |      An access token with the `repo` scope granted.       |
-|   `REPOSITORY`   |  `<gh_username>/<gh_username>`   |                             `<gh_username>/<repo_name>`                             | Repository that should have the `README.md` file updated. |
-| `COMMIT_MESSAGE` | `chore: update Last.fm sections` |                                     Any string                                      |       Commit message used when sections are updated       |
-|   `SHOW_TITLE`   |              `true`              |                                  `true` / `false`                                   |           Toggle the title shown above sections           |
-|     `LOCALE`     |             `en-US`              | [BCP 47 tag](https://gist.github.com/raushankrjha/d1c7e35cf87e69aa8b4208a8171a8416) |            Locale used for formatting numbers             |
-|  `DATE_FORMAT`   |           `MM/dd/yyyy`           |    [date-fns date format](https://date-fns.org/v1.29.0/docs/format#description)     |       Date format used in the **User Info** section       |
+| Frequency         | Cron Expression |
+| ----------------- | --------------- |
+| Every hour        | `0 * * * *`     |
+| Every 6 hours     | `0 */6 * * *`   |
+| Daily at midnight | `0 0 * * *`     |
+| Weekly            | `0 0 * * 0`     |
 
-## 📊 Charts
+For different scheduling needs, refer to the [crontab.guru](https://crontab.guru/) website.
 
-All charts are identified by HTML comments that contain a valid chart name and an **optional** JSON configuration object followed by a closing HTML comment.
+</details>
+
+## ⚙️ Configuration
+
+### 📥 Input Parameters
+
+<table>
+<thead>
+<tr>
+<th width="150px">Parameter</th>
+<th width="120px">Required</th>
+<th width="150px">Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LASTFM_API_KEY</code></td>
+<td><strong>✅ Yes</strong></td>
+<td>—</td>
+<td>Your Last.fm API key</td>
+</tr>
+<tr>
+<td><code>LASTFM_USER</code></td>
+<td><strong>✅ Yes</strong></td>
+<td>—</td>
+<td>Last.fm username to fetch data for</td>
+</tr>
+<tr>
+<td><code>GH_TOKEN</code></td>
+<td>🔶 Optional</td>
+<td><code>${{ github.token }}</code></td>
+<td>GitHub token for cross-repo updates</td>
+</tr>
+<tr>
+<td><code>REPOSITORY</code></td>
+<td>🔶 Optional</td>
+<td>Current repository</td>
+<td>Target repository (<code>owner/repo</code>)</td>
+</tr>
+<tr>
+<td><code>COMMIT_MESSAGE</code></td>
+<td>🔶 Optional</td>
+<td><code>chore: update Last.fm sections</code></td>
+<td>Custom commit message</td>
+</tr>
+<tr>
+<td><code>SHOW_TITLE</code></td>
+<td>🔶 Optional</td>
+<td><code>true</code></td>
+<td>Show section titles with Last.fm logo</td>
+</tr>
+<tr>
+<td><code>LOCALE</code></td>
+<td>🔶 Optional</td>
+<td><code>en-US</code></td>
+<td><a href="https://gist.github.com/raushankrjha/d1c7e35cf87e69aa8b4208a8171a8416">BCP 47 locale</a> for number formatting</td>
+</tr>
+<tr>
+<td><code>DATE_FORMAT</code></td>
+<td>🔶 Optional</td>
+<td><code>MM/dd/yyyy</code></td>
+<td><a href="https://date-fns.org/v1.29.0/docs/format#description">date-fns format</a> for dates</td>
+</tr>
+</tbody>
+</table>
+
+## 📊 Available Sections
+
+> [!NOTE]
+> Each section is defined by HTML comment markers with optional JSON configuration for customization.
+
+### 🎯 Basic Usage
 
 ```html
-Chart with the default configuration (period: "7day", rows: 8)
-<!--START_LASTFM_...-->
-<!--END_LASTFM_...-->
-
-Chart with a custom configuration
-<!--START_LASTFM_...:{"period": "overall", "rows": 3}-->
-<!--END_LASTFM_...-->
-```
-
-### 🎤️ Top Artists
-
-Display the top listened to artists over a given period of time.
-
-#### <ins>Example</ins>
-
-```html
-<!--START_LASTFM_ARTISTS:{"period": "6month", "rows": 3}-->
+<!-- Default configuration -->
+<!--START_LASTFM_ARTISTS-->
 <!--END_LASTFM_ARTISTS-->
 ```
 
-#### <ins>Output</ins>
+### 🛠️ Advanced Configuration
+
+```html
+<!-- Custom configuration with JSON -->
+<!--START_LASTFM_ARTISTS:{"period": "overall", "rows": 3}-->
+<!--END_LASTFM_ARTISTS-->
+```
+
+<details>
+<summary><strong>💡 Configuration Tips</strong></summary>
+<br>
+
+- **JSON must be valid**: Use double quotes for keys and string values
+- **No spaces**: Keep the configuration compact
+- **Multiple sections**: You can use the same section type multiple times with different configs
+
+**Example of multiple artist sections:**
+
+```html
+<!-- This week's top artists -->
+<!--START_LASTFM_ARTISTS:{"period": "7day", "rows": 5}-->
+<!--END_LASTFM_ARTISTS-->
+
+<!-- All-time favorites -->
+<!--START_LASTFM_ARTISTS:{"period": "overall", "rows": 3}-->
+<!--END_LASTFM_ARTISTS-->
+```
+
+</details>
+
+---
+
+### 🎤 Top Artists
+
+Display the top listened to albums over a given period of time.
+
+#### 🖼️ Preview
 
 ![top-artists.png](./static/images/top-artists.png)
 
-#### <ins>Configuration</ins>
+#### 💻 Usage Examples
 
-|  Option  | Default |                          Options                           |               Description               |
-| :------: | :-----: | :--------------------------------------------------------: | :-------------------------------------: |
-| `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
-|  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |    The number of artists to display     |
+```html
+<!-- Default: Top 8 artists from the past week -->
+<!--START_LASTFM_ARTISTS-->
+<!--END_LASTFM_ARTISTS-->
+
+<!-- Custom: Top 5 artists from the past 6 months -->
+<!--START_LASTFM_ARTISTS:{"period": "6month", "rows": 5}-->
+<!--END_LASTFM_ARTISTS-->
+
+<!-- All-time favorites -->
+<!--START_LASTFM_ARTISTS:{"period": "overall", "rows": 10}-->
+<!--END_LASTFM_ARTISTS-->
+```
+
+#### ⚙️ Configuration Options
+
+<table>
+<thead>
+<tr><th>Option</th><th>Type</th><th>Default</th><th>Options</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>period</code></td>
+<td>string</td>
+<td><code>7day</code></td>
+<td><code>7day</code>, <code>1month</code>, <code>3month</code>, <code>6month</code>, <code>12month</code>, <code>overall</code></td>
+<td>Time period for data aggregation</td>
+</tr>
+<tr>
+<td><code>rows</code></td>
+<td>number</td>
+<td><code>8</code></td>
+<td><code>1-50</code></td>
+<td>Number of artists to display</td>
+</tr>
+</tbody>
+</table>
 
 ### 💿 Top Albums
 
 Display the top listened to albums over a given period of time.
 
-#### <ins>Example</ins>
-
-```html
-<!--START_LASTFM_ALBUMS:{"period": "1month", "rows": 3}-->
-<!--END_LASTFM_ALBUMS-->
-```
-
-#### <ins>Output</ins>
+#### 🖼️ Preview
 
 ![top-albums.png](./static/images/top-albums.png)
 
-#### <ins>Configuration</ins>
+#### 💻 Usage Examples
 
-|  Option  | Default |                          Options                           |               Description               |
-| :------: | :-----: | :--------------------------------------------------------: | :-------------------------------------: |
-| `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
-|  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |     The number of albums to display     |
+```html
+<!-- This month's top albums -->
+<!--START_LASTFM_ALBUMS:{"period": "1month", "rows": 5}-->
+<!--END_LASTFM_ALBUMS-->
+
+<!-- All-time classic albums -->
+<!--START_LASTFM_ALBUMS:{"period": "overall", "rows": 3}-->
+<!--END_LASTFM_ALBUMS-->
+```
+
+#### ⚙️ Configuration Options
+
+<table>
+<thead>
+<tr><th>Option</th><th>Type</th><th>Default</th><th>Options</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>period</code></td>
+<td>string</td>
+<td><code>7day</code></td>
+<td><code>7day</code>, <code>1month</code>, <code>3month</code>, <code>6month</code>, <code>12month</code>, <code>overall</code></td>
+<td>Time period for data aggregation</td>
+</tr>
+<tr>
+<td><code>rows</code></td>
+<td>number</td>
+<td><code>8</code></td>
+<td><code>1-50</code></td>
+<td>Number of albums to display</td>
+</tr>
+</tbody>
+</table>
 
 ### 🎵 Top Tracks
 
 Display the top listened to tracks over a given period of time.
 
-#### <ins>Example</ins>
-
-```html
-<!--START_LASTFM_TRACKS:{"period": "1month", "rows": 3}-->
-<!--END_LASTFM_TRACKS-->
-```
-
-#### <ins>Output</ins>
+#### 🖼️ Preview
 
 ![top-tracks.png](./static/images/top-tracks.png)
 
-#### <ins>Configuration</ins>
+#### 💻 Usage Examples
 
-|  Option  | Default |                          Options                           |               Description               |
-| :------: | :-----: | :--------------------------------------------------------: | :-------------------------------------: |
-| `period` | `7day`  | `7day`, `1month`, `3month`, `6month`, `12month`, `overall` | The period of time to display data from |
-|  `rows`  |   `8`   |                      1 ≤ integer ≤ 50                      |     The number of tracks to display     |
+```html
+<!-- This month's most played songs -->
+<!--START_LASTFM_TRACKS:{"period": "1month", "rows": 5}-->
+<!--END_LASTFM_TRACKS-->
+
+<!-- Your all-time favorites -->
+<!--START_LASTFM_TRACKS:{"period": "overall", "rows": 10}-->
+<!--END_LASTFM_TRACKS-->
+```
+
+#### ⚙️ Configuration Options
+
+<table>
+<thead>
+<tr><th>Option</th><th>Type</th><th>Default</th><th>Options</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>period</code></td>
+<td>string</td>
+<td><code>7day</code></td>
+<td><code>7day</code>, <code>1month</code>, <code>3month</code>, <code>6month</code>, <code>12month</code>, <code>overall</code></td>
+<td>Time period for data aggregation</td>
+</tr>
+<tr>
+<td><code>rows</code></td>
+<td>number</td>
+<td><code>8</code></td>
+<td><code>1-50</code></td>
+<td>Number of tracks to display</td>
+</tr>
+</tbody>
+</table>
 
 ### 🔊 Recent Tracks
 
-Display recently listened to tracks.
+Display most recently played music with real-time "now playing" status.
 
-#### <ins>Example</ins>
-
-```html
-<!--START_LASTFM_RECENT:{"rows": 3}-->
-<!--END_LASTFM_RECENT-->
-```
-
-#### <ins>Output</ins>
+#### 🖼️ Preview
 
 **Default**
 
@@ -182,52 +397,108 @@ Display recently listened to tracks.
 
 ![recent-tracks-now-playing.png](./static/images/recent-tracks-now-playing.png)
 
-#### <ins>Configuration</ins>
-
-| Option | Default |     Options      |              Description               |
-| :----: | :-----: | :--------------: | :------------------------------------: |
-| `rows` |   `8`   | 1 ≤ integer ≤ 50 | The number of recent tracks to display |
-
-### ℹ️ User Info
-
-Display information about a Last.fm user. An optional configuration object can be passed to specify which properties to display.
-
-#### <ins>Example (Default)</ins>
+#### 💻 Usage Examples
 
 ```html
-<!--START_LASTFM_USER_INFO-->
-<!--END_LASTFM_USER_INFO-->
+<!-- Default: Last 8 tracks -->
+<!--START_LASTFM_RECENT-->
+<!--END_LASTFM_RECENT-->
+
+<!-- Custom: Last 5 tracks -->
+<!--START_LASTFM_RECENT:{"rows": 5}-->
+<!--END_LASTFM_RECENT-->
 ```
 
-#### <ins>Output</ins>
+#### ⚙️ Configuration Options
+
+<table>
+<thead>
+<tr><th>Option</th><th>Type</th><th>Default</th><th>Options</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rows</code></td>
+<td>number</td>
+<td><code>8</code></td>
+<td><code>1-50</code></td>
+<td>Number of recent tracks to display</td>
+</tr>
+</tbody>
+</table>
+
+### ℹ️ User Statistics
+
+Showcase your Last.fm profile statistics and listening milestones.
+
+#### 🖼️ Preview
+
+**Default**
 
 ![recent-tracks.png](./static/images/user-info-default.png)
 
-#### <ins>Example (Custom Configuration)</ins>
-
-```html
-<!--START_LASTFM_USER_INFO:{"display": ["playcount", "artistCount"]}-->
-<!--END_LASTFM_USER_INFO-->
-```
-
-#### <ins>Output</ins>
+**Custom Configuration**
 
 ![user-info-custom.png](./static/images/user-info-custom.png)
 
-#### <ins>Configuration</ins>
+#### 💻 Usage Examples
 
-|  Option   |                                 Default                                  |                           Options                            |                    Description                     |
-| :-------: | :----------------------------------------------------------------------: | :----------------------------------------------------------: | :------------------------------------------------: |
-| `display` | `["registered", "playcount", "artistCount", "albumCount", "trackCount"]` | `registered, playcount, artistCount, albumCount, trackCount` | A list of properties to be included in the section |
+```html
+<!-- Default: Show all available statistics -->
+<!--START_LASTFM_USER_INFO-->
+<!--END_LASTFM_USER_INFO-->
+
+<!-- Custom: Only show play count and artist count -->
+<!--START_LASTFM_USER_INFO:{"display": ["playcount", "artistCount"]}-->
+<!--END_LASTFM_USER_INFO-->
+
+<!-- Minimal: Just registration date -->
+<!--START_LASTFM_USER_INFO:{"display": ["registered"]}-->
+<!--END_LASTFM_USER_INFO-->
+```
+
+#### ⚙️ Configuration Options
+
+<table>
+<thead>
+<tr><th>Option</th><th>Type</th><th>Default</th><th>Available Options</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>display</code></td>
+<td>array</td>
+<td>All fields</td>
+<td><code>registered</code>, <code>playcount</code>, <code>artistCount</code>, <code>albumCount</code>, <code>trackCount</code></td>
+<td>List of statistics to display</td>
+</tr>
+</tbody>
+</table>
+
+<details>
+<summary><strong>📊 Available Statistics Fields</strong></summary>
+<br>
+
+| Field         | Description                | Example Output             |
+| ------------- | -------------------------- | -------------------------- |
+| `registered`  | Account registration date  | **Registered**: 12/25/2015 |
+| `playcount`   | Total scrobbled tracks     | **Playcount**: 50,247      |
+| `artistCount` | Unique artists listened to | **Artists**: 2,847         |
+| `albumCount`  | Unique albums in library   | **Albums**: 8,429          |
+| `trackCount`  | Unique tracks in library   | **Tracks**: 45,821         |
+
+</details>
 
 ## 🌟 Acknowledgements
+
+This project was inspired by and builds upon the excellent work of:
 
 - [JasonEtco/rss-to-readme](https://github.com/JasonEtco/rss-to-readme)
 - [vnphanquang/monkeytype-readme](https://github.com/vnphanquang/monkeytype-readme)
 - [athul/waka-readme](https://github.com/athul/waka-readme)
 - [actions-js/profile-readme](https://github.com/actions-js/profile-readme)
 
-[license.badge]: https://img.shields.io/badge/license-MIT-blue.svg
+<!-- Badge definitions -->
+
+[license.badge]: https://img.shields.io/badge/license-MIT-red.svg
 [license]: ./LICENSE
 [github.release.badge]: https://img.shields.io/github/v/release/dxnter/lastfm-readme
 [github.release]: https://github.com/dxnter/lastfm-readme/releases

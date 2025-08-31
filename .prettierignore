@@ -12,5 +12,6 @@ coverage
 vite.config.ts
 
 CHANGELOG.md
+README.md
 
 tests/golden/fixtures

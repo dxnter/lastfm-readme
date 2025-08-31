@@ -12,8 +12,6 @@ We welcome contributions of all kinds - whether you're reporting bugs, suggestin
 - [Testing](#testing)
 - [Golden File Tests](#golden-file-tests)
 - [Making Changes](#making-changes)
-- [Submitting Changes](#submitting-changes)
-- [Release Process](#release-process)
 
 ## Code of Conduct
 
