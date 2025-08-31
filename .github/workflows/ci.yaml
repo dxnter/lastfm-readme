@@ -130,7 +130,7 @@ jobs:
         uses: ./.github/actions/common-setup
         
       - name: 🧪 Vitest
-        run: pnpm vitest run
+        run: pnpm vitest run --coverage
         
       - name: 📤 Upload Coverage
         uses: actions/upload-artifact@v4
