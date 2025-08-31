@@ -1,0 +1,5 @@
+paths:
+  - 'src'
+  - 'tests'
+paths-ignore:
+  - 'dist'
