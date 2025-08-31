@@ -35649,7 +35649,7 @@ async function validateLastFmApiKey(apiKey) {
 
 /***/ }),
 
-/***/ 8120:
+/***/ 1785:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -38879,25 +38879,8 @@ var fromPairs_fromPairs = /*#__PURE__*/(0,_curry1/* default */.A)(fromPairs);
 /* harmony default export */ const es_fromPairs = (fromPairs_fromPairs);
 // EXTERNAL MODULE: ./node_modules/.pnpm/zod@4.1.5/node_modules/zod/v4/classic/schemas.js + 13 modules
 var schemas = __nccwpck_require__(4868);
-;// CONCATENATED MODULE: ./src/lastfm/types.ts
-var ConfigTimePeriod;
-(function (ConfigTimePeriod) {
-    ConfigTimePeriod["7day"] = "7day";
-    ConfigTimePeriod["1month"] = "1month";
-    ConfigTimePeriod["3month"] = "3month";
-    ConfigTimePeriod["6month"] = "6month";
-    ConfigTimePeriod["12month"] = "12month";
-    ConfigTimePeriod["overall"] = "overall";
-})(ConfigTimePeriod || (ConfigTimePeriod = {}));
-var ConfigUserInfoDisplayOption;
-(function (ConfigUserInfoDisplayOption) {
-    ConfigUserInfoDisplayOption["registered"] = "registered";
-    ConfigUserInfoDisplayOption["playcount"] = "playcount";
-    ConfigUserInfoDisplayOption["artistCount"] = "artistCount";
-    ConfigUserInfoDisplayOption["albumCount"] = "albumCount";
-    ConfigUserInfoDisplayOption["trackCount"] = "trackCount";
-})(ConfigUserInfoDisplayOption || (ConfigUserInfoDisplayOption = {}));
-
+// EXTERNAL MODULE: ./src/lastfm/types.ts
+var types = __nccwpck_require__(2638);
 ;// CONCATENATED MODULE: ./src/lastfm/index.ts
 
 
@@ -38908,12 +38891,12 @@ var ConfigUserInfoDisplayOption;
  * Map Last.fm API time periods to readable format.
  */
 const timePeriods = new Map([
-    [ConfigTimePeriod['7day'], 'Past Week'],
-    [ConfigTimePeriod['1month'], 'Past Month'],
-    [ConfigTimePeriod['3month'], 'Past 3 Months'],
-    [ConfigTimePeriod['6month'], 'Past 6 Months'],
-    [ConfigTimePeriod['12month'], 'Past Year'],
-    [ConfigTimePeriod['overall'], 'All Time'],
+    [types/* ConfigTimePeriod */.H['7day'], 'Past Week'],
+    [types/* ConfigTimePeriod */.H['1month'], 'Past Month'],
+    [types/* ConfigTimePeriod */.H['3month'], 'Past 3 Months'],
+    [types/* ConfigTimePeriod */.H['6month'], 'Past 6 Months'],
+    [types/* ConfigTimePeriod */.H['12month'], 'Past Year'],
+    [types/* ConfigTimePeriod */.H['overall'], 'All Time'],
 ]);
 /**
  * Retrieves a human-readable time period for the provided section configuration.
@@ -38921,15 +38904,15 @@ const timePeriods = new Map([
  * @returns ReadableTimePeriod
  */
 function readableTimePeriod(section) {
-    const period = (section.config.period ?? '7day');
-    return timePeriods.get(ConfigTimePeriod[period]) ?? 'Past Week';
+    const period = section.config.period ?? '7day';
+    return timePeriods.get(types/* ConfigTimePeriod */.H[period]) ?? 'Past Week';
 }
 const userInfoDisplayOptions = new Map([
-    [ConfigUserInfoDisplayOption.registered, 'Registered'],
-    [ConfigUserInfoDisplayOption.playcount, 'Playcount'],
-    [ConfigUserInfoDisplayOption.artistCount, 'Artists'],
-    [ConfigUserInfoDisplayOption.albumCount, 'Albums'],
-    [ConfigUserInfoDisplayOption.trackCount, 'Tracks'],
+    [types/* ConfigUserInfoDisplayOption */.v.registered, 'Registered'],
+    [types/* ConfigUserInfoDisplayOption */.v.playcount, 'Playcount'],
+    [types/* ConfigUserInfoDisplayOption */.v.artistCount, 'Artists'],
+    [types/* ConfigUserInfoDisplayOption */.v.albumCount, 'Albums'],
+    [types/* ConfigUserInfoDisplayOption */.v.trackCount, 'Tracks'],
 ]);
 const lastFMDataMethods = {
     RecentTracks: (lastfm, input, section) => lastfm.user.getRecentTracks(input.lastfm_user, {
@@ -38938,18 +38921,18 @@ const lastFMDataMethods = {
     }),
     TopArtists: (lastfm, input, section) => lastfm.user.getTopArtists(input.lastfm_user, {
         limit: section.config.rows ?? 8,
-        period: (section.config.period ?? '7day'),
+        period: section.config.period ?? '7day',
     }),
     TopTracks: (lastfm, input, section) => lastfm.user.getTopTracks(input.lastfm_user, {
         limit: section.config.rows ?? 8,
-        period: (section.config.period ?? '7day'),
+        period: section.config.period ?? '7day',
     }),
     TopAlbums: (lastfm, input, section) => lastfm.user.getTopAlbums(input.lastfm_user, {
         limit: section.config.rows ?? 8,
-        period: (section.config.period ?? '7day'),
+        period: section.config.period ?? '7day',
     }),
     UserInfo: async (lastfm, input, section) => {
-        const displayOptions = section.config.display ?? Object.values(ConfigUserInfoDisplayOption);
+        const displayOptions = section.config.display ?? Object.values(types/* ConfigUserInfoDisplayOption */.v);
         const numberFormat = new Intl.NumberFormat(input.locale);
         try {
             const info = await lastfm.user.getInfo(input.lastfm_user);
@@ -38993,6 +38976,35 @@ async function getLastFMData(type, input, section) {
     }
     return lastFMDataMethods[type](lastfm, input, section);
 }
+
+
+/***/ }),
+
+/***/ 2638:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   H: () => (/* binding */ ConfigTimePeriod),
+/* harmony export */   v: () => (/* binding */ ConfigUserInfoDisplayOption)
+/* harmony export */ });
+var ConfigTimePeriod;
+(function (ConfigTimePeriod) {
+    ConfigTimePeriod["7day"] = "7day";
+    ConfigTimePeriod["1month"] = "1month";
+    ConfigTimePeriod["3month"] = "3month";
+    ConfigTimePeriod["6month"] = "6month";
+    ConfigTimePeriod["12month"] = "12month";
+    ConfigTimePeriod["overall"] = "overall";
+})(ConfigTimePeriod || (ConfigTimePeriod = {}));
+var ConfigUserInfoDisplayOption;
+(function (ConfigUserInfoDisplayOption) {
+    ConfigUserInfoDisplayOption["registered"] = "registered";
+    ConfigUserInfoDisplayOption["playcount"] = "playcount";
+    ConfigUserInfoDisplayOption["artistCount"] = "artistCount";
+    ConfigUserInfoDisplayOption["albumCount"] = "albumCount";
+    ConfigUserInfoDisplayOption["trackCount"] = "trackCount";
+})(ConfigUserInfoDisplayOption || (ConfigUserInfoDisplayOption = {}));
 
 
 /***/ }),
@@ -39859,9 +39871,12 @@ var isEmpty = /*#__PURE__*/(0,_curry1/* default */.A)(function isEmpty(x) {
 var schemas = __nccwpck_require__(4868);
 // EXTERNAL MODULE: ./src/error/index.ts
 var error = __nccwpck_require__(5504);
-// EXTERNAL MODULE: ./src/lastfm/index.ts + 40 modules
-var lastfm = __nccwpck_require__(8120);
+// EXTERNAL MODULE: ./src/lastfm/index.ts + 39 modules
+var lastfm = __nccwpck_require__(1785);
+// EXTERNAL MODULE: ./src/lastfm/types.ts
+var types = __nccwpck_require__(2638);
 ;// CONCATENATED MODULE: ./src/section.ts
+
 
 
 
@@ -39883,8 +39898,8 @@ var SectionName;
  */
 const SectionConfigSchema = schemas/* object */.Ik({
     rows: schemas/* number */.ai().min(1).max(50).optional(),
-    period: schemas/* enum */.k5(['7day', '1month', '3month', '6month', '12month', 'overall']).optional(),
-    display: schemas/* array */.YO(schemas/* enum */.k5(['registered', 'playcount', 'artistCount', 'albumCount', 'trackCount'])).optional(),
+    period: schemas/* enum */.k5(types/* ConfigTimePeriod */.H).optional(),
+    display: schemas/* array */.YO(schemas/* enum */.k5(types/* ConfigUserInfoDisplayOption */.v)).optional(),
 });
 const SectionNameMap = {
     LASTFM_RECENT: SectionName.RECENT,
@@ -40030,8 +40045,8 @@ __nccwpck_require__.d(__webpack_exports__, {
   MA: () => (/* reexport */ updateUserInfoSection)
 });
 
-// EXTERNAL MODULE: ./src/lastfm/index.ts + 40 modules
-var lastfm = __nccwpck_require__(8120);
+// EXTERNAL MODULE: ./src/lastfm/index.ts + 39 modules
+var lastfm = __nccwpck_require__(1785);
 // EXTERNAL MODULE: ./src/section.ts + 25 modules
 var src_section = __nccwpck_require__(8808);
 ;// CONCATENATED MODULE: ./src/sections/album.ts
