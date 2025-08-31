@@ -94,7 +94,10 @@ const lastFMDataMethods = {
 
     try {
       const info = await lastfm.user.getInfo(input.lastfm_user);
-      const filteredInfo = R.pick(displayOptions, info);
+      const filteredInfo = R.pick(
+        displayOptions as (keyof typeof info)[],
+        info,
+      );
 
       const UserInfoSchema = z.object({
         registered: z

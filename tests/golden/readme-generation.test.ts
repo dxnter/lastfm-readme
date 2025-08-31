@@ -22,7 +22,7 @@ describe('golden file tests', () => {
 
   const loadFixture = <T>(filename: string): T => {
     const filePath = path.join(goldenDirectory, filename);
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
   };
 
   const updateGolden = (filename: string, content: string): void => {

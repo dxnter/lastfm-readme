@@ -34,8 +34,8 @@ export enum SectionName {
  */
 const SectionConfigSchema = z.object({
   rows: z.number().min(1).max(50).optional(),
-  period: z.nativeEnum(ConfigTimePeriod).optional(),
-  display: z.array(z.nativeEnum(ConfigUserInfoDisplayOption)).optional(),
+  period: z.enum(ConfigTimePeriod).optional(),
+  display: z.array(z.enum(ConfigUserInfoDisplayOption)).optional(),
 });
 
 type SectionConfig = z.infer<typeof SectionConfigSchema>;
