@@ -39,7 +39,6 @@ export async function runLocalDevelopment(): Promise<void> {
       readmePath: localConfig.readmePath,
     });
 
-    // Read current README content
     console.log('📖 Reading README file...');
     const readmeFile = await fs.getReadme();
     let readme = readmeFile.content;
@@ -56,7 +55,6 @@ export async function runLocalDevelopment(): Promise<void> {
     let sectionsProcessed = 0;
     let sectionsUpdated = 0;
 
-    // Process each section type
     for (const { name, update } of sections) {
       const matchingSections = getSectionsFromReadme(name, readme);
       if (!matchingSections?.length) continue;

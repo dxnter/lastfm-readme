@@ -124,8 +124,6 @@ describe('local input parsing', () => {
     it('should use defaults for missing optional values', () => {
       const localConfig = {
         readmePath: '/path/to/README.md',
-        assetsDir: '/path/to/assets',
-        gridsDir: '/path/to/grids',
         input: {
           lastfm_api_key: 'test-key',
           lastfm_user: 'testuser',
