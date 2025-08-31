@@ -81,7 +81,7 @@ tests/
 ```bash
 pnpm build          # Build the action
 pnpm test           # Run all tests
-pnpm coverage       # Run tests with coverage report
+pnpm test:coverage       # Run tests with coverage report
 pnpm lint           # Lint code with ESLint
 pnpm format         # Format code with Prettier
 pnpm types          # TypeScript type checking
@@ -105,7 +105,7 @@ pnpm test
 pnpm test tests/unit/section.test.ts
 
 # Run tests with coverage
-pnpm coverage
+pnpm test:coverage
 ```
 
 ### Writing Tests
