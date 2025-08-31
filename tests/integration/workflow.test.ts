@@ -126,7 +126,7 @@ Old artists content
       repo: 'repo',
       path: 'README.md',
       message: 'chore: update Last.fm sections',
-      content: expect.any(String),
+      content: expect.any(String) as string,
       sha: 'original-sha',
       committer: {
         name: 'lastfm-readme-bot',
@@ -327,14 +327,27 @@ Footer content.`;
 
     await run();
 
-    const updateCall =
-      mockOctokit.rest.repos.createOrUpdateFileContents.mock.calls[0];
-    const updatedContent = Buffer.from(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      updateCall[0].content,
-      'base64',
-    ).toString('utf8');
+    expect(
+      mockOctokit.rest.repos.createOrUpdateFileContents,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.any(String) as string,
+      }),
+    );
+
+    const mockCall = vi.mocked(
+      mockOctokit.rest.repos.createOrUpdateFileContents,
+    );
+    const callArguments = mockCall.mock.calls[0];
+
+    if (!callArguments || !callArguments[0]) {
+      throw new Error('Expected createOrUpdateFileContents to be called');
+    }
+
+    const parameters = callArguments[0] as { content: string };
+    const updatedContent = Buffer.from(parameters.content, 'base64').toString(
+      'utf8',
+    );
 
     // Verify preserved content
     expect(updatedContent).toContain('Some intro text here.');

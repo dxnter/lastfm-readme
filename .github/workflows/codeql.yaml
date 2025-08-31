@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: 📂 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -39,6 +39,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
+          config-file: ./.github/codeql/codeql-config.yml
 
       - name: ⚙️ Build Project
         uses: github/codeql-action/autobuild@v3

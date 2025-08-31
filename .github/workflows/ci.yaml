@@ -15,7 +15,7 @@ jobs:
     
     steps:
       - name: 📂 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_TOKEN }}
           ref: ${{ github.head_ref }}
@@ -43,7 +43,7 @@ jobs:
     
     steps:
       - name: 📂 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.head_ref }}
 
@@ -59,7 +59,7 @@ jobs:
     
     steps:
       - name: 📂 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.head_ref }}
           
@@ -121,7 +121,7 @@ jobs:
       
     steps:
       - name: 📂 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ matrix.branch }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}      
@@ -146,7 +146,7 @@ jobs:
 
     steps:
       - name: 📂 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.head_ref }}  
 
