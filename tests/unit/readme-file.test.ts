@@ -4,7 +4,7 @@ import type { GithubActionInput } from 'src/input';
 import { getReadmeFile, updateReadmeFile } from 'src/readme-file';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe('rEADME File Operations', () => {
+describe('readme file operations', () => {
   const mockInput: GithubActionInput = {
     lastfm_api_key: 'test-api-key',
     lastfm_user: 'test-user',
@@ -28,7 +28,7 @@ describe('rEADME File Operations', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(github.getOctokit).mockReturnValue(
-      mockOctokit as ReturnType<typeof github.getOctokit>,
+      mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
     );
   });
 

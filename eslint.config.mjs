@@ -44,7 +44,7 @@ export default [
     ),
   ),
   {
-    files: ['**/*.ts'],
+    files: ['src/**/*.ts', 'tests/**/*.ts'],
     plugins: {
       '@typescript-eslint': fixupPluginRules(typescriptEslint),
       prettier,

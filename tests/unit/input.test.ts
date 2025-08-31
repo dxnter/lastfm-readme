@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import { parseInput } from 'src/input';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe('input Validation', () => {
+describe('input validation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -10,7 +10,7 @@ describe('input Validation', () => {
   describe('parseInput', () => {
     it('should parse valid inputs correctly', async () => {
       vi.mocked(core.getInput).mockImplementation((name: string) => {
-        const inputs = {
+        const inputs: Record<string, string> = {
           LASTFM_API_KEY: 'test-api-key',
           LASTFM_USER: 'test-user',
           GH_TOKEN: 'test-token',
@@ -39,7 +39,7 @@ describe('input Validation', () => {
 
     it('should throw InvalidInputError for invalid repository format', async () => {
       vi.mocked(core.getInput).mockImplementation((name: string) => {
-        const inputs = {
+        const inputs: Record<string, string> = {
           LASTFM_API_KEY: 'test-api-key',
           LASTFM_USER: 'test-user',
           GH_TOKEN: 'test-token',

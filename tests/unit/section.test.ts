@@ -14,10 +14,12 @@ import {
   formatSectionData,
   generateMarkdownSection,
   getSectionsFromReadme,
+  Section,
+  SectionName,
 } from 'src/section';
 import { describe, expect, it } from 'vitest';
 
-describe('section Parsing', () => {
+describe('section parsing', () => {
   describe('getSectionsFromReadme', () => {
     it('should parse simple sections correctly', () => {
       const readme = `
@@ -31,8 +33,8 @@ More content
       const sections = getSectionsFromReadme('LASTFM_RECENT', readme);
 
       expect(sections).toHaveLength(1);
-      expect(sections![0].name).toBe('RECENT');
-      expect(sections![0].content).toEqual(['Old content here']);
+      expect(sections![0]?.name).toBe('RECENT');
+      expect(sections![0]?.content).toEqual(['Old content here']);
     });
 
     it('should parse sections with JSON config', () => {
@@ -42,7 +44,7 @@ Content
 
       const sections = getSectionsFromReadme('LASTFM_ARTISTS', readme);
 
-      expect(sections![0].config).toEqual({
+      expect(sections![0]?.config).toEqual({
         period: '1month',
         rows: 5,
       });
@@ -62,9 +64,9 @@ Second section
       const sections = getSectionsFromReadme('LASTFM_ARTISTS', readme);
 
       expect(sections).toHaveLength(2);
-      expect(sections![0].content).toEqual(['First section']);
-      expect(sections![1].content).toEqual(['Second section']);
-      expect(sections![1].config.rows).toBe(3);
+      expect(sections![0]?.content).toEqual(['First section']);
+      expect(sections![1]?.content).toEqual(['Second section']);
+      expect(sections![1]?.config.rows).toBe(3);
     });
 
     it('should handle empty sections', () => {
@@ -73,7 +75,7 @@ Second section
 
       const sections = getSectionsFromReadme('LASTFM_TRACKS', readme);
 
-      expect(sections![0].content).toEqual([]);
+      expect(sections![0]?.content).toEqual([]);
     });
 
     it('should return undefined when no sections found', () => {
@@ -121,8 +123,8 @@ Some content`;
     };
 
     it('should format artist data correctly', () => {
-      const section = {
-        name: 'ARTISTS' as const,
+      const section: Section = {
+        name: SectionName.ARTISTS,
         start: '<!--START_LASTFM_ARTISTS-->',
         end: '<!--END_LASTFM_ARTISTS-->',
         content: [],
@@ -156,8 +158,8 @@ Some content`;
     });
 
     it('should format album data correctly', () => {
-      const section = {
-        name: 'ALBUMS' as const,
+      const section: Section = {
+        name: SectionName.ALBUMS,
         start: '<!--START_LASTFM_ALBUMS-->',
         end: '<!--END_LASTFM_ALBUMS-->',
         content: [],
@@ -189,8 +191,8 @@ Some content`;
     });
 
     it('should format track data correctly', () => {
-      const section = {
-        name: 'TRACKS' as const,
+      const section: Section = {
+        name: SectionName.TRACKS,
         start: '<!--START_LASTFM_TRACKS-->',
         end: '<!--END_LASTFM_TRACKS-->',
         content: [],
@@ -222,8 +224,8 @@ Some content`;
     });
 
     it('should format recent tracks with playing indicator', () => {
-      const section = {
-        name: 'RECENT' as const,
+      const section: Section = {
+        name: SectionName.RECENT,
         start: '<!--START_LASTFM_RECENT-->',
         end: '<!--END_LASTFM_RECENT-->',
         content: [],
@@ -255,8 +257,8 @@ Some content`;
     });
 
     it('should format user info data correctly', () => {
-      const section = {
-        name: 'USER_INFO' as const,
+      const section: Section = {
+        name: SectionName.USER_INFO,
         start: '<!--START_LASTFM_USER_INFO-->',
         end: '<!--END_LASTFM_USER_INFO-->',
         content: [],
@@ -282,8 +284,8 @@ Some content`;
     });
 
     it('should handle empty data gracefully', () => {
-      const section = {
-        name: 'RECENT' as const,
+      const section: Section = {
+        name: SectionName.RECENT,
         start: '<!--START_LASTFM_RECENT-->',
         end: '<!--END_LASTFM_RECENT-->',
         content: [],
@@ -300,8 +302,8 @@ Some content`;
 
     it('should respect locale for number formatting', () => {
       const germanInput = { ...mockInput, locale: 'de-DE' };
-      const section = {
-        name: 'ARTISTS' as const,
+      const section: Section = {
+        name: SectionName.ARTISTS,
         start: '<!--START_LASTFM_ARTISTS-->',
         end: '<!--END_LASTFM_ARTISTS-->',
         content: [],
@@ -331,8 +333,8 @@ Some content`;
       date_format: 'MM/dd/yyyy',
     };
 
-    const mockSection = {
-      name: 'ARTISTS' as const,
+    const mockSection: Section = {
+      name: SectionName.ARTISTS,
       start: '<!--START_LASTFM_ARTISTS-->',
       end: '<!--END_LASTFM_ARTISTS-->',
       content: [],

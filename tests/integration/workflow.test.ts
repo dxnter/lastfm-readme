@@ -4,7 +4,7 @@ import LastFMTyped from 'lastfm-typed';
 import { run } from 'src/index';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe('end-to-End Workflow', () => {
+describe('end-to-end workflow', () => {
   const mockOctokit = {
     rest: {
       repos: {
@@ -30,7 +30,6 @@ describe('end-to-End Workflow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup default input mocks
     vi.mocked(core.getInput).mockImplementation((name: string) => {
       const inputs: Record<string, string> = {
         LASTFM_API_KEY: 'test-api-key',
@@ -45,15 +44,14 @@ describe('end-to-End Workflow', () => {
       return inputs[name] || '';
     });
 
-    // Setup GitHub API mock
     vi.mocked(github.getOctokit).mockReturnValue(
-      mockOctokit as ReturnType<typeof github.getOctokit>,
+      mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
     );
 
-    // Setup LastFM mock
-    vi.mocked(LastFMTyped).mockImplementation(() => mockLastFM as LastFMTyped);
+    vi.mocked(LastFMTyped).mockImplementation(
+      () => mockLastFM as unknown as LastFMTyped,
+    );
 
-    // Setup default README content
     const defaultReadme = `# Test Profile
 <!--START_LASTFM_RECENT-->
 Old recent tracks content
@@ -71,7 +69,6 @@ Old artists content
       },
     });
 
-    // Setup default API responses
     mockLastFM.user.getRecentTracks.mockResolvedValue({
       tracks: [
         {
@@ -333,6 +330,8 @@ Footer content.`;
     const updateCall =
       mockOctokit.rest.repos.createOrUpdateFileContents.mock.calls[0];
     const updatedContent = Buffer.from(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       updateCall[0].content,
       'base64',
     ).toString('utf8');

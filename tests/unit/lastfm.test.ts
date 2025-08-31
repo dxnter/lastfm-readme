@@ -7,10 +7,9 @@ import {
 } from 'src/lastfm/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock the LastFMTyped more specifically for these tests
-vi.mock('lastfm-typed');
+import { Section, SectionName } from '../../src/section';
 
-describe('lastFM API Integration', () => {
+describe('last.fm integration', () => {
   const mockInput: GithubActionInput = {
     lastfm_api_key: 'test-api-key',
     lastfm_user: 'test-user',
@@ -22,8 +21,8 @@ describe('lastFM API Integration', () => {
     date_format: 'MM/dd/yyyy',
   };
 
-  const mockSection = {
-    name: 'RECENT' as const,
+  const mockSection: Section = {
+    name: SectionName.RECENT,
     start: '<!--START_LASTFM_RECENT-->',
     end: '<!--END_LASTFM_RECENT-->',
     content: [],
@@ -55,7 +54,7 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
       const result = await getLastFMData(
@@ -88,7 +87,7 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
       const result = await getLastFMData('TopArtists', mockInput, mockSection);
@@ -119,7 +118,7 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
       const result = await getLastFMData('TopTracks', mockInput, mockSection);
@@ -150,7 +149,7 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
       const result = await getLastFMData('TopAlbums', mockInput, mockSection);
@@ -164,7 +163,7 @@ describe('lastFM API Integration', () => {
 
     it('should fetch and format user info data', async () => {
       const mockUserInfo = {
-        registered: 1_577_836_800, // 2020-01-01 in Unix timestamp
+        registered: 1_577_836_800,
         playcount: 1000,
         artistCount: 500,
         albumCount: 300,
@@ -178,12 +177,12 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
-      const userInfoSection = {
+      const userInfoSection: Section = {
         ...mockSection,
-        name: 'USER_INFO' as const,
+        name: SectionName.USER_INFO,
         config: {
           display: [
             ConfigUserInfoDisplayOption.registered,
@@ -202,7 +201,7 @@ describe('lastFM API Integration', () => {
 
       // The result should be formatted data
       expect(result).toHaveProperty('registered');
-      expect(result).toHaveProperty('playcount', '1,000'); // formatted number
+      expect(result).toHaveProperty('playcount', '1,000');
     });
 
     it('should use default values for missing config', async () => {
@@ -218,7 +217,7 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
       await getLastFMData('RecentTracks', mockInput, sectionWithoutConfig);
@@ -246,7 +245,7 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
       await expect(
@@ -302,12 +301,12 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
-      const userInfoSection = {
+      const userInfoSection: Section = {
         ...mockSection,
-        name: 'USER_INFO' as const,
+        name: SectionName.USER_INFO,
         config: {},
       };
 
@@ -318,7 +317,7 @@ describe('lastFM API Integration', () => {
 
     it('should format dates according to input format', async () => {
       const mockUserInfo = {
-        registered: 1_609_459_200, // 2021-01-01 00:00:00 UTC
+        registered: 1_609_459_200,
       };
 
       const mockLastFM = {
@@ -328,7 +327,7 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
       const customDateFormatInput = {
@@ -336,9 +335,9 @@ describe('lastFM API Integration', () => {
         date_format: 'yyyy-MM-dd',
       };
 
-      const userInfoSection = {
+      const userInfoSection: Section = {
         ...mockSection,
-        name: 'USER_INFO' as const,
+        name: SectionName.USER_INFO,
         config: { display: [ConfigUserInfoDisplayOption.registered] },
       };
 
@@ -348,7 +347,7 @@ describe('lastFM API Integration', () => {
         userInfoSection,
       );
 
-      // Should be formatted as yyyy-MM-dd (could be 2020-12-31 or 2021-01-01 based on timezone)
+      // Should be formatted as yyyy-MM-dd
       expect(result.registered).toMatch(/202[01]-[0-1][0-9]-[0-3][0-9]/);
     });
 
@@ -364,7 +363,7 @@ describe('lastFM API Integration', () => {
       };
 
       vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as LastFMTyped,
+        () => mockLastFM as unknown as LastFMTyped,
       );
 
       const germanInput = {
@@ -372,9 +371,9 @@ describe('lastFM API Integration', () => {
         locale: 'de-DE',
       };
 
-      const userInfoSection = {
+      const userInfoSection: Section = {
         ...mockSection,
-        name: 'USER_INFO' as const,
+        name: SectionName.USER_INFO,
         config: { display: [ConfigUserInfoDisplayOption.playcount] },
       };
 
@@ -384,7 +383,7 @@ describe('lastFM API Integration', () => {
         userInfoSection,
       );
 
-      expect(result.playcount).toBe('12.345'); // German number formatting
+      expect(result.playcount).toBe('12.345');
     });
   });
 });

@@ -137,31 +137,32 @@ jobs:
         with:
           name: coverage-${{ matrix.artifact }}
           path: coverage
-  
-  report-coverage:
-    name: 📊 Report Coverage
-    needs: tests
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: 📂 Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}  
-            
-      - name: 📥 Download Pull Request Coverage Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-pull-request
-          path: coverage
-
-      - name: 📥 Download Main Branch Coverage Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-main
-          path: coverage-main
           
-      - name: 📊 Report Coverage
-        uses: davelosert/vitest-coverage-report-action@v2
-        with:
-          json-summary-compare-path: coverage-main/coverage-summary.json
+  
+#  report-coverage:
+#    name: 📊 Report Coverage
+#    needs: tests
+#    runs-on: ubuntu-latest
+#    
+#    steps:
+#      - name: 📂 Checkout Repository
+#        uses: actions/checkout@v4
+#        with:
+#          ref: ${{ github.head_ref }}  
+#            
+#      - name: 📥 Download Pull Request Coverage Artifact
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: coverage-pull-request
+#          path: coverage
+#
+#      - name: 📥 Download Main Branch Coverage Artifact
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: coverage-main
+#          path: coverage-main
+#          
+#      - name: 📊 Report Coverage
+#        uses: davelosert/vitest-coverage-report-action@v2
+#        with:
+#          json-summary-compare-path: coverage-main/coverage-summary.json

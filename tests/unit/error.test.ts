@@ -5,9 +5,9 @@ import {
 } from 'src/error';
 import { describe, expect, it } from 'vitest';
 
-describe('error Classes', () => {
-  describe('invalidInputError', () => {
-    it('should create error with default message', () => {
+describe('custom error classes', () => {
+  describe('invalid input error', () => {
+    it('should be created with default message', () => {
       const error = new InvalidInputError();
 
       expect(error.name).toBe('InvalidInputError');
@@ -15,7 +15,7 @@ describe('error Classes', () => {
       expect(error).toBeInstanceOf(Error);
     });
 
-    it('should create error with custom message', () => {
+    it('should be created with custom message', () => {
       const customMessage = 'Custom validation error';
       const error = new InvalidInputError(customMessage);
 
@@ -25,8 +25,8 @@ describe('error Classes', () => {
     });
   });
 
-  describe('endTagWithoutStartTagError', () => {
-    it('should create error with tag information', () => {
+  describe('end tag without start tag error', () => {
+    it('should be created with tag information', () => {
       const endTag = '<!--END_LASTFM_RECENT-->';
       const error = new EndTagWithoutStartTagError(endTag);
 
@@ -38,8 +38,8 @@ describe('error Classes', () => {
     });
   });
 
-  describe('startTagWithoutEndTagError', () => {
-    it('should create error with tag information', () => {
+  describe('start tag without end tag error', () => {
+    it('should be created with tag information', () => {
       const startTag = '<!--START_LASTFM_RECENT-->';
       const error = new StartTagWithoutEndTagError(startTag);
 

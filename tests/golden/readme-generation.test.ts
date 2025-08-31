@@ -9,10 +9,15 @@ import type {
   Track,
   UserInfo,
 } from 'src/lastfm/types';
-import { formatSectionData, generateMarkdownSection } from 'src/section';
+import {
+  formatSectionData,
+  generateMarkdownSection,
+  Section,
+  SectionName,
+} from 'src/section';
 import { describe, expect, it } from 'vitest';
 
-describe('golden File Tests', () => {
+describe('golden file tests', () => {
   const goldenDirectory = path.join(import.meta.dirname, 'fixtures');
 
   const loadFixture = <T>(filename: string): T => {
@@ -30,20 +35,13 @@ describe('golden File Tests', () => {
     return fs.readFileSync(filePath, 'utf8');
   };
 
-  describe('artists Section Generation', () => {
+  describe('artists section generation', () => {
     it('should generate consistent artists section', () => {
       const mockData = loadFixture<{ artists: Artist[] }>(
         'sample-lastfm-data.json',
       );
       const mockInput = loadFixture<GithubActionInput>('sample-input.json');
-      const mockSection = loadFixture<{
-        name: string;
-        start: string;
-        end: string;
-        content: string[];
-        currentSection: string;
-        config: Record<string, unknown>;
-      }>('sample-section.json');
+      const mockSection = loadFixture<Section>('sample-section.json');
 
       const formatted = formatSectionData(
         mockInput,
@@ -70,15 +68,15 @@ describe('golden File Tests', () => {
     });
   });
 
-  describe('recent Tracks Section Generation', () => {
+  describe('recent tracks section generation', () => {
     it('should generate consistent recent tracks section', () => {
       const mockData = loadFixture<{ recentTracks: RecentTrack[] }>(
         'sample-lastfm-data.json',
       );
       const mockInput = loadFixture<GithubActionInput>('sample-input.json');
 
-      const mockSection = {
-        name: 'RECENT' as const,
+      const mockSection: Section = {
+        name: SectionName.RECENT,
         start: '<!--START_LASTFM_RECENT-->',
         end: '<!--END_LASTFM_RECENT-->',
         content: [],
@@ -110,15 +108,15 @@ describe('golden File Tests', () => {
     });
   });
 
-  describe('albums Section Generation', () => {
+  describe('albums section generation', () => {
     it('should generate consistent albums section', () => {
       const mockData = loadFixture<{ albums: Album[] }>(
         'sample-lastfm-data.json',
       );
       const mockInput = loadFixture<GithubActionInput>('sample-input.json');
 
-      const mockSection = {
-        name: 'ALBUMS' as const,
+      const mockSection: Section = {
+        name: SectionName.ALBUMS,
         start: '<!--START_LASTFM_ALBUMS-->',
         end: '<!--END_LASTFM_ALBUMS-->',
         content: [],
@@ -149,15 +147,15 @@ describe('golden File Tests', () => {
     });
   });
 
-  describe('tracks Section Generation', () => {
+  describe('tracks section generation', () => {
     it('should generate consistent tracks section', () => {
       const mockData = loadFixture<{ tracks: Track[] }>(
         'sample-lastfm-data.json',
       );
       const mockInput = loadFixture<GithubActionInput>('sample-input.json');
 
-      const mockSection = {
-        name: 'TRACKS' as const,
+      const mockSection: Section = {
+        name: SectionName.TRACKS,
         start: '<!--START_LASTFM_TRACKS-->',
         end: '<!--END_LASTFM_TRACKS-->',
         content: [],
@@ -188,15 +186,15 @@ describe('golden File Tests', () => {
     });
   });
 
-  describe('user Info Section Generation', () => {
+  describe('user info section generation', () => {
     it('should generate consistent user info section', () => {
       const mockData = loadFixture<{ userInfo: UserInfo[] }>(
         'sample-lastfm-data.json',
       );
       const mockInput = loadFixture<GithubActionInput>('sample-input.json');
 
-      const mockSection = {
-        name: 'USER_INFO' as const,
+      const mockSection: Section = {
+        name: SectionName.USER_INFO,
         start: '<!--START_LASTFM_USER_INFO-->',
         end: '<!--END_LASTFM_USER_INFO-->',
         content: [],
@@ -230,7 +228,7 @@ describe('golden File Tests', () => {
     });
   });
 
-  describe('locale-specific Generation', () => {
+  describe('locale-specific generation', () => {
     it('should generate consistent sections with different locales', () => {
       const mockData = loadFixture<{ artists: Artist[] }>(
         'sample-lastfm-data.json',
@@ -246,8 +244,8 @@ describe('golden File Tests', () => {
         date_format: 'dd.MM.yyyy',
       };
 
-      const mockSection = {
-        name: 'ARTISTS' as const,
+      const mockSection: Section = {
+        name: SectionName.ARTISTS,
         start: '<!--START_LASTFM_ARTISTS-->',
         end: '<!--END_LASTFM_ARTISTS-->',
         content: [],
@@ -274,7 +272,7 @@ describe('golden File Tests', () => {
     });
   });
 
-  describe('section Without Title', () => {
+  describe('section without title', () => {
     it('should generate sections without title when show_title is false', () => {
       const mockData = loadFixture<{ artists: Artist[] }>(
         'sample-lastfm-data.json',
@@ -290,14 +288,7 @@ describe('golden File Tests', () => {
         date_format: 'MM/dd/yyyy',
       };
 
-      const mockSection = loadFixture<{
-        name: string;
-        start: string;
-        end: string;
-        content: string[];
-        currentSection: string;
-        config: Record<string, unknown>;
-      }>('sample-section.json');
+      const mockSection = loadFixture<Section>('sample-section.json');
 
       const formatted = formatSectionData(
         inputWithoutTitle,

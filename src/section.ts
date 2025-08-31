@@ -21,7 +21,7 @@ import {
 /**
  * Enum representing possible section names.
  */
-enum SectionName {
+export enum SectionName {
   RECENT = 'RECENT',
   TRACKS = 'TRACKS',
   ARTISTS = 'ARTISTS',
@@ -222,7 +222,7 @@ export const formatSectionData = (
 };
 
 /**
- * Generate a markdown chart for a section.
+ * Generate a Markdown chart for a section.
  *
  * @returns An updated Markdown chart surrounded by the section start and end comments.
  */

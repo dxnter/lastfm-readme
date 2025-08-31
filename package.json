@@ -26,7 +26,7 @@
     "lint:fix": "eslint --cache --fix .",
     "semantic-release": "semantic-release",
     "test": "vitest",
-    "types": "tsc --noEmit"
+    "types": "tsc --project tsconfig.eslint.json --noEmit"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
