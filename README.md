@@ -5,7 +5,7 @@
 
 Dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.
 
-[![MIT][license.badge]][license] [![github.release.badge]][github.release] [![actions.codeql.badge]][actions.codeql]
+[![MIT][license.badge]][license] [![github.release.badge]][github.release]
 
 </div>
 
@@ -231,5 +231,3 @@ Display information about a Last.fm user. An optional configuration object can b
 [license]: ./LICENSE
 [github.release.badge]: https://img.shields.io/github/v/release/dxnter/lastfm-readme
 [github.release]: https://github.com/dxnter/lastfm-readme/releases
-[actions.codeql.badge]: https://github.com/dxnter/lastfm-readme/actions/workflows/codeql.yaml/badge.svg
-[actions.codeql]: https://github.com/dxnter/lastfm-readme/actions/workflows/codeql.yaml
