@@ -20,12 +20,12 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/index.ts -o dist",
-    "coverage": "vitest --coverage",
     "format": "prettier --write --cache --cache-location=.prettier-cache \"**/*.{ts,js,md,json,yml}\"",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --cache --fix .",
     "semantic-release": "semantic-release",
     "test": "vitest",
+    "test:coverage": "vitest --coverage",
     "types": "tsc --project tsconfig.eslint.json --noEmit"
   },
   "dependencies": {
