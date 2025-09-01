@@ -1,8 +1,18 @@
-import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { GitHubFileSystem } from 'src/filesystem';
 import type { GithubActionInput } from 'src/input';
+import { logger } from 'src/utils/logger';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('../../src/utils/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    setOutput: vi.fn(),
+    setFailed: vi.fn(),
+  },
+}));
 
 describe('gitHub filesystem operations', () => {
   const mockInput: GithubActionInput = {
@@ -56,7 +66,7 @@ describe('gitHub filesystem operations', () => {
         repo: 'test-repo',
       });
 
-      expect(core.setOutput).toHaveBeenCalledWith(
+      expect(logger.setOutput).toHaveBeenCalledWith(
         'readme_hash',
         'test-sha-123',
       );
@@ -135,7 +145,7 @@ describe('gitHub filesystem operations', () => {
         },
       });
 
-      expect(core.info).toHaveBeenCalledWith(
+      expect(logger.info).toHaveBeenCalledWith(
         '✅ README successfully updated with new charts',
       );
     });

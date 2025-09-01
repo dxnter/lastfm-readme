@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { loadEnvFile } from 'node:process';
 
+import { CLI } from 'src/utils/cli';
 import { z } from 'zod';
 
 import { InvalidInputError } from '../error';
@@ -21,13 +22,11 @@ const LocalInputSchema = z.object({
 });
 
 export function parseLocalInput(): LocalConfig {
-  console.log('🔍 Loading local environment configuration...');
-
   try {
     loadEnvFile('.env');
-    console.log('✅ Loaded .env file');
+    CLI.printSuccess('Loaded .env file');
   } catch {
-    console.warn('⚠️ No .env file found, using environment variables');
+    CLI.printWarning('No .env file found, using environment variables');
   }
 
   const environmentValidation = LocalInputSchema.safeParse(process.env);
@@ -55,15 +54,10 @@ export function parseLocalInput(): LocalConfig {
 
   const readmePath = path.resolve(environment.README_PATH);
 
-  const config: LocalConfig = {
+  return {
     readmePath,
     input: localInput,
   };
-
-  console.log(`📄 README path: ${config.readmePath}`);
-  console.log(`👤 Last.fm user: ${localInput.lastfm_user}`);
-
-  return config;
 }
 export function convertToGithubActionInput(
   localConfig: LocalConfig,

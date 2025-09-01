@@ -1,4 +1,3 @@
-import * as core from '@actions/core';
 import * as R from 'ramda';
 import { z } from 'zod';
 
@@ -17,6 +16,7 @@ import {
   type Track,
   type UserInfo,
 } from './lastfm/types';
+import { logger } from './utils/logger';
 
 /**
  * Enumeration of available Last.fm section types that can be embedded in README files.
@@ -106,7 +106,7 @@ export function getSectionsFromReadme(
   sectionComment: SectionComment,
   readmeContent: string,
 ): Section[] | undefined {
-  core.debug(`🔍 Searching for ${sectionComment} sections in README`);
+  logger.debug(`🔍 Searching for ${sectionComment} sections in README`);
 
   const sections: Record<string, Section> = {};
   const sectionStack: string[] = [];
@@ -165,7 +165,7 @@ ${sections[lastStart]!.end}`,
     throw new StartTagWithoutEndTagError(sectionStack.join(''));
   }
 
-  core.debug(
+  logger.debug(
     `Found ${R.length(R.keys(sections))} ${sectionComment} sections in README`,
   );
 
@@ -284,7 +284,7 @@ export function generateMarkdownSection(
   title: string,
   content: string,
 ): string {
-  core.debug(`🔧 Generating ${section.name} section for ${section.start}`);
+  logger.debug(`🔧 Generating ${section.name} section for ${section.start}`);
 
   const chartTitle =
     input.show_title === 'true'

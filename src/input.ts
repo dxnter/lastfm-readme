@@ -4,6 +4,7 @@ import LastFMTyped from 'lastfm-typed';
 import * as R from 'ramda';
 
 import { InvalidInputError } from './error';
+import { logger } from './utils/logger';
 
 /**
  * Structure representing parsed input parameters for the GitHub Action.
@@ -25,7 +26,7 @@ export interface GithubActionInput {
  * @throws InvalidInputError if any required input is missing or in an invalid format.
  */
 export async function parseInput(): Promise<GithubActionInput> {
-  core.debug('🔍 Validating input variables');
+  logger.debug('🔍 Validating input variables');
 
   // Required inputs
   const lastfmApiKey = core
@@ -91,7 +92,7 @@ function parseRepository(repositoryInput: string): {
 async function validateLastFmApiKey(apiKey: string): Promise<void> {
   try {
     await new LastFMTyped(apiKey).auth.getToken();
-    core.debug('✅ Last.fm API key validation successful');
+    logger.debug('✅ Last.fm API key validation successful');
   } catch {
     throw new InvalidInputError(
       '❌ Failed to validate Last.fm API key. Please check its validity.',

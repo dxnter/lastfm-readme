@@ -1,7 +1,7 @@
-import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 import type { GithubActionInput } from '../input';
+import { logger } from '../utils/logger';
 import type { FileSystemConfig, ReadmeFile, ReadmeFileSystem } from './types';
 
 /**
@@ -23,7 +23,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
 
   async readFile(path: string): Promise<string> {
     try {
-      core.debug(`🔍 Reading file: ${path}`);
+      logger.debug(`🔍 Reading file: ${path}`);
       const { data } = await this.octokit.rest.repos.getContent({
         owner: this.owner,
         repo: this.repo,
@@ -44,7 +44,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
 
   async writeFile(path: string, content: string): Promise<void> {
     try {
-      core.debug(`📝 Writing file: ${path}`);
+      logger.debug(`📝 Writing file: ${path}`);
 
       // Try to get an existing file first for SHA
       let sha: string | undefined;
@@ -74,7 +74,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
         },
       });
 
-      core.debug(`✅ Successfully wrote file: ${path}`);
+      logger.debug(`✅ Successfully wrote file: ${path}`);
     } catch (error) {
       throw new Error(
         `Failed to write file ${path} to ${this.owner}/${this.repo}: ${(error as Error).message}`,
@@ -84,7 +84,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
 
   ensureDir(path: string): Promise<void> {
     // GitHub doesn't require directory creation - directories are implicit
-    core.debug(`📁 Directory ensured (implicit in GitHub): ${path}`);
+    logger.debug(`📁 Directory ensured (implicit in GitHub): ${path}`);
     return Promise.resolve();
   }
 
@@ -110,14 +110,14 @@ export class GitHubFileSystem implements ReadmeFileSystem {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getReadme(_path?: string): Promise<ReadmeFile> {
     try {
-      core.debug('🔍 Connecting to GitHub API to fetch README');
+      logger.debug('🔍 Connecting to GitHub API to fetch README');
       const readme = await this.octokit.rest.repos.getReadme({
         owner: this.owner,
         repo: this.repo,
       });
 
-      core.setOutput('readme_hash', readme.data.sha);
-      core.debug(
+      logger.setOutput('readme_hash', readme.data.sha);
+      logger.debug(
         `📥 Successfully fetched README content from ${this.owner}/${this.repo}`,
       );
 
@@ -149,7 +149,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
     options?: { hash?: string; message?: string },
   ): Promise<void> {
     try {
-      core.debug(
+      logger.debug(
         `🚀 Preparing to update README.md for ${this.owner}/${this.repo}`,
       );
 
@@ -178,7 +178,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
         },
       });
 
-      core.info('✅ README successfully updated with new charts');
+      logger.info('✅ README successfully updated with new charts');
     } catch (error) {
       throw new Error(
         `❌ Failed to update README.md for ${this.owner}/${this.repo}: ${(error as Error).message}`,

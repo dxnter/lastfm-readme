@@ -14,6 +14,7 @@ import {
   updateTrackSection,
   updateUserInfoSection,
 } from './sections';
+import { CLI } from './utils/cli';
 
 /**
  * Represents a section update function for local development.
@@ -30,19 +31,34 @@ type LocalSectionUpdater = {
 
 export async function runLocalDevelopment(): Promise<void> {
   const startTime = Date.now();
-  console.log('🚀 Starting Last.fm README local development mode...\n');
 
   try {
+    CLI.printHeader('🎵 Last.fm README');
+
+    CLI.printStatus('Loading configuration...');
+
     const localConfig = parseLocalInput();
     const input = convertToGithubActionInput(localConfig);
     const fs = new LocalFileSystem({
       readmePath: localConfig.readmePath,
     });
 
-    console.log('📖 Reading README file...');
+    CLI.printSuccess('Configuration loaded successfully');
+
+    CLI.printConfig({
+      'Last.fm User': input.lastfm_user,
+      'README Path': localConfig.readmePath,
+      Locale: input.locale,
+      'Date Format': input.date_format,
+    });
+
+    CLI.printStatus('Reading README file...');
+
     const readmeFile = await fs.getReadme();
     let readme = readmeFile.content;
     const originalReadme = readme;
+
+    CLI.printSuccess('README file loaded');
 
     const sections: LocalSectionUpdater[] = [
       { name: 'LASTFM_TRACKS', update: updateTrackSection },
@@ -52,57 +68,97 @@ export async function runLocalDevelopment(): Promise<void> {
       { name: 'LASTFM_USER_INFO', update: updateUserInfoSection },
     ];
 
-    let sectionsProcessed = 0;
-    let sectionsUpdated = 0;
+    // Find all sections that exist in the README
+    const foundSections: Array<{
+      name: string;
+      count: number;
+      processed: number;
+      updated: number;
+      status: 'success' | 'error' | 'unchanged';
+      error?: string;
+    }> = [];
 
+    let totalSectionsProcessed = 0;
+    let totalSectionsUpdated = 0;
+
+    // Process each section type
     for (const { name, update } of sections) {
       const matchingSections = getSectionsFromReadme(name, readme);
       if (!matchingSections?.length) continue;
 
-      console.log(
-        `\n🔄 Processing ${matchingSections.length} ${name} section(s)...`,
+      const sectionResult = {
+        name,
+        count: matchingSections.length,
+        processed: 0,
+        updated: 0,
+        status: 'success' as 'success' | 'error' | 'unchanged',
+        error: undefined as string | undefined,
+      };
+
+      CLI.printStatus(
+        `Processing ${matchingSections.length} ${name.replace('LASTFM_', '').toLowerCase()} section(s)...`,
       );
 
-      for (const section of matchingSections) {
-        sectionsProcessed++;
-        const originalSection = section.currentSection;
+      try {
+        for (const section of matchingSections) {
+          totalSectionsProcessed++;
+          sectionResult.processed++;
 
-        try {
+          const originalSection = section.currentSection;
           readme = await update(input, section, readme, localConfig);
 
-          if (
-            originalSection ===
-            getSectionFromReadme(name, readme, section.start)
-          ) {
-            console.log(`  ℹ️ No changes: ${section.start}`);
-          } else {
-            sectionsUpdated++;
-            console.log(`  ✅ Updated section: ${section.start}`);
-          }
-        } catch (error) {
-          console.error(
-            `  ❌ Failed to update section ${section.start}: ${(error as Error).message}`,
+          // Check if section changed
+          const updatedSection = getSectionFromReadme(
+            name,
+            readme,
+            section.start,
           );
+          if (originalSection !== updatedSection) {
+            totalSectionsUpdated++;
+            sectionResult.updated++;
+          }
         }
+
+        if (sectionResult.updated > 0) {
+          CLI.printSuccess(
+            `Updated ${sectionResult.updated} ${name.replace('LASTFM_', '').toLowerCase()} section(s)`,
+          );
+        } else {
+          CLI.printInfo(
+            `No changes needed for ${name.replace('LASTFM_', '').toLowerCase()} sections`,
+          );
+          sectionResult.status = 'unchanged';
+        }
+      } catch (error) {
+        const errorMessage = (error as Error).message;
+        sectionResult.status = 'error';
+        sectionResult.error = errorMessage;
+        CLI.printFailure(
+          `Failed to update ${name.replace('LASTFM_', '').toLowerCase()} sections: ${errorMessage}`,
+        );
       }
+
+      foundSections.push(sectionResult);
     }
 
-    if (readme === originalReadme) {
-      console.log(`\nℹ️ No changes made to README file.`);
-    } else {
-      console.log(`\n💾 Writing updated README file...`);
+    CLI.printSectionResults(foundSections);
+
+    const hasChanges = readme !== originalReadme;
+    if (hasChanges) {
+      CLI.printStatus('Writing updated README...');
       await fs.updateReadme(readme);
-      console.log(`✅ README updated successfully!`);
     }
 
     const duration = Date.now() - startTime;
-    console.log(`\n🎉 Local development complete!`);
-    console.log(`   Sections processed: ${sectionsProcessed}`);
-    console.log(`   Sections updated: ${sectionsUpdated}`);
-    console.log(`   Duration: ${duration}ms`);
+    CLI.printSummary({
+      sectionsProcessed: totalSectionsProcessed,
+      sectionsUpdated: totalSectionsUpdated,
+      duration,
+      hasChanges,
+      readmePath: localConfig.readmePath,
+    });
   } catch (error) {
-    console.error(`\n❌ Local development failed: ${(error as Error).message}`);
-    // Only exit if running as main module, otherwise throw for testing
+    CLI.printError(error as Error);
     if (process.argv[1] === import.meta.url.replace('file://', '')) {
       process.exit(1);
     } else {
@@ -121,7 +177,6 @@ function getSectionFromReadme(
   return section?.currentSection;
 }
 
-// Run if this file is executed directly
 if (process.argv[1] === import.meta.url.replace('file://', '')) {
   // eslint-disable-next-line unicorn/prefer-top-level-await
   runLocalDevelopment().catch((error) => {

@@ -1,5 +1,3 @@
-import * as core from '@actions/core';
-
 import { GitHubFileSystem } from './filesystem';
 import { type GithubActionInput, parseInput } from './input';
 import {
@@ -14,6 +12,7 @@ import {
   updateTrackSection,
   updateUserInfoSection,
 } from './sections';
+import { logger } from './utils/logger';
 
 /**
  * Represents a section update function with its associated name and update logic.
@@ -67,7 +66,7 @@ export async function run(): Promise<void> {
   }
 
   if (originalContent === currentContent) {
-    core.info('🕓 Skipping update, chart content is up to date');
+    logger.info('🕓 Skipping update, chart content is up to date');
   } else {
     await fileSystem.updateReadme(currentContent, {
       hash: readme.hash,
@@ -76,13 +75,13 @@ export async function run(): Promise<void> {
     updated = true;
   }
 
-  core.setOutput('readme-updated', updated);
+  logger.setOutput('readme-updated', String(updated));
 }
 
 try {
   await run();
 } catch (error: unknown) {
   if (error instanceof Error) {
-    core.setFailed(error.message);
+    logger.setFailed(error.message);
   }
 }
