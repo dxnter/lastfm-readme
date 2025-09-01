@@ -35503,10 +35503,10 @@ __nccwpck_require__.d(__webpack_exports__, {
 
 // UNUSED EXPORTS: LocalFileSystem
 
-// EXTERNAL MODULE: ./node_modules/.pnpm/@actions+core@1.11.1/node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(9999);
 // EXTERNAL MODULE: ./node_modules/.pnpm/@actions+github@6.0.1/node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5380);
+// EXTERNAL MODULE: ./src/utils/logger.ts
+var logger = __nccwpck_require__(187);
 ;// CONCATENATED MODULE: ./src/filesystem/github.ts
 
 
@@ -35528,7 +35528,7 @@ class GitHubFileSystem {
     }
     async readFile(path) {
         try {
-            core.debug(`🔍 Reading file: ${path}`);
+            logger/* logger */.v.debug(`🔍 Reading file: ${path}`);
             const { data } = await this.octokit.rest.repos.getContent({
                 owner: this.owner,
                 repo: this.repo,
@@ -35547,7 +35547,7 @@ class GitHubFileSystem {
     }
     async writeFile(path, content) {
         try {
-            core.debug(`📝 Writing file: ${path}`);
+            logger/* logger */.v.debug(`📝 Writing file: ${path}`);
             // Try to get an existing file first for SHA
             let sha;
             try {
@@ -35575,7 +35575,7 @@ class GitHubFileSystem {
                     email: 'lastfm-readme@proton.me',
                 },
             });
-            core.debug(`✅ Successfully wrote file: ${path}`);
+            logger/* logger */.v.debug(`✅ Successfully wrote file: ${path}`);
         }
         catch (error) {
             throw new Error(`Failed to write file ${path} to ${this.owner}/${this.repo}: ${error.message}`);
@@ -35583,7 +35583,7 @@ class GitHubFileSystem {
     }
     ensureDir(path) {
         // GitHub doesn't require directory creation - directories are implicit
-        core.debug(`📁 Directory ensured (implicit in GitHub): ${path}`);
+        logger/* logger */.v.debug(`📁 Directory ensured (implicit in GitHub): ${path}`);
         return Promise.resolve();
     }
     async fileExists(path) {
@@ -35608,13 +35608,13 @@ class GitHubFileSystem {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async getReadme(_path) {
         try {
-            core.debug('🔍 Connecting to GitHub API to fetch README');
+            logger/* logger */.v.debug('🔍 Connecting to GitHub API to fetch README');
             const readme = await this.octokit.rest.repos.getReadme({
                 owner: this.owner,
                 repo: this.repo,
             });
-            core.setOutput('readme_hash', readme.data.sha);
-            core.debug(`📥 Successfully fetched README content from ${this.owner}/${this.repo}`);
+            logger/* logger */.v.setOutput('readme_hash', readme.data.sha);
+            logger/* logger */.v.debug(`📥 Successfully fetched README content from ${this.owner}/${this.repo}`);
             return {
                 content: Buffer.from(readme.data.content, readme.data.encoding).toString('utf8'),
                 hash: readme.data.sha,
@@ -35635,7 +35635,7 @@ class GitHubFileSystem {
      */
     async updateReadme(content, options) {
         try {
-            core.debug(`🚀 Preparing to update README.md for ${this.owner}/${this.repo}`);
+            logger/* logger */.v.debug(`🚀 Preparing to update README.md for ${this.owner}/${this.repo}`);
             const message = options?.message ||
                 this.config.commitMessage ||
                 this.input.commit_message;
@@ -35655,7 +35655,7 @@ class GitHubFileSystem {
                     email: 'lastfm-readme@proton.me',
                 },
             });
-            core.info('✅ README successfully updated with new charts');
+            logger/* logger */.v.info('✅ README successfully updated with new charts');
         }
         catch (error) {
             throw new Error(`❌ Failed to update README.md for ${this.owner}/${this.repo}: ${error.message}`);
@@ -35762,12 +35762,11 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
 /* harmony export */   run: () => (/* binding */ run)
 /* harmony export */ });
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(9999);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _filesystem__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(7936);
-/* harmony import */ var _input__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(1213);
-/* harmony import */ var _section__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(8808);
-/* harmony import */ var _sections__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(2114);
+/* harmony import */ var _filesystem__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7936);
+/* harmony import */ var _input__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(1213);
+/* harmony import */ var _section__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(8808);
+/* harmony import */ var _sections__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2114);
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(187);
 
 
 
@@ -35780,8 +35779,8 @@ __nccwpck_require__.r(__webpack_exports__);
  * @throws Error if any part of the workflow fails
  */
 async function run() {
-    const input = await (0,_input__WEBPACK_IMPORTED_MODULE_2__/* .parseInput */ .C)();
-    const fileSystem = new _filesystem__WEBPACK_IMPORTED_MODULE_1__/* .GitHubFileSystem */ .X(input, {
+    const input = await (0,_input__WEBPACK_IMPORTED_MODULE_1__/* .parseInput */ .C)();
+    const fileSystem = new _filesystem__WEBPACK_IMPORTED_MODULE_0__/* .GitHubFileSystem */ .X(input, {
         commitMessage: input.commit_message,
     });
     const readme = await fileSystem.getReadme();
@@ -35789,14 +35788,14 @@ async function run() {
     let currentContent = readme.content;
     let updated = false;
     const sections = [
-        { name: 'LASTFM_TRACKS', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateTrackSection */ ._H },
-        { name: 'LASTFM_ARTISTS', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateArtistSection */ .m$ },
-        { name: 'LASTFM_ALBUMS', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateAlbumSection */ .sW },
-        { name: 'LASTFM_RECENT', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateRecentSection */ .Or },
-        { name: 'LASTFM_USER_INFO', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateUserInfoSection */ .MA },
+        { name: 'LASTFM_TRACKS', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateTrackSection */ ._H },
+        { name: 'LASTFM_ARTISTS', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateArtistSection */ .m$ },
+        { name: 'LASTFM_ALBUMS', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateAlbumSection */ .sW },
+        { name: 'LASTFM_RECENT', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateRecentSection */ .Or },
+        { name: 'LASTFM_USER_INFO', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateUserInfoSection */ .MA },
     ];
     for (const { name, update } of sections) {
-        const matchingSections = (0,_section__WEBPACK_IMPORTED_MODULE_3__/* .getSectionsFromReadme */ .ZU)(name, currentContent);
+        const matchingSections = (0,_section__WEBPACK_IMPORTED_MODULE_2__/* .getSectionsFromReadme */ .ZU)(name, currentContent);
         if (!matchingSections?.length)
             continue;
         for (const section of matchingSections) {
@@ -35804,7 +35803,7 @@ async function run() {
         }
     }
     if (originalContent === currentContent) {
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('🕓 Skipping update, chart content is up to date');
+        _utils_logger__WEBPACK_IMPORTED_MODULE_4__/* .logger */ .v.info('🕓 Skipping update, chart content is up to date');
     }
     else {
         await fileSystem.updateReadme(currentContent, {
@@ -35813,14 +35812,14 @@ async function run() {
         });
         updated = true;
     }
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('readme-updated', updated);
+    _utils_logger__WEBPACK_IMPORTED_MODULE_4__/* .logger */ .v.setOutput('readme-updated', String(updated));
 }
 try {
     await run();
 }
 catch (error) {
     if (error instanceof Error) {
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
+        _utils_logger__WEBPACK_IMPORTED_MODULE_4__/* .logger */ .v.setFailed(error.message);
     }
 }
 
@@ -35880,7 +35879,10 @@ var defaultTo = /*#__PURE__*/(0,_curry2/* default */.A)(function defaultTo(d, v)
 /* harmony default export */ const es_defaultTo = (defaultTo);
 // EXTERNAL MODULE: ./src/error/index.ts
 var error = __nccwpck_require__(5504);
+// EXTERNAL MODULE: ./src/utils/logger.ts
+var logger = __nccwpck_require__(187);
 ;// CONCATENATED MODULE: ./src/input.ts
+
 
 
 
@@ -35892,7 +35894,7 @@ var error = __nccwpck_require__(5504);
  * @throws InvalidInputError if any required input is missing or in an invalid format.
  */
 async function parseInput() {
-    core.debug('🔍 Validating input variables');
+    logger/* logger */.v.debug('🔍 Validating input variables');
     // Required inputs
     const lastfmApiKey = core.getInput('LASTFM_API_KEY', { required: true })
         .trim();
@@ -35943,7 +35945,7 @@ function parseRepository(repositoryInput) {
 async function validateLastFmApiKey(apiKey) {
     try {
         await new (dist_default())(apiKey).auth.getToken();
-        core.debug('✅ Last.fm API key validation successful');
+        logger/* logger */.v.debug('✅ Last.fm API key validation successful');
     }
     catch {
         throw new error/* InvalidInputError */.oC('❌ Failed to validate Last.fm API key. Please check its validity.');
@@ -39408,8 +39410,6 @@ __nccwpck_require__.d(__webpack_exports__, {
 
 // UNUSED EXPORTS: SectionName
 
-// EXTERNAL MODULE: ./node_modules/.pnpm/@actions+core@1.11.1/node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(9999);
 // EXTERNAL MODULE: ./node_modules/.pnpm/ramda@0.31.3/node_modules/ramda/es/internal/_curry1.js
 var _curry1 = __nccwpck_require__(5772);
 // EXTERNAL MODULE: ./node_modules/.pnpm/ramda@0.31.3/node_modules/ramda/es/internal/_curry2.js
@@ -40188,6 +40188,8 @@ var error = __nccwpck_require__(5504);
 var lastfm = __nccwpck_require__(1785);
 // EXTERNAL MODULE: ./src/lastfm/types.ts
 var types = __nccwpck_require__(2638);
+// EXTERNAL MODULE: ./src/utils/logger.ts
+var logger = __nccwpck_require__(187);
 ;// CONCATENATED MODULE: ./src/section.ts
 
 
@@ -40242,7 +40244,7 @@ const SectionNameMap = {
  * @returns Extracted sections or undefined if none are found.
  */
 function getSectionsFromReadme(sectionComment, readmeContent) {
-    core.debug(`🔍 Searching for ${sectionComment} sections in README`);
+    logger/* logger */.v.debug(`🔍 Searching for ${sectionComment} sections in README`);
     const sections = {};
     const sectionStack = [];
     const startPrefix = `<!--START_${sectionComment}`;
@@ -40289,7 +40291,7 @@ ${sections[lastStart].end}`)();
     if (sectionStack.length > 0) {
         throw new error/* StartTagWithoutEndTagError */.e9(sectionStack.join(''));
     }
-    core.debug(`Found ${es_length(es_keys(sections))} ${sectionComment} sections in README`);
+    logger/* logger */.v.debug(`Found ${es_length(es_keys(sections))} ${sectionComment} sections in README`);
     return es_length(es_keys(sections)) > 0 ? es_values(sections) : undefined;
 }
 /**
@@ -40361,7 +40363,7 @@ const formatSectionData = (input, section, listeningData) => {
  * @returns Complete markdown section ready for README insertion
  */
 function generateMarkdownSection(input, section, title, content) {
-    core.debug(`🔧 Generating ${section.name} section for ${section.start}`);
+    logger/* logger */.v.debug(`🔧 Generating ${section.name} section for ${section.start}`);
     const chartTitle = input.show_title === 'true'
         ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
         : '';
@@ -40511,6 +40513,77 @@ async function updateTrackSection(input, section, readme) {
 
 
 
+
+
+/***/ }),
+
+/***/ 187:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   v: () => (/* binding */ logger)
+/* harmony export */ });
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(9999);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+
+/**
+ * Logger utility that conditionally outputs debug messages based on environment
+ */
+const logger = {
+    /**
+     * Debug logging that only outputs in GitHub Actions environment
+     * @param message - Debug message to log
+     */
+    debug: (message) => {
+        if (process.env.GITHUB_ACTIONS) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(message);
+        }
+    },
+    /**
+     * Info logging that only outputs in GitHub Actions environment
+     * @param message - Info message to log
+     */
+    info: (message) => {
+        if (process.env.GITHUB_ACTIONS) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(message);
+        }
+    },
+    /**
+     * Always output error messages
+     * @param message - Error message to log
+     */
+    error: (message) => {
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(message);
+    },
+    /**
+     * Set output only in GitHub Actions environment
+     * @param name - Output name
+     * @param value - Output value
+     */
+    setOutput: (name, value) => {
+        if (process.env.GITHUB_ACTIONS) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput(name, value);
+        }
+    },
+    /**
+     * Set failed only in GitHub Actions environment
+     * @param message - Failure message
+     */
+    setFailed: (message) => {
+        if (process.env.GITHUB_ACTIONS) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(message);
+        }
+        else if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+            // In test environment, just log the error instead of throwing
+            console.error(`Error: ${message || 'Unknown error'}`);
+        }
+        else {
+            // In local development, throw the error
+            throw new Error(message || 'Unknown error');
+        }
+    },
+};
 
 
 /***/ }),
