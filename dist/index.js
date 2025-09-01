@@ -35440,24 +35440,315 @@ function wrappy (fn, cb) {
 /* harmony export */   e9: () => (/* binding */ StartTagWithoutEndTagError),
 /* harmony export */   oC: () => (/* binding */ InvalidInputError)
 /* harmony export */ });
+/**
+ * Custom error class for invalid user input or configuration.
+ * Thrown when GitHub Action inputs fail validation or are malformed.
+ *
+ * @example
+ * ```typescript
+ * throw new InvalidInputError('Last.fm API key is required');
+ * ```
+ */
 class InvalidInputError extends Error {
     constructor(message = 'InvalidInputError') {
         super(message);
         this.name = 'InvalidInputError';
     }
 }
+/**
+ * Error thrown when a README section end tag is found without a corresponding start tag.
+ * Indicates malformed HTML comments in the README file structure.
+ *
+ * @example
+ * ```typescript
+ * // This would throw an EndTagWithoutStartTagError:
+ * // <!--END_LASTFM_TRACKS-->  (missing start tag)
+ * ```
+ */
 class EndTagWithoutStartTagError extends Error {
     constructor(endTag) {
         super(`End tag found without a corresponding start tag: "${endTag}"`);
         this.name = 'EndTagWithoutStartTagError';
     }
 }
+/**
+ * Error thrown when a README section start tag is found without a corresponding end tag.
+ * Indicates incomplete or malformed HTML comment sections in the README file.
+ *
+ * @example
+ * ```typescript
+ * // This would throw a StartTagWithoutEndTagError:
+ * // <!--START_LASTFM_TRACKS-->  (missing end tag)
+ * ```
+ */
 class StartTagWithoutEndTagError extends Error {
     constructor(startTag) {
         super(`Start tag found without a corresponding end tag: "${startTag}"`);
         this.name = 'StartTagWithoutEndTagError';
     }
 }
+
+
+/***/ }),
+
+/***/ 7936:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  X: () => (/* reexport */ GitHubFileSystem)
+});
+
+// UNUSED EXPORTS: LocalFileSystem
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/@actions+github@6.0.1/node_modules/@actions/github/lib/github.js
+var github = __nccwpck_require__(5380);
+// EXTERNAL MODULE: ./src/utils/logger.ts
+var logger = __nccwpck_require__(187);
+;// CONCATENATED MODULE: ./src/filesystem/github.ts
+
+
+/**
+ * GitHub Actions file system implementation using Octokit
+ */
+class GitHubFileSystem {
+    input;
+    config;
+    octokit;
+    owner;
+    repo;
+    constructor(input, config = {}) {
+        this.input = input;
+        this.config = config;
+        this.octokit = github.getOctokit(input.gh_token);
+        this.owner = input.repository.owner;
+        this.repo = input.repository.repo;
+    }
+    async readFile(path) {
+        try {
+            logger/* logger */.v.debug(`🔍 Reading file: ${path}`);
+            const { data } = await this.octokit.rest.repos.getContent({
+                owner: this.owner,
+                repo: this.repo,
+                path,
+            });
+            if ('content' in data) {
+                return Buffer.from(data.content, 'base64').toString('utf8');
+            }
+            else {
+                throw new Error(`${path} is not a file`);
+            }
+        }
+        catch (error) {
+            throw new Error(`Failed to read file ${path} from ${this.owner}/${this.repo}: ${error.message}`);
+        }
+    }
+    async writeFile(path, content) {
+        try {
+            logger/* logger */.v.debug(`📝 Writing file: ${path}`);
+            // Try to get an existing file first for SHA
+            let sha;
+            try {
+                const { data } = await this.octokit.rest.repos.getContent({
+                    owner: this.owner,
+                    repo: this.repo,
+                    path,
+                });
+                if ('sha' in data) {
+                    sha = data.sha;
+                }
+            }
+            catch {
+                // File doesn't exist, that's fine
+            }
+            await this.octokit.rest.repos.createOrUpdateFileContents({
+                owner: this.owner,
+                repo: this.repo,
+                path,
+                message: this.config.commitMessage || `Update ${path}`,
+                content: Buffer.from(content, 'utf8').toString('base64'),
+                sha,
+                committer: {
+                    name: 'lastfm-readme-bot',
+                    email: 'lastfm-readme@proton.me',
+                },
+            });
+            logger/* logger */.v.debug(`✅ Successfully wrote file: ${path}`);
+        }
+        catch (error) {
+            throw new Error(`Failed to write file ${path} to ${this.owner}/${this.repo}: ${error.message}`);
+        }
+    }
+    ensureDir(path) {
+        // GitHub doesn't require directory creation - directories are implicit
+        logger/* logger */.v.debug(`📁 Directory ensured (implicit in GitHub): ${path}`);
+        return Promise.resolve();
+    }
+    async fileExists(path) {
+        try {
+            await this.octokit.rest.repos.getContent({
+                owner: this.owner,
+                repo: this.repo,
+                path,
+            });
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+    /**
+     * Fetches the README file content from the specified GitHub repository.
+     * @param _path - Optional path to the README file (defaults to 'README.md') - currently unused
+     * @returns A promise resolving to the README content and hash.
+     * @throws Error if the README file cannot be retrieved.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async getReadme(_path) {
+        try {
+            logger/* logger */.v.debug('🔍 Connecting to GitHub API to fetch README');
+            const readme = await this.octokit.rest.repos.getReadme({
+                owner: this.owner,
+                repo: this.repo,
+            });
+            logger/* logger */.v.setOutput('readme_hash', readme.data.sha);
+            logger/* logger */.v.debug(`📥 Successfully fetched README content from ${this.owner}/${this.repo}`);
+            return {
+                content: Buffer.from(readme.data.content, readme.data.encoding).toString('utf8'),
+                hash: readme.data.sha,
+            };
+        }
+        catch (error) {
+            throw new Error(`❌ Failed to fetch README.md from ${this.owner}/${this.repo}: ${error.message}`);
+        }
+    }
+    /**
+     * Updates the README file with new content in the specified GitHub repository.
+     * @param content - The updated content to be written to the README.
+     * @param options - Options containing hash and commit message
+     * @param options.hash - The current hash of the README file to ensure content integrity.
+     * @param options.message - Optional custom commit message
+     * @returns A promise resolving when the update is complete.
+     * @throws Error if the update operation fails.
+     */
+    async updateReadme(content, options) {
+        try {
+            logger/* logger */.v.debug(`🚀 Preparing to update README.md for ${this.owner}/${this.repo}`);
+            const message = options?.message ||
+                this.config.commitMessage ||
+                this.input.commit_message;
+            const sha = options?.hash;
+            if (!sha) {
+                throw new Error('Hash is required for README updates in GitHub Actions');
+            }
+            await this.octokit.rest.repos.createOrUpdateFileContents({
+                owner: this.owner,
+                repo: this.repo,
+                path: 'README.md',
+                message,
+                content: Buffer.from(content, 'utf8').toString('base64'),
+                sha,
+                committer: {
+                    name: 'lastfm-readme-bot',
+                    email: 'lastfm-readme@proton.me',
+                },
+            });
+            logger/* logger */.v.info('✅ README successfully updated with new charts');
+        }
+        catch (error) {
+            throw new Error(`❌ Failed to update README.md for ${this.owner}/${this.repo}: ${error.message}`);
+        }
+    }
+}
+
+;// CONCATENATED MODULE: external "node:fs/promises"
+const promises_namespaceObject = require("node:fs/promises");
+;// CONCATENATED MODULE: external "node:path"
+const external_node_path_namespaceObject = require("node:path");
+;// CONCATENATED MODULE: ./src/filesystem/local.ts
+
+
+/**
+ * Local file system implementation for development
+ */
+class LocalFileSystem {
+    config;
+    constructor(config = {}) {
+        this.config = config;
+    }
+    async readFile(filePath) {
+        try {
+            return await fs.readFile(filePath, 'utf8');
+        }
+        catch (error) {
+            if (error.code === 'ENOENT') {
+                throw new Error(`File not found: ${filePath}`);
+            }
+            throw new Error(`Failed to read file ${filePath}: ${error.message}`);
+        }
+    }
+    async writeFile(filePath, content) {
+        try {
+            await this.ensureDir(path.dirname(filePath));
+            await fs.writeFile(filePath, content, 'utf8');
+        }
+        catch (error) {
+            throw new Error(`Failed to write file ${filePath}: ${error.message}`);
+        }
+    }
+    async ensureDir(directoryPath) {
+        try {
+            await fs.mkdir(directoryPath, { recursive: true });
+        }
+        catch (error) {
+            throw new Error(`Failed to create directory ${directoryPath}: ${error.message}`);
+        }
+    }
+    async fileExists(filePath) {
+        try {
+            await fs.access(filePath);
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+    /**
+     * Reads the README file from the local filesystem.
+     * @param filePath - Optional path to the README file
+     * @returns A promise resolving to the README content
+     * @throws Error if the README file cannot be found or read.
+     */
+    async getReadme(filePath) {
+        const path = filePath || this.config.readmePath || './local/README.md';
+        if (!(await this.fileExists(path))) {
+            throw new Error(`README file not found: ${path}`);
+        }
+        const content = await this.readFile(path);
+        return {
+            content,
+        };
+    }
+    /**
+     * Updates the README file with new content in the local filesystem.
+     * @param content - The updated content to be written to the README.
+     * @param _options - Options containing hash and message (ignored for local operations)
+     * @returns A promise resolving when the update is complete.
+     * @throws Error if the update operation fails.
+     */
+    async updateReadme(content, 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _options) {
+        const filePath = this.config.readmePath || './README.md';
+        await this.writeFile(filePath, content);
+    }
+}
+
+;// CONCATENATED MODULE: ./src/filesystem/index.ts
+
+
 
 
 /***/ }),
@@ -35471,52 +35762,64 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
 /* harmony export */   run: () => (/* binding */ run)
 /* harmony export */ });
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(9999);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _filesystem__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7936);
 /* harmony import */ var _input__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(1213);
-/* harmony import */ var _readme_file__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(5938);
-/* harmony import */ var _section__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(8808);
-/* harmony import */ var _sections__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(2114);
+/* harmony import */ var _section__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(8808);
+/* harmony import */ var _sections__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2114);
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(187);
 
 
 
 
 
+/**
+ * Main entry point for the GitHub Action that updates Last.fm sections in README files.
+ * Orchestrates the entire workflow of reading, updating, and writing README content.
+ * @returns Promise that resolves when the README update is complete
+ * @throws Error if any part of the workflow fails
+ */
 async function run() {
     const input = await (0,_input__WEBPACK_IMPORTED_MODULE_1__/* .parseInput */ .C)();
-    const readme = await (0,_readme_file__WEBPACK_IMPORTED_MODULE_2__/* .getReadmeFile */ .f)(input);
+    const fileSystem = new _filesystem__WEBPACK_IMPORTED_MODULE_0__/* .GitHubFileSystem */ .X(input, {
+        commitMessage: input.commit_message,
+    });
+    const readme = await fileSystem.getReadme();
+    const originalContent = readme.content;
+    let currentContent = readme.content;
     let updated = false;
     const sections = [
-        { name: 'LASTFM_TRACKS', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateTrackSection */ ._H },
-        { name: 'LASTFM_ARTISTS', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateArtistSection */ .m$ },
-        { name: 'LASTFM_ALBUMS', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateAlbumSection */ .sW },
-        { name: 'LASTFM_RECENT', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateRecentSection */ .Or },
-        { name: 'LASTFM_USER_INFO', update: _sections__WEBPACK_IMPORTED_MODULE_4__/* .updateUserInfoSection */ .MA },
+        { name: 'LASTFM_TRACKS', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateTrackSection */ ._H },
+        { name: 'LASTFM_ARTISTS', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateArtistSection */ .m$ },
+        { name: 'LASTFM_ALBUMS', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateAlbumSection */ .sW },
+        { name: 'LASTFM_RECENT', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateRecentSection */ .Or },
+        { name: 'LASTFM_USER_INFO', update: _sections__WEBPACK_IMPORTED_MODULE_3__/* .updateUserInfoSection */ .MA },
     ];
     for (const { name, update } of sections) {
-        const matchingSections = (0,_section__WEBPACK_IMPORTED_MODULE_3__/* .getSectionsFromReadme */ .ZU)(name, readme.content);
+        const matchingSections = (0,_section__WEBPACK_IMPORTED_MODULE_2__/* .getSectionsFromReadme */ .ZU)(name, currentContent);
         if (!matchingSections?.length)
             continue;
         for (const section of matchingSections) {
-            readme.content = await update(input, section, readme.content);
+            currentContent = await update(input, section, currentContent);
         }
     }
-    const unmodifiedReadme = await (0,_readme_file__WEBPACK_IMPORTED_MODULE_2__/* .getReadmeFile */ .f)(input);
-    if (unmodifiedReadme.content === readme.content) {
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('🕓 Skipping update, chart content is up to date');
+    if (originalContent === currentContent) {
+        _utils_logger__WEBPACK_IMPORTED_MODULE_4__/* .logger */ .v.info('🕓 Skipping update, chart content is up to date');
     }
     else {
-        await (0,_readme_file__WEBPACK_IMPORTED_MODULE_2__/* .updateReadmeFile */ .m)(input, readme.hash, readme.content);
+        await fileSystem.updateReadme(currentContent, {
+            hash: readme.hash,
+            message: input.commit_message,
+        });
         updated = true;
     }
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('readme-updated', updated);
+    _utils_logger__WEBPACK_IMPORTED_MODULE_4__/* .logger */ .v.setOutput('readme-updated', String(updated));
 }
 try {
     await run();
 }
 catch (error) {
     if (error instanceof Error) {
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
+        _utils_logger__WEBPACK_IMPORTED_MODULE_4__/* .logger */ .v.setFailed(error.message);
     }
 }
 
@@ -35576,7 +35879,10 @@ var defaultTo = /*#__PURE__*/(0,_curry2/* default */.A)(function defaultTo(d, v)
 /* harmony default export */ const es_defaultTo = (defaultTo);
 // EXTERNAL MODULE: ./src/error/index.ts
 var error = __nccwpck_require__(5504);
+// EXTERNAL MODULE: ./src/utils/logger.ts
+var logger = __nccwpck_require__(187);
 ;// CONCATENATED MODULE: ./src/input.ts
+
 
 
 
@@ -35588,7 +35894,7 @@ var error = __nccwpck_require__(5504);
  * @throws InvalidInputError if any required input is missing or in an invalid format.
  */
 async function parseInput() {
-    core.debug('🔍 Validating input variables');
+    logger/* logger */.v.debug('🔍 Validating input variables');
     // Required inputs
     const lastfmApiKey = core.getInput('LASTFM_API_KEY', { required: true })
         .trim();
@@ -35639,7 +35945,7 @@ function parseRepository(repositoryInput) {
 async function validateLastFmApiKey(apiKey) {
     try {
         await new (dist_default())(apiKey).auth.getToken();
-        core.debug('✅ Last.fm API key validation successful');
+        logger/* logger */.v.debug('✅ Last.fm API key validation successful');
     }
     catch {
         throw new error/* InvalidInputError */.oC('❌ Failed to validate Last.fm API key. Please check its validity.');
@@ -38888,7 +39194,8 @@ var types = __nccwpck_require__(2638);
 
 
 /**
- * Map Last.fm API time periods to readable format.
+ * Immutable mapping from Last.fm API time period codes to human-readable labels.
+ * Used for generating section titles and user-friendly period descriptions.
  */
 const timePeriods = new Map([
     [types/* ConfigTimePeriod */.H['7day'], 'Past Week'],
@@ -38899,14 +39206,20 @@ const timePeriods = new Map([
     [types/* ConfigTimePeriod */.H['overall'], 'All Time'],
 ]);
 /**
- * Retrieves a human-readable time period for the provided section configuration.
- * @param section - The section object containing the configuration.
- * @returns ReadableTimePeriod
+ * Converts a section's time period configuration to a human-readable format.
+ * Provides fallback to 'Past Week' if period is not specified or invalid.
+ *
+ * @param section - The section configuration containing the period
+ * @returns Human-readable time period string suitable for display
  */
 function readableTimePeriod(section) {
     const period = section.config.period ?? '7day';
     return timePeriods.get(types/* ConfigTimePeriod */.H[period]) ?? 'Past Week';
 }
+/**
+ * Mapping from internal user info option keys to display-friendly labels.
+ * Used when rendering user information sections in the README.
+ */
 const userInfoDisplayOptions = new Map([
     [types/* ConfigUserInfoDisplayOption */.v.registered, 'Registered'],
     [types/* ConfigUserInfoDisplayOption */.v.playcount, 'Playcount'],
@@ -38914,23 +39227,63 @@ const userInfoDisplayOptions = new Map([
     [types/* ConfigUserInfoDisplayOption */.v.albumCount, 'Albums'],
     [types/* ConfigUserInfoDisplayOption */.v.trackCount, 'Tracks'],
 ]);
+/**
+ * Type-safe mapping of Last.fm data retrieval methods.
+ * Each method is configured to handle specific section requirements and API parameters.
+ */
 const lastFMDataMethods = {
+    /**
+     * Retrieves recent tracks for the specified user.
+     * @param lastfm - Configured Last.fm API client
+     * @param input - GitHub action input containing user preferences
+     * @param section - Section configuration for limits and display options
+     * @returns Promise resolving to recent tracks data
+     */
     RecentTracks: (lastfm, input, section) => lastfm.user.getRecentTracks(input.lastfm_user, {
         limit: section.config.rows ?? 8,
         extended: true,
     }),
+    /**
+     * Retrieves top artists for the specified user and time period.
+     * @param lastfm - Configured Last.fm API client
+     * @param input - GitHub action input containing user preferences
+     * @param section - Section configuration for limits and time period
+     * @returns Promise resolving to top artists data
+     */
     TopArtists: (lastfm, input, section) => lastfm.user.getTopArtists(input.lastfm_user, {
         limit: section.config.rows ?? 8,
         period: section.config.period ?? '7day',
     }),
+    /**
+     * Retrieves top tracks for the specified user and time period.
+     * @param lastfm - Configured Last.fm API client
+     * @param input - GitHub action input containing user preferences
+     * @param section - Section configuration for limits and time period
+     * @returns Promise resolving to top tracks data
+     */
     TopTracks: (lastfm, input, section) => lastfm.user.getTopTracks(input.lastfm_user, {
         limit: section.config.rows ?? 8,
         period: section.config.period ?? '7day',
     }),
+    /**
+     * Retrieves top albums for the specified user and time period.
+     * @param lastfm - Configured Last.fm API client
+     * @param input - GitHub action input containing user preferences
+     * @param section - Section configuration for limits and time period
+     * @returns Promise resolving to top albums data
+     */
     TopAlbums: (lastfm, input, section) => lastfm.user.getTopAlbums(input.lastfm_user, {
         limit: section.config.rows ?? 8,
         period: section.config.period ?? '7day',
     }),
+    /**
+     * Retrieves and formats user profile information.
+     * Applies locale-specific formatting and filtering based on display options.
+     * @param lastfm - Configured Last.fm API client
+     * @param input - GitHub action input containing user preferences and locale
+     * @param section - Section configuration for display options
+     * @returns Promise resolving to formatted user information
+     */
     UserInfo: async (lastfm, input, section) => {
         const displayOptions = section.config.display ?? Object.values(types/* ConfigUserInfoDisplayOption */.v);
         const numberFormat = new Intl.NumberFormat(input.locale);
@@ -38963,18 +39316,33 @@ const lastFMDataMethods = {
     },
 };
 /**
- * Fetches data from Last.fm based on the specified type.
- * @param type - The type of data to retrieve.
- * @param input - User input parameters.
- * @param section - Section configuration for the request.
- * @returns The retrieved Last.fm data.
+ * Generic function to fetch Last.fm data based on the specified retriever type.
+ * Provides type-safe access to different Last.fm API endpoints with proper error handling.
+ *
+ * @template T - The specific Last.fm data retriever key type
+ * @param type - The type of data to retrieve (RecentTracks, TopArtists, etc.)
+ * @param input - GitHub action input containing API key and user preferences
+ * @param section - Section configuration defining limits, periods, and display options
+ * @returns Promise resolving to the retrieved and formatted Last.fm data
+ * @throws Error if the retriever key is invalid or API request fails
+ *
+ * @example
+ * ```typescript
+ * const tracks = await getLastFMData('TopTracks', input, section);
+ * const userInfo = await getLastFMData('UserInfo', input, section);
+ * ```
  */
 async function getLastFMData(type, input, section) {
     const lastfm = new (dist_default())(input.lastfm_api_key);
     if (!(type in lastFMDataMethods)) {
-        throw new Error(`Invalid data retriever key: ${type}`);
+        throw new Error(`Invalid data retriever key: ${type}. Valid keys are: ${Object.keys(lastFMDataMethods).join(', ')}`);
     }
-    return lastFMDataMethods[type](lastfm, input, section);
+    try {
+        return await lastFMDataMethods[type](lastfm, input, section);
+    }
+    catch (error) {
+        throw new Error(`Failed to fetch ${type} data from Last.fm: ${error.message}`);
+    }
 }
 
 
@@ -38988,95 +39356,42 @@ async function getLastFMData(type, input, section) {
 /* harmony export */   H: () => (/* binding */ ConfigTimePeriod),
 /* harmony export */   v: () => (/* binding */ ConfigUserInfoDisplayOption)
 /* harmony export */ });
+/**
+ * Enumeration of available time periods for Last.fm data aggregation.
+ * These correspond to the time periods supported by the Last.fm API.
+ */
 var ConfigTimePeriod;
 (function (ConfigTimePeriod) {
+    /** Past 7 days */
     ConfigTimePeriod["7day"] = "7day";
+    /** Past month */
     ConfigTimePeriod["1month"] = "1month";
+    /** Past 3 months */
     ConfigTimePeriod["3month"] = "3month";
+    /** Past 6 months */
     ConfigTimePeriod["6month"] = "6month";
+    /** Past 12 months */
     ConfigTimePeriod["12month"] = "12month";
+    /** All time data */
     ConfigTimePeriod["overall"] = "overall";
 })(ConfigTimePeriod || (ConfigTimePeriod = {}));
+/**
+ * Enumeration of available user information display options.
+ * These control which user statistics are shown in the user info section.
+ */
 var ConfigUserInfoDisplayOption;
 (function (ConfigUserInfoDisplayOption) {
+    /** Account registration date */
     ConfigUserInfoDisplayOption["registered"] = "registered";
+    /** Total play count across all time */
     ConfigUserInfoDisplayOption["playcount"] = "playcount";
+    /** Number of different artists listened to */
     ConfigUserInfoDisplayOption["artistCount"] = "artistCount";
+    /** Number of different albums listened to */
     ConfigUserInfoDisplayOption["albumCount"] = "albumCount";
+    /** Number of different tracks listened to */
     ConfigUserInfoDisplayOption["trackCount"] = "trackCount";
 })(ConfigUserInfoDisplayOption || (ConfigUserInfoDisplayOption = {}));
-
-
-/***/ }),
-
-/***/ 5938:
-/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
-
-"use strict";
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   f: () => (/* binding */ getReadmeFile),
-/* harmony export */   m: () => (/* binding */ updateReadmeFile)
-/* harmony export */ });
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(9999);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(5380);
-/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_1__);
-
-
-/**
- * Fetches the README file content from the specified GitHub repository.
- * @param input - The input containing GitHub credentials and repository details.
- * @returns A promise resolving to the README content and hash.
- * @throws Error if the README file cannot be retrieved.
- */
-async function getReadmeFile(input) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('🔍 Connecting to GitHub API to fetch README');
-    const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(input.gh_token);
-    const { owner, repo } = input.repository;
-    try {
-        const readme = await octokit.rest.repos.getReadme({ owner, repo });
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('readme_hash', readme.data.sha);
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`📥 Successfully fetched README content from ${owner}/${repo}`);
-        return {
-            content: Buffer.from(readme.data.content, readme.data.encoding).toString('utf8'),
-            hash: readme.data.sha,
-        };
-    }
-    catch (error) {
-        throw new Error(`❌ Failed to fetch README.md from ${owner}/${repo}: ${error.message}`);
-    }
-}
-/**
- * Updates the README file with new content in the specified GitHub repository.
- * @param input - The input containing GitHub credentials and repository details.
- * @param fileHash - The current hash of the README file to ensure content integrity.
- * @param newContent - The updated content to be written to the README.
- * @returns A promise resolving when the update is complete.
- * @throws Error if the update operation fails.
- */
-async function updateReadmeFile(input, fileHash, newContent) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`🚀 Preparing to update README.md for ${input.repository.owner}/${input.repository.repo}`);
-    const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(input.gh_token);
-    const { owner, repo } = input.repository;
-    try {
-        await octokit.rest.repos.createOrUpdateFileContents({
-            owner,
-            repo,
-            path: 'README.md',
-            message: input.commit_message,
-            content: Buffer.from(newContent, 'utf8').toString('base64'),
-            sha: fileHash,
-            committer: {
-                name: 'lastfm-readme-bot',
-                email: 'lastfm-readme@proton.me',
-            },
-        });
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('✅ README successfully updated with new charts');
-    }
-    catch (error) {
-        throw new Error(`❌ Failed to update README.md for ${owner}/${repo}: ${error.message}`);
-    }
-}
 
 
 /***/ }),
@@ -39095,8 +39410,6 @@ __nccwpck_require__.d(__webpack_exports__, {
 
 // UNUSED EXPORTS: SectionName
 
-// EXTERNAL MODULE: ./node_modules/.pnpm/@actions+core@1.11.1/node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(9999);
 // EXTERNAL MODULE: ./node_modules/.pnpm/ramda@0.31.3/node_modules/ramda/es/internal/_curry1.js
 var _curry1 = __nccwpck_require__(5772);
 // EXTERNAL MODULE: ./node_modules/.pnpm/ramda@0.31.3/node_modules/ramda/es/internal/_curry2.js
@@ -39875,6 +40188,8 @@ var error = __nccwpck_require__(5504);
 var lastfm = __nccwpck_require__(1785);
 // EXTERNAL MODULE: ./src/lastfm/types.ts
 var types = __nccwpck_require__(2638);
+// EXTERNAL MODULE: ./src/utils/logger.ts
+var logger = __nccwpck_require__(187);
 ;// CONCATENATED MODULE: ./src/section.ts
 
 
@@ -39883,24 +40198,38 @@ var types = __nccwpck_require__(2638);
 
 
 /**
- * Enum representing possible section names.
+ * Enumeration of available Last.fm section types that can be embedded in README files.
+ * Each section corresponds to a specific type of Last.fm data visualization.
  */
 var SectionName;
 (function (SectionName) {
+    /** Recent listening activity */
     SectionName["RECENT"] = "RECENT";
+    /** Top tracks over a specified period */
     SectionName["TRACKS"] = "TRACKS";
+    /** Top artists over a specified period */
     SectionName["ARTISTS"] = "ARTISTS";
+    /** Top albums over a specified period */
     SectionName["ALBUMS"] = "ALBUMS";
+    /** User profile information and statistics */
     SectionName["USER_INFO"] = "USER_INFO";
 })(SectionName || (SectionName = {}));
 /**
- * Zod schema for validating section configuration.
+ * Zod schema for validating section configuration parameters.
+ * Ensures that section configurations adhere to expected formats and constraints.
  */
 const SectionConfigSchema = schemas/* object */.Ik({
+    /** Number of items to display (1-50) */
     rows: schemas/* number */.ai().min(1).max(50).optional(),
+    /** Time period for data aggregation */
     period: schemas/* enum */.k5(types/* ConfigTimePeriod */.H).optional(),
+    /** Array of user info fields to display */
     display: schemas/* array */.YO(schemas/* enum */.k5(types/* ConfigUserInfoDisplayOption */.v)).optional(),
 });
+/**
+ * Mapping from HTML comment identifiers to internal section names.
+ * Provides type-safe conversion between external API and internal representation.
+ */
 const SectionNameMap = {
     LASTFM_RECENT: SectionName.RECENT,
     LASTFM_TRACKS: SectionName.TRACKS,
@@ -39915,7 +40244,7 @@ const SectionNameMap = {
  * @returns Extracted sections or undefined if none are found.
  */
 function getSectionsFromReadme(sectionComment, readmeContent) {
-    core.debug(`🔍 Searching for ${sectionComment} sections in README`);
+    logger/* logger */.v.debug(`🔍 Searching for ${sectionComment} sections in README`);
     const sections = {};
     const sectionStack = [];
     const startPrefix = `<!--START_${sectionComment}`;
@@ -39962,17 +40291,27 @@ ${sections[lastStart].end}`)();
     if (sectionStack.length > 0) {
         throw new error/* StartTagWithoutEndTagError */.e9(sectionStack.join(''));
     }
-    core.debug(`Found ${es_length(es_keys(sections))} ${sectionComment} sections in README`);
+    logger/* logger */.v.debug(`Found ${es_length(es_keys(sections))} ${sectionComment} sections in README`);
     return es_length(es_keys(sections)) > 0 ? es_values(sections) : undefined;
 }
 /**
  * Format the listening data into a markdown-compatible string.
- * @param input - The GitHub action input.
- * @param section - The section to format data for.
- * @param listeningData - The listening data retrieved.
- * @returns A formatted markdown string.
+ * Uses type-safe formatting based on the section type and data structure.
+ *
+ * @template T - The type of Last.fm data being formatted
+ * @param input - The GitHub action input containing locale and formatting preferences
+ * @param section - The section configuration and metadata
+ * @param listeningData - The Last.fm data to be formatted
+ * @returns A formatted markdown string ready for insertion into README
  */
 const formatSectionData = (input, section, listeningData) => {
+    /**
+     * Inner function that handles the actual markdown formatting for each data type.
+     * @template U - The specific Last.fm data type being processed
+     * @param section - Section configuration
+     * @param data - Array of Last.fm data items
+     * @returns Array of formatted markdown strings
+     */
     const formatMarkdownData = (section, data) => {
         const numberFormat = new Intl.NumberFormat(input.locale);
         switch (section.name) {
@@ -40014,12 +40353,17 @@ const formatSectionData = (input, section, listeningData) => {
     return es_ifElse(es_isEmpty, () => 'No listening data found for the selected time period.', () => formatMarkdownData(section, listeningData).join('\n'))(listeningData);
 };
 /**
- * Generate a Markdown chart for a section.
+ * Generate a complete Markdown section with optional title and Last.fm branding.
+ * Wraps the provided content with the appropriate HTML comment tags and styling.
  *
- * @returns An updated Markdown chart surrounded by the section start and end comments.
+ * @param input - GitHub action input containing display preferences
+ * @param section - Section configuration and metadata
+ * @param title - Human-readable title for the section
+ * @param content - Formatted markdown content to be wrapped
+ * @returns Complete markdown section ready for README insertion
  */
 function generateMarkdownSection(input, section, title, content) {
-    core.debug(`🔧 Generating ${section.name} section for ${section.start}`);
+    logger/* logger */.v.debug(`🔧 Generating ${section.name} section for ${section.start}`);
     const chartTitle = input.show_title === 'true'
         ? `\n<a href="https://last.fm" target="_blank"><img src="https://user-images.githubusercontent.com/17434202/215290617-e793598d-d7c9-428f-9975-156db1ba89cc.svg" alt="Last.fm Logo" width="18" height="13"/></a> **${title}**\n`
         : '';
@@ -40052,6 +40396,26 @@ var src_section = __nccwpck_require__(8808);
 ;// CONCATENATED MODULE: ./src/sections/album.ts
 
 
+/**
+ * Updates a Last.fm top albums section within a README file.
+ * Fetches the user's most played albums for the configured time period and
+ * generates a formatted Markdown section with play counts, album, and artist links.
+ *
+ * @param input - GitHub action input containing API credentials and user preferences
+ * @param section - Section configuration including time period and display limits
+ * @param readme - Complete README content to be updated
+ * @returns Promise resolving to the updated README content with the new albums section
+ * @throws Error if Last.fm data fetching or section generation fails
+ *
+ * @example
+ * The generated section might look like:
+ * ```markdown
+ * <!--START_LASTFM_ALBUMS-->
+ * # Top Albums - Past Week
+ * > `38 ▶️` ∙ **[Album Title](https://last.fm/album/...)** - [Artist Name](https://last.fm/artist/...)
+ * <!--END_LASTFM_ALBUMS-->
+ * ```
+ */
 async function updateAlbumSection(input, section, readme) {
     const chartTitle = `Top Albums - ${(0,lastfm/* readableTimePeriod */.RA)(section)}`;
     const { albums } = await (0,lastfm/* getLastFMData */.sA)('TopAlbums', input, section);
@@ -40063,6 +40427,26 @@ async function updateAlbumSection(input, section, readme) {
 ;// CONCATENATED MODULE: ./src/sections/artist.ts
 
 
+/**
+ * Updates a Last.fm top artists section within a README file.
+ * Fetches the user's most played artists for the configured time period and
+ * generates a formatted Markdown section with play counts and links.
+ *
+ * @param input - GitHub action input containing API credentials and user preferences
+ * @param section - Section configuration including time period and display limits
+ * @param readme - Complete README content to be updated
+ * @returns Promise resolving to the updated README content with the new artists section
+ * @throws Error if Last.fm data fetching or section generation fails
+ *
+ * @example
+ * The generated section might look like:
+ * ```markdown
+ * <!--START_LASTFM_ARTISTS-->
+ * # Top Artists - Past Week
+ * > `127 ▶️` ∙ **[Artist Name](https://last.fm/artist/...)**
+ * <!--END_LASTFM_ARTISTS-->
+ * ```
+ */
 async function updateArtistSection(input, section, readme) {
     const chartTitle = `Top Artists - ${(0,lastfm/* readableTimePeriod */.RA)(section)}`;
     const { artists } = await (0,lastfm/* getLastFMData */.sA)('TopArtists', input, section);
@@ -40095,6 +40479,26 @@ async function updateRecentSection(input, section, readme) {
 ;// CONCATENATED MODULE: ./src/sections/track.ts
 
 
+/**
+ * Updates a Last.fm top tracks section within a README file.
+ * Fetches the user's most played tracks for the configured time period and
+ * generates a formatted markdown section with play counts and links.
+ *
+ * @param input - GitHub action input containing API credentials and user preferences
+ * @param section - Section configuration including time period and display limits
+ * @param readme - Complete README content to be updated
+ * @returns Promise resolving to the updated README content with the new tracks section
+ * @throws Error if Last.fm data fetching or section generation fails
+ *
+ * @example
+ * The generated section might look like:
+ * ```markdown
+ * <!--START_LASTFM_TRACKS-->
+ * # Top Tracks - Past Week
+ * > `42 ▶️` ∙ **[Song Title](https://last.fm/track/...)** - [Artist Name](https://last.fm/artist/...)
+ * <!--END_LASTFM_TRACKS-->
+ * ```
+ */
 async function updateTrackSection(input, section, readme) {
     const chartTitle = `Top Tracks - ${(0,lastfm/* readableTimePeriod */.RA)(section)}`;
     const { tracks } = await (0,lastfm/* getLastFMData */.sA)('TopTracks', input, section);
@@ -40109,6 +40513,77 @@ async function updateTrackSection(input, section, readme) {
 
 
 
+
+
+/***/ }),
+
+/***/ 187:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   v: () => (/* binding */ logger)
+/* harmony export */ });
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(9999);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+
+/**
+ * Logger utility that conditionally outputs debug messages based on environment
+ */
+const logger = {
+    /**
+     * Debug logging that only outputs in GitHub Actions environment
+     * @param message - Debug message to log
+     */
+    debug: (message) => {
+        if (process.env.GITHUB_ACTIONS) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(message);
+        }
+    },
+    /**
+     * Info logging that only outputs in GitHub Actions environment
+     * @param message - Info message to log
+     */
+    info: (message) => {
+        if (process.env.GITHUB_ACTIONS) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(message);
+        }
+    },
+    /**
+     * Always output error messages
+     * @param message - Error message to log
+     */
+    error: (message) => {
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(message);
+    },
+    /**
+     * Set output only in GitHub Actions environment
+     * @param name - Output name
+     * @param value - Output value
+     */
+    setOutput: (name, value) => {
+        if (process.env.GITHUB_ACTIONS) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput(name, value);
+        }
+    },
+    /**
+     * Set failed only in GitHub Actions environment
+     * @param message - Failure message
+     */
+    setFailed: (message) => {
+        if (process.env.GITHUB_ACTIONS) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(message);
+        }
+        else if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+            // In test environment, just log the error instead of throwing
+            console.error(`Error: ${message || 'Unknown error'}`);
+        }
+        else {
+            // In local development, throw the error
+            throw new Error(message || 'Unknown error');
+        }
+    },
+};
 
 
 /***/ }),

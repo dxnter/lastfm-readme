@@ -47,33 +47,6 @@ pnpm run lint     # ESLint check
 pnpm test         # Run tests
 ```
 
-### Project Structure
-
-```
-src/
-├── index.ts              # Main entry point
-├── input.ts              # Input validation and parsing
-├── section.ts            # Section parsing and formatting
-├── readme-file.ts        # GitHub API operations
-├── lastfm/               # Last.fm API integration
-│   ├── index.ts
-│   └── types.ts
-├── sections/             # Section-specific updaters
-│   ├── artist.ts
-│   ├── album.ts
-│   ├── track.ts
-│   ├── recent.ts
-│   └── info.ts
-└── error/                # Custom error classes
-    └── index.ts
-
-tests/
-├── unit/                 # Unit tests
-├── integration/          # End-to-end workflow tests
-└── golden/               # Golden file tests
-    └── fixtures/         # Test data and expected outputs
-```
-
 ### Available Scripts
 
 ```bash
@@ -84,6 +57,33 @@ pnpm lint           # Lint code with ESLint
 pnpm format         # Format code with Prettier
 pnpm types          # TypeScript type checking
 ```
+
+### Local Development Mode
+
+This project includes a powerful local development mode that allows you to test all functionality without GitHub Actions.
+
+#### Setup
+
+1. Copy `.env.example` to `.env` and fill in your Last.fm API key and username:
+   ```bash
+   cp .env.example .env
+   ```
+2. Create a test `README.md` file with the desired sections:
+
+   ```markdown
+   ## Example
+
+   <!--START_LASTFM_ARTISTS:{"period": "7day", "rows": 5}-->
+   <!--END_LASTFM_ARTISTS-->
+
+   <!--START_LASTFM_RECENT:{"rows": 5}-->
+   <!--END_LASTFM_RECENT-->
+   ```
+
+3. Run the local development script:
+   ```bash
+   pnpm dev
+   ```
 
 ## Testing
 

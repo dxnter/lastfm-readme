@@ -1,10 +1,20 @@
-import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { GitHubFileSystem } from 'src/filesystem';
 import type { GithubActionInput } from 'src/input';
-import { getReadmeFile, updateReadmeFile } from 'src/readme-file';
+import { logger } from 'src/utils/logger';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe('readme file operations', () => {
+vi.mock('../../src/utils/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    setOutput: vi.fn(),
+    setFailed: vi.fn(),
+  },
+}));
+
+describe('gitHub filesystem operations', () => {
   const mockInput: GithubActionInput = {
     lastfm_api_key: 'test-api-key',
     lastfm_user: 'test-user',
@@ -20,19 +30,23 @@ describe('readme file operations', () => {
     rest: {
       repos: {
         getReadme: vi.fn(),
+        getContent: vi.fn(),
         createOrUpdateFileContents: vi.fn(),
       },
     },
   };
+
+  let filesystem: GitHubFileSystem;
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(github.getOctokit).mockReturnValue(
       mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
     );
+    filesystem = new GitHubFileSystem(mockInput);
   });
 
-  describe('getReadmeFile', () => {
+  describe('getReadme', () => {
     it('should fetch README file successfully', async () => {
       const mockReadmeContent = String.raw`# Test README\n<!--START_LASTFM_RECENT-->\n<!--END_LASTFM_RECENT-->`;
       const mockReadmeData = {
@@ -45,14 +59,14 @@ describe('readme file operations', () => {
 
       mockOctokit.rest.repos.getReadme.mockResolvedValue(mockReadmeData);
 
-      const result = await getReadmeFile(mockInput);
+      const result = await filesystem.getReadme();
 
       expect(mockOctokit.rest.repos.getReadme).toHaveBeenCalledWith({
         owner: 'test-owner',
         repo: 'test-repo',
       });
 
-      expect(core.setOutput).toHaveBeenCalledWith(
+      expect(logger.setOutput).toHaveBeenCalledWith(
         'readme_hash',
         'test-sha-123',
       );
@@ -74,7 +88,7 @@ describe('readme file operations', () => {
 
       mockOctokit.rest.repos.getReadme.mockResolvedValue(mockReadmeData);
 
-      const result = await getReadmeFile(mockInput);
+      const result = await filesystem.getReadme();
 
       expect(result.content).toBe(mockReadmeContent);
       expect(result.hash).toBe('test-sha-456');
@@ -84,7 +98,7 @@ describe('readme file operations', () => {
       const error = new Error('Repository not found');
       mockOctokit.rest.repos.getReadme.mockRejectedValue(error);
 
-      await expect(getReadmeFile(mockInput)).rejects.toThrow(
+      await expect(filesystem.getReadme()).rejects.toThrow(
         '❌ Failed to fetch README.md from test-owner/test-repo: Repository not found',
       );
     });
@@ -93,13 +107,13 @@ describe('readme file operations', () => {
       const networkError = new Error('Network timeout');
       mockOctokit.rest.repos.getReadme.mockRejectedValue(networkError);
 
-      await expect(getReadmeFile(mockInput)).rejects.toThrow(
+      await expect(filesystem.getReadme()).rejects.toThrow(
         '❌ Failed to fetch README.md from test-owner/test-repo: Network timeout',
       );
     });
   });
 
-  describe('updateReadmeFile', () => {
+  describe('updateReadme', () => {
     const mockFileHash = 'existing-sha-123';
     const mockNewContent = String.raw`# Updated README\n<!--START_LASTFM_RECENT-->\nNew content\n<!--END_LASTFM_RECENT-->`;
 
@@ -114,7 +128,7 @@ describe('readme file operations', () => {
         mockUpdateResponse,
       );
 
-      await updateReadmeFile(mockInput, mockFileHash, mockNewContent);
+      await filesystem.updateReadme(mockNewContent, { hash: mockFileHash });
 
       expect(
         mockOctokit.rest.repos.createOrUpdateFileContents,
@@ -131,28 +145,28 @@ describe('readme file operations', () => {
         },
       });
 
-      expect(core.info).toHaveBeenCalledWith(
+      expect(logger.info).toHaveBeenCalledWith(
         '✅ README successfully updated with new charts',
       );
     });
 
     it('should handle custom commit messages', async () => {
-      const customInput = {
-        ...mockInput,
-        commit_message: 'feat: update Last.fm metrics',
-      };
+      const customMessage = 'feat: update Last.fm metrics';
 
       mockOctokit.rest.repos.createOrUpdateFileContents.mockResolvedValue({
         data: { commit: { sha: 'test' } },
       });
 
-      await updateReadmeFile(customInput, mockFileHash, mockNewContent);
+      await filesystem.updateReadme(mockNewContent, {
+        hash: mockFileHash,
+        message: customMessage,
+      });
 
       expect(
         mockOctokit.rest.repos.createOrUpdateFileContents,
       ).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'feat: update Last.fm metrics',
+          message: customMessage,
         }),
       );
     });
@@ -165,7 +179,7 @@ describe('readme file operations', () => {
         data: { commit: { sha: 'test' } },
       });
 
-      await updateReadmeFile(mockInput, mockFileHash, contentWithUnicode);
+      await filesystem.updateReadme(contentWithUnicode, { hash: mockFileHash });
 
       const expectedEncodedContent = Buffer.from(
         contentWithUnicode,
@@ -181,6 +195,12 @@ describe('readme file operations', () => {
       );
     });
 
+    it('should throw error when hash is missing', async () => {
+      await expect(filesystem.updateReadme(mockNewContent)).rejects.toThrow(
+        'Hash is required for README updates in GitHub Actions',
+      );
+    });
+
     it('should throw error when update fails', async () => {
       const updateError = new Error('Insufficient permissions');
       mockOctokit.rest.repos.createOrUpdateFileContents.mockRejectedValue(
@@ -188,7 +208,7 @@ describe('readme file operations', () => {
       );
 
       await expect(
-        updateReadmeFile(mockInput, mockFileHash, mockNewContent),
+        filesystem.updateReadme(mockNewContent, { hash: mockFileHash }),
       ).rejects.toThrow(
         '❌ Failed to update README.md for test-owner/test-repo: Insufficient permissions',
       );
@@ -201,7 +221,7 @@ describe('readme file operations', () => {
       );
 
       await expect(
-        updateReadmeFile(mockInput, mockFileHash, mockNewContent),
+        filesystem.updateReadme(mockNewContent, { hash: mockFileHash }),
       ).rejects.toThrow(
         '❌ Failed to update README.md for test-owner/test-repo: File was modified since last fetch',
       );
@@ -212,7 +232,7 @@ describe('readme file operations', () => {
         data: { commit: { sha: 'test' } },
       });
 
-      await updateReadmeFile(mockInput, mockFileHash, mockNewContent);
+      await filesystem.updateReadme(mockNewContent, { hash: mockFileHash });
 
       expect(
         mockOctokit.rest.repos.createOrUpdateFileContents,
@@ -236,7 +256,7 @@ describe('readme file operations', () => {
         data: { commit: { sha: 'test' } },
       });
 
-      await updateReadmeFile(mockInput, mockFileHash, largeContent);
+      await filesystem.updateReadme(largeContent, { hash: mockFileHash });
 
       expect(
         mockOctokit.rest.repos.createOrUpdateFileContents,
@@ -245,6 +265,75 @@ describe('readme file operations', () => {
           content: Buffer.from(largeContent, 'utf8').toString('base64'),
         }),
       );
+    });
+  });
+
+  describe('file operations', () => {
+    it('should read files correctly', async () => {
+      const testContent = 'test file content';
+      const mockFileData = {
+        data: {
+          content: Buffer.from(testContent).toString('base64'),
+          sha: 'file-sha-123',
+        },
+      };
+
+      mockOctokit.rest.repos.getContent.mockResolvedValue(mockFileData);
+
+      const result = await filesystem.readFile('test.txt');
+
+      expect(mockOctokit.rest.repos.getContent).toHaveBeenCalledWith({
+        owner: 'test-owner',
+        repo: 'test-repo',
+        path: 'test.txt',
+      });
+      expect(result).toBe(testContent);
+    });
+
+    it('should write files correctly', async () => {
+      const testContent = 'new file content';
+
+      // Mock file doesn't exist initially
+      mockOctokit.rest.repos.getContent.mockRejectedValueOnce(
+        new Error('Not found'),
+      );
+
+      mockOctokit.rest.repos.createOrUpdateFileContents.mockResolvedValue({
+        data: { commit: { sha: 'new-file-sha' } },
+      });
+
+      await filesystem.writeFile('new-file.txt', testContent);
+
+      expect(
+        mockOctokit.rest.repos.createOrUpdateFileContents,
+      ).toHaveBeenCalledWith({
+        owner: 'test-owner',
+        repo: 'test-repo',
+        path: 'new-file.txt',
+        message: 'Update new-file.txt',
+        content: Buffer.from(testContent, 'utf8').toString('base64'),
+        sha: undefined,
+        committer: {
+          name: 'lastfm-readme-bot',
+          email: 'lastfm-readme@proton.me',
+        },
+      });
+    });
+
+    it('should check file existence correctly', async () => {
+      mockOctokit.rest.repos.getContent.mockResolvedValueOnce({
+        data: { type: 'file' },
+      });
+
+      const exists = await filesystem.fileExists('existing-file.txt');
+      expect(exists).toBe(true);
+
+      mockOctokit.rest.repos.getContent.mockRejectedValueOnce(
+        new Error('Not found'),
+      );
+
+      const doesNotExist = await filesystem.fileExists('non-existent.txt');
+      expect(doesNotExist).toBe(false);
     });
   });
 });

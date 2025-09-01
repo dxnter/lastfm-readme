@@ -1,4 +1,3 @@
-import * as core from '@actions/core';
 import * as R from 'ramda';
 import { z } from 'zod';
 
@@ -17,41 +16,67 @@ import {
   type Track,
   type UserInfo,
 } from './lastfm/types';
+import { logger } from './utils/logger';
 
 /**
- * Enum representing possible section names.
+ * Enumeration of available Last.fm section types that can be embedded in README files.
+ * Each section corresponds to a specific type of Last.fm data visualization.
  */
 export enum SectionName {
+  /** Recent listening activity */
   RECENT = 'RECENT',
+  /** Top tracks over a specified period */
   TRACKS = 'TRACKS',
+  /** Top artists over a specified period */
   ARTISTS = 'ARTISTS',
+  /** Top albums over a specified period */
   ALBUMS = 'ALBUMS',
+  /** User profile information and statistics */
   USER_INFO = 'USER_INFO',
 }
 
 /**
- * Zod schema for validating section configuration.
+ * Zod schema for validating section configuration parameters.
+ * Ensures that section configurations adhere to expected formats and constraints.
  */
 const SectionConfigSchema = z.object({
+  /** Number of items to display (1-50) */
   rows: z.number().min(1).max(50).optional(),
+  /** Time period for data aggregation */
   period: z.enum(ConfigTimePeriod).optional(),
+  /** Array of user info fields to display */
   display: z.array(z.enum(ConfigUserInfoDisplayOption)).optional(),
 });
 
+/**
+ * Type representing validated section configuration options.
+ * Inferred from the SectionConfigSchema to ensure type safety.
+ */
 type SectionConfig = z.infer<typeof SectionConfigSchema>;
 
 /**
- * Interface representing a section in the README.
+ * Interface representing a parsed Last.fm section from README content.
+ * Contains all necessary information to process and update the section.
  */
 export interface Section {
+  /** The type of section (tracks, artists, albums, etc.) */
   name: SectionName;
+  /** The opening HTML comment tag */
   start: string;
+  /** The closing HTML comment tag */
   end: string;
+  /** Lines of content between the start and end tags */
   content: string[];
+  /** The complete current section including tags and content */
   currentSection: string;
+  /** Parsed configuration options for the section */
   config: SectionConfig;
 }
 
+/**
+ * Union type representing valid HTML comment identifiers for Last.fm sections.
+ * These correspond to the actual comment tags used in README files.
+ */
 export type SectionComment =
   | 'LASTFM_RECENT'
   | 'LASTFM_TRACKS'
@@ -59,13 +84,17 @@ export type SectionComment =
   | 'LASTFM_ALBUMS'
   | 'LASTFM_USER_INFO';
 
-const SectionNameMap: { [key in SectionComment]: SectionName } = {
+/**
+ * Mapping from HTML comment identifiers to internal section names.
+ * Provides type-safe conversion between external API and internal representation.
+ */
+const SectionNameMap: Record<SectionComment, SectionName> = {
   LASTFM_RECENT: SectionName.RECENT,
   LASTFM_TRACKS: SectionName.TRACKS,
   LASTFM_ARTISTS: SectionName.ARTISTS,
   LASTFM_ALBUMS: SectionName.ALBUMS,
   LASTFM_USER_INFO: SectionName.USER_INFO,
-};
+} as const;
 
 /**
  * Extract existing sections from the README content.
@@ -77,7 +106,7 @@ export function getSectionsFromReadme(
   sectionComment: SectionComment,
   readmeContent: string,
 ): Section[] | undefined {
-  core.debug(`🔍 Searching for ${sectionComment} sections in README`);
+  logger.debug(`🔍 Searching for ${sectionComment} sections in README`);
 
   const sections: Record<string, Section> = {};
   const sectionStack: string[] = [];
@@ -136,7 +165,7 @@ ${sections[lastStart]!.end}`,
     throw new StartTagWithoutEndTagError(sectionStack.join(''));
   }
 
-  core.debug(
+  logger.debug(
     `Found ${R.length(R.keys(sections))} ${sectionComment} sections in README`,
   );
 
@@ -144,18 +173,36 @@ ${sections[lastStart]!.end}`,
 }
 
 /**
- * Format the listening data into a markdown-compatible string.
- * @param input - The GitHub action input.
- * @param section - The section to format data for.
- * @param listeningData - The listening data retrieved.
- * @returns A formatted markdown string.
+ * Union type representing all possible Last.fm data types that can be formatted.
  */
-export const formatSectionData = (
+type LastFmData = Track | Artist | Album | RecentTrack | UserInfo;
+
+/**
+ * Format the listening data into a markdown-compatible string.
+ * Uses type-safe formatting based on the section type and data structure.
+ *
+ * @template T - The type of Last.fm data being formatted
+ * @param input - The GitHub action input containing locale and formatting preferences
+ * @param section - The section configuration and metadata
+ * @param listeningData - The Last.fm data to be formatted
+ * @returns A formatted markdown string ready for insertion into README
+ */
+export const formatSectionData = <T extends LastFmData>(
   input: GithubActionInput,
   section: Section,
-  listeningData: unknown[],
+  listeningData: T[],
 ): string => {
-  const formatMarkdownData = <T>(section: Section, data: T[]): string[] => {
+  /**
+   * Inner function that handles the actual markdown formatting for each data type.
+   * @template U - The specific Last.fm data type being processed
+   * @param section - Section configuration
+   * @param data - Array of Last.fm data items
+   * @returns Array of formatted markdown strings
+   */
+  const formatMarkdownData = <U extends LastFmData>(
+    section: Section,
+    data: U[],
+  ): string[] => {
     const numberFormat = new Intl.NumberFormat(input.locale);
 
     switch (section.name) {
@@ -222,17 +269,22 @@ export const formatSectionData = (
 };
 
 /**
- * Generate a Markdown chart for a section.
+ * Generate a complete Markdown section with optional title and Last.fm branding.
+ * Wraps the provided content with the appropriate HTML comment tags and styling.
  *
- * @returns An updated Markdown chart surrounded by the section start and end comments.
+ * @param input - GitHub action input containing display preferences
+ * @param section - Section configuration and metadata
+ * @param title - Human-readable title for the section
+ * @param content - Formatted markdown content to be wrapped
+ * @returns Complete markdown section ready for README insertion
  */
 export function generateMarkdownSection(
   input: GithubActionInput,
   section: Section,
   title: string,
   content: string,
-) {
-  core.debug(`🔧 Generating ${section.name} section for ${section.start}`);
+): string {
+  logger.debug(`🔧 Generating ${section.name} section for ${section.start}`);
 
   const chartTitle =
     input.show_title === 'true'

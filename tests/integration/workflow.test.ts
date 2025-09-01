@@ -2,7 +2,19 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import LastFMTyped from 'lastfm-typed';
 import { run } from 'src/index';
+import { logger } from 'src/utils/logger';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Mock the logger utility
+vi.mock('../../src/utils/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    setOutput: vi.fn(),
+    setFailed: vi.fn(),
+  },
+}));
 
 describe('end-to-end workflow', () => {
   const mockOctokit = {
@@ -135,8 +147,11 @@ Old artists content
     });
 
     // Verify outputs
-    expect(core.setOutput).toHaveBeenCalledWith('readme-updated', true);
-    expect(core.setOutput).toHaveBeenCalledWith('readme_hash', 'original-sha');
+    expect(logger.setOutput).toHaveBeenCalledWith('readme-updated', 'true');
+    expect(logger.setOutput).toHaveBeenCalledWith(
+      'readme_hash',
+      'original-sha',
+    );
   });
 
   it('should skip update when content is unchanged', async () => {
@@ -169,10 +184,10 @@ Old artists content
     expect(
       mockOctokit.rest.repos.createOrUpdateFileContents,
     ).not.toHaveBeenCalled();
-    expect(core.info).toHaveBeenCalledWith(
+    expect(logger.info).toHaveBeenCalledWith(
       '🕓 Skipping update, chart content is up to date',
     );
-    expect(core.setOutput).toHaveBeenCalledWith('readme-updated', false);
+    expect(logger.setOutput).toHaveBeenCalledWith('readme-updated', 'false');
   });
 
   it('should handle multiple sections of different types', async () => {
