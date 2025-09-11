@@ -68,7 +68,7 @@ This project includes a powerful local development mode that allows you to test 
    ```bash
    cp .env.example .env
    ```
-2. Create a test `README.md` file with the desired sections:
+2. Modify the `local/DEVELOPMENT.md` file with the desired sections:
 
    ```markdown
    ## Example

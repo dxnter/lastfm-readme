@@ -209,8 +209,8 @@ export class CLI {
     console.log(
       chalk.red('║') +
         chalk.bold.red(
-          '❌ Operation Failed'
-            .padStart((width + '❌ Operation Failed'.length) / 2)
+          'Operation Failed'
+            .padStart((width + 'Operation Failed'.length) / 2)
             .padEnd(width),
         ) +
         chalk.red('║'),
