@@ -92,6 +92,15 @@ Second section
       expect(() => getSectionsFromReadme('LASTFM_ARTISTS', readme)).toThrow();
     });
 
+    it('should throw error for invalid section configuration schema', () => {
+      const readme = `<!--START_LASTFM_ARTISTS:{"rows": "invalid"}-->
+<!--END_LASTFM_ARTISTS-->`;
+
+      expect(() => getSectionsFromReadme('LASTFM_ARTISTS', readme)).toThrow(
+        'Invalid input: expected number, received string',
+      );
+    });
+
     it('should throw EndTagWithoutStartTagError for mismatched end tags', () => {
       const readme = `<!--END_LASTFM_RECENT-->`;
 
@@ -353,6 +362,24 @@ After section`;
       const result = formatSectionData(germanInput, section, artists);
 
       expect(result).toContain('1.234'); // German number formatting
+    });
+
+    it('should return empty array for unknown section type', () => {
+      // Create a section with an unknown type by casting
+      const unknownSection: Section = {
+        name: 'UNKNOWN' as SectionName,
+        start: '<!--START_UNKNOWN-->',
+        end: '<!--END_UNKNOWN-->',
+        content: [],
+        currentSection: '',
+        config: {},
+      };
+
+      const result = formatSectionData(mockInput, unknownSection, []);
+
+      expect(result).toBe(
+        'No listening data found for the selected time period.',
+      );
     });
   });
 
