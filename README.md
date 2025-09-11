@@ -94,13 +94,8 @@ on:
   # Run automatically every 6 hours
   schedule:
     - cron: '0 */6 * * *'
-
   # Allow manual runs
   workflow_dispatch:
-
-  # Run on push to main (optional)
-  push:
-    branches: [main]
 
 jobs:
   update-lastfm:
@@ -109,17 +104,17 @@ jobs:
 
     steps:
       - name: 🎵 Update Last.fm README
-        uses: dxnter/lastfm-readme@v1.5.0 # Use latest version
+        uses: dxnter/lastfm-readme@v1.6.0
         with:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_USER: your-lastfm-username # Replace with your username!
+          LASTFM_USER: your-lastfm-username
 
           # Optional: Customize the commit message
-          COMMIT_MESSAGE: '🎵 Updated music stats'
+          COMMIT_MESSAGE: '🎵 Update music stats'
 
           # Optional: For cross-repository updates
           # GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          # REPOSITORY: username/username
+          # REPOSITORY: username/repository
 ```
 
 <details>
