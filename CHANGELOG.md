@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.6.0](https://github.com/dxnter/lastfm-readme/compare/v1.5.0...v1.6.0) (2025-09-11)
+
+
+### Features
+
+* development mode ([#14](https://github.com/dxnter/lastfm-readme/issues/14)) ([09a0766](https://github.com/dxnter/lastfm-readme/commit/09a0766f9f4564f5810212b083d1bb0577261793))
+
 # [1.5.0](https://github.com/dxnter/lastfm-readme/compare/v1.4.2...v1.5.0) (2025-01-20)
 
 
