@@ -290,6 +290,14 @@ describe('last.fm integration', () => {
       const sectionWithoutPeriod = { ...mockSection, config: {} };
       expect(readableTimePeriod(sectionWithoutPeriod)).toBe('Past Week');
     });
+
+    it('should return default period for invalid period', () => {
+      const sectionWithInvalidPeriod = {
+        ...mockSection,
+        config: { period: 'invalid' as ConfigTimePeriod },
+      };
+      expect(readableTimePeriod(sectionWithInvalidPeriod)).toBe('Past Week');
+    });
   });
 
   describe('userInfo data processing', () => {
@@ -455,6 +463,33 @@ describe('last.fm integration', () => {
         period: '1month',
       });
       expect(result).toEqual(mockAlbums);
+    });
+
+    it('should fetch top tracks with default values when config not provided', async () => {
+      const mockTracks = { tracks: [] };
+
+      const mockLastFM = {
+        user: {
+          getTopTracks: vi.fn().mockResolvedValue(mockTracks),
+        },
+      };
+
+      vi.mocked(LastFMTyped).mockImplementation(
+        () => mockLastFM as unknown as LastFMTyped,
+      );
+
+      const tracksSection: Section = {
+        ...mockSection,
+        name: SectionName.TRACKS,
+        config: {}, // No config provided
+      };
+
+      await getLastFMData('TopTracks', mockInput, tracksSection);
+
+      expect(mockLastFM.user.getTopTracks).toHaveBeenCalledWith('test-user', {
+        limit: 8, // default value
+        period: '7day', // default value
+      });
     });
   });
 });
