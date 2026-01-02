@@ -35526,6 +35526,9 @@ class GitHubFileSystem {
         this.owner = input.repository.owner;
         this.repo = input.repository.repo;
     }
+    resolveReadmePath(path) {
+        return (path || this.config.readmePath || this.input.target_file || 'README.md');
+    }
     async readFile(path) {
         try {
             logger/* logger */.v.debug(`🔍 Reading file: ${path}`);
@@ -35571,8 +35574,8 @@ class GitHubFileSystem {
                 content: Buffer.from(content, 'utf8').toString('base64'),
                 sha,
                 committer: {
-                    name: 'lastfm-readme-bot',
-                    email: 'lastfm-readme@proton.me',
+                    name: 'github-actions[bot]',
+                    email: '41898282+github-actions[bot]@users.noreply.github.com',
                 },
             });
             logger/* logger */.v.debug(`✅ Successfully wrote file: ${path}`);
@@ -35600,33 +35603,37 @@ class GitHubFileSystem {
         }
     }
     /**
-     * Fetches the README file content from the specified GitHub repository.
-     * @param _path - Optional path to the README file (defaults to 'README.md') - currently unused
+     * Fetches the target file content from the specified GitHub repository.
+     * @param path - Optional path to the target file (defaults to 'README.md')
      * @returns A promise resolving to the README content and hash.
      * @throws Error if the README file cannot be retrieved.
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async getReadme(_path) {
+    async getReadme(path) {
+        const targetPath = this.resolveReadmePath(path);
         try {
-            logger/* logger */.v.debug('🔍 Connecting to GitHub API to fetch README');
-            const readme = await this.octokit.rest.repos.getReadme({
+            logger/* logger */.v.debug(`🔍 Connecting to GitHub API to fetch ${targetPath}`);
+            const readme = await this.octokit.rest.repos.getContent({
                 owner: this.owner,
                 repo: this.repo,
+                path: targetPath,
             });
+            if (!('content' in readme.data)) {
+                throw new Error(`${targetPath} is not a file`);
+            }
             logger/* logger */.v.setOutput('readme_hash', readme.data.sha);
-            logger/* logger */.v.debug(`📥 Successfully fetched README content from ${this.owner}/${this.repo}`);
+            logger/* logger */.v.debug(`📥 Successfully fetched ${targetPath} content from ${this.owner}/${this.repo}`);
             return {
                 content: Buffer.from(readme.data.content, readme.data.encoding).toString('utf8'),
                 hash: readme.data.sha,
             };
         }
         catch (error) {
-            throw new Error(`❌ Failed to fetch README.md from ${this.owner}/${this.repo}: ${error.message}`);
+            throw new Error(`❌ Failed to fetch ${targetPath} from ${this.owner}/${this.repo}: ${error.message}`);
         }
     }
     /**
-     * Updates the README file with new content in the specified GitHub repository.
-     * @param content - The updated content to be written to the README.
+     * Updates the target file with new content in the specified GitHub repository.
+     * @param content - The updated content to be written to the target file.
      * @param options - Options containing hash and commit message
      * @param options.hash - The current hash of the README file to ensure content integrity.
      * @param options.message - Optional custom commit message
@@ -35634,31 +35641,32 @@ class GitHubFileSystem {
      * @throws Error if the update operation fails.
      */
     async updateReadme(content, options) {
+        const targetPath = this.resolveReadmePath();
         try {
-            logger/* logger */.v.debug(`🚀 Preparing to update README.md for ${this.owner}/${this.repo}`);
+            logger/* logger */.v.debug(`🚀 Preparing to update ${targetPath} for ${this.owner}/${this.repo}`);
             const message = options?.message ||
                 this.config.commitMessage ||
                 this.input.commit_message;
             const sha = options?.hash;
             if (!sha) {
-                throw new Error('Hash is required for README updates in GitHub Actions');
+                throw new Error('Hash is required for file updates in GitHub Actions');
             }
             await this.octokit.rest.repos.createOrUpdateFileContents({
                 owner: this.owner,
                 repo: this.repo,
-                path: 'README.md',
+                path: targetPath,
                 message,
                 content: Buffer.from(content, 'utf8').toString('base64'),
                 sha,
                 committer: {
-                    name: 'lastfm-readme-bot',
-                    email: 'lastfm-readme@proton.me',
+                    name: 'github-actions[bot]',
+                    email: '41898282+github-actions[bot]@users.noreply.github.com',
                 },
             });
-            logger/* logger */.v.info('✅ README successfully updated with new charts');
+            logger/* logger */.v.info(`✅ ${targetPath} successfully updated with new charts`);
         }
         catch (error) {
-            throw new Error(`❌ Failed to update README.md for ${this.owner}/${this.repo}: ${error.message}`);
+            throw new Error(`❌ Failed to update ${targetPath} for ${this.owner}/${this.repo}: ${error.message}`);
         }
     }
 }
@@ -35782,6 +35790,7 @@ async function run() {
     const input = await (0,_input__WEBPACK_IMPORTED_MODULE_1__/* .parseInput */ .C)();
     const fileSystem = new _filesystem__WEBPACK_IMPORTED_MODULE_0__/* .GitHubFileSystem */ .X(input, {
         commitMessage: input.commit_message,
+        readmePath: input.target_file,
     });
     const readme = await fileSystem.getReadme();
     const originalContent = readme.content;
@@ -35901,6 +35910,7 @@ async function parseInput() {
     const lastfmUser = core.getInput('LASTFM_USER', { required: true }).trim();
     // Optional inputs
     const ghToken = core.getInput('GH_TOKEN').trim();
+    const targetFile = core.getInput('TARGET_FILE').trim() || 'README.md';
     const commitMessage = core.getInput('COMMIT_MESSAGE').trim() || 'chore: update Last.fm sections';
     const showTitle = es_defaultTo('true', core.getInput('SHOW_TITLE') || 'true') === 'true'
         ? 'true'
@@ -35915,6 +35925,7 @@ async function parseInput() {
         lastfm_user: lastfmUser,
         gh_token: ghToken,
         repository,
+        target_file: targetFile,
         commit_message: commitMessage,
         show_title: showTitle,
         locale,

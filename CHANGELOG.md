@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.7.0](https://github.com/dxnter/lastfm-readme/compare/v1.6.0...v1.7.0) (2026-01-02)
+
+
+### Features
+
+* support for `TARGET_FILE` ([c9983b5](https://github.com/dxnter/lastfm-readme/commit/c9983b5b051a7cd5052df3043288744225708647))
+
 # [1.6.0](https://github.com/dxnter/lastfm-readme/compare/v1.5.0...v1.6.0) (2025-09-11)
 
 
