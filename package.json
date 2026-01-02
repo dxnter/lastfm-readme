@@ -1,6 +1,6 @@
 {
   "name": "lastfm-readme",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "GitHub Action to dynamically update your GitHub README with Last.fm metrics",
   "keywords": [
     "lastfm",
