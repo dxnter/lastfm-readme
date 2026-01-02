@@ -69,8 +69,8 @@ export class GitHubFileSystem implements ReadmeFileSystem {
         content: Buffer.from(content, 'utf8').toString('base64'),
         sha,
         committer: {
-          name: 'lastfm-readme-bot',
-          email: 'lastfm-readme@proton.me',
+          name: 'github-actions[bot]',
+          email: '41898282+github-actions[bot]@users.noreply.github.com',
         },
       });
 
@@ -173,8 +173,8 @@ export class GitHubFileSystem implements ReadmeFileSystem {
         content: Buffer.from(content, 'utf8').toString('base64'),
         sha,
         committer: {
-          name: 'lastfm-readme-bot',
-          email: 'lastfm-readme@proton.me',
+          name: 'github-actions[bot]',
+          email: '41898282+github-actions[bot]@users.noreply.github.com',
         },
       });
 

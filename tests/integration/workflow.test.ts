@@ -141,8 +141,8 @@ Old artists content
       content: expect.any(String) as string,
       sha: 'original-sha',
       committer: {
-        name: 'lastfm-readme-bot',
-        email: 'lastfm-readme@proton.me',
+        name: 'github-actions[bot]',
+        email: '41898282+github-actions[bot]@users.noreply.github.com',
       },
     });
 

@@ -140,8 +140,8 @@ describe('gitHub filesystem operations', () => {
         content: Buffer.from(mockNewContent, 'utf8').toString('base64'),
         sha: mockFileHash,
         committer: {
-          name: 'lastfm-readme-bot',
-          email: 'lastfm-readme@proton.me',
+          name: 'github-actions[bot]',
+          email: '41898282+github-actions[bot]@users.noreply.github.com',
         },
       });
 
@@ -239,8 +239,8 @@ describe('gitHub filesystem operations', () => {
       ).toHaveBeenCalledWith(
         expect.objectContaining({
           committer: {
-            name: 'lastfm-readme-bot',
-            email: 'lastfm-readme@proton.me',
+            name: 'github-actions[bot]',
+            email: '41898282+github-actions[bot]@users.noreply.github.com',
           },
         }),
       );
@@ -314,8 +314,8 @@ describe('gitHub filesystem operations', () => {
         content: Buffer.from(testContent, 'utf8').toString('base64'),
         sha: undefined,
         committer: {
-          name: 'lastfm-readme-bot',
-          email: 'lastfm-readme@proton.me',
+          name: 'github-actions[bot]',
+          email: '41898282+github-actions[bot]@users.noreply.github.com',
         },
       });
     });
