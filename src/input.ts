@@ -14,6 +14,7 @@ export interface GithubActionInput {
   lastfm_user: string;
   gh_token: string;
   repository: { owner: string; repo: string };
+  target_file: string;
   commit_message: string;
   show_title: string;
   locale: string;
@@ -36,6 +37,7 @@ export async function parseInput(): Promise<GithubActionInput> {
 
   // Optional inputs
   const ghToken = core.getInput('GH_TOKEN').trim();
+  const targetFile = core.getInput('TARGET_FILE').trim() || 'README.md';
   const commitMessage =
     core.getInput('COMMIT_MESSAGE').trim() || 'chore: update Last.fm sections';
   const showTitle =
@@ -55,6 +57,7 @@ export async function parseInput(): Promise<GithubActionInput> {
     lastfm_user: lastfmUser,
     gh_token: ghToken,
     repository,
+    target_file: targetFile,
     commit_message: commitMessage,
     show_title: showTitle,
     locale,

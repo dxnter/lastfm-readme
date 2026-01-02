@@ -20,6 +20,7 @@ describe('gitHub filesystem operations', () => {
     lastfm_user: 'test-user',
     gh_token: 'test-token',
     repository: { owner: 'test-owner', repo: 'test-repo' },
+    target_file: 'README.md',
     commit_message: 'test commit message',
     show_title: 'true',
     locale: 'en-US',
@@ -29,7 +30,6 @@ describe('gitHub filesystem operations', () => {
   const mockOctokit = {
     rest: {
       repos: {
-        getReadme: vi.fn(),
         getContent: vi.fn(),
         createOrUpdateFileContents: vi.fn(),
       },
@@ -57,13 +57,14 @@ describe('gitHub filesystem operations', () => {
         },
       };
 
-      mockOctokit.rest.repos.getReadme.mockResolvedValue(mockReadmeData);
+      mockOctokit.rest.repos.getContent.mockResolvedValue(mockReadmeData);
 
       const result = await filesystem.getReadme();
 
-      expect(mockOctokit.rest.repos.getReadme).toHaveBeenCalledWith({
+      expect(mockOctokit.rest.repos.getContent).toHaveBeenCalledWith({
         owner: 'test-owner',
         repo: 'test-repo',
+        path: 'README.md',
       });
 
       expect(logger.setOutput).toHaveBeenCalledWith(
@@ -86,7 +87,7 @@ describe('gitHub filesystem operations', () => {
         },
       };
 
-      mockOctokit.rest.repos.getReadme.mockResolvedValue(mockReadmeData);
+      mockOctokit.rest.repos.getContent.mockResolvedValue(mockReadmeData);
 
       const result = await filesystem.getReadme();
 
@@ -96,7 +97,7 @@ describe('gitHub filesystem operations', () => {
 
     it('should throw error when README fetch fails', async () => {
       const error = new Error('Repository not found');
-      mockOctokit.rest.repos.getReadme.mockRejectedValue(error);
+      mockOctokit.rest.repos.getContent.mockRejectedValue(error);
 
       await expect(filesystem.getReadme()).rejects.toThrow(
         '❌ Failed to fetch README.md from test-owner/test-repo: Repository not found',
@@ -105,11 +106,38 @@ describe('gitHub filesystem operations', () => {
 
     it('should handle network errors gracefully', async () => {
       const networkError = new Error('Network timeout');
-      mockOctokit.rest.repos.getReadme.mockRejectedValue(networkError);
+      mockOctokit.rest.repos.getContent.mockRejectedValue(networkError);
 
       await expect(filesystem.getReadme()).rejects.toThrow(
         '❌ Failed to fetch README.md from test-owner/test-repo: Network timeout',
       );
+    });
+
+    it('should fetch a custom target file when configured', async () => {
+      const customFilesystem = new GitHubFileSystem(mockInput, {
+        readmePath: 'docs/PROFILE.md',
+      });
+      const mockReadmeContent = '# Custom README';
+
+      mockOctokit.rest.repos.getContent.mockResolvedValue({
+        data: {
+          content: Buffer.from(mockReadmeContent).toString('base64'),
+          encoding: 'base64',
+          sha: 'custom-sha',
+        },
+      });
+
+      const result = await customFilesystem.getReadme();
+
+      expect(mockOctokit.rest.repos.getContent).toHaveBeenCalledWith({
+        owner: 'test-owner',
+        repo: 'test-repo',
+        path: 'docs/PROFILE.md',
+      });
+      expect(result).toEqual({
+        content: mockReadmeContent,
+        hash: 'custom-sha',
+      });
     });
   });
 
@@ -146,7 +174,7 @@ describe('gitHub filesystem operations', () => {
       });
 
       expect(logger.info).toHaveBeenCalledWith(
-        '✅ README successfully updated with new charts',
+        '✅ README.md successfully updated with new charts',
       );
     });
 
@@ -197,7 +225,7 @@ describe('gitHub filesystem operations', () => {
 
     it('should throw error when hash is missing', async () => {
       await expect(filesystem.updateReadme(mockNewContent)).rejects.toThrow(
-        'Hash is required for README updates in GitHub Actions',
+        'Hash is required for file updates in GitHub Actions',
       );
     });
 

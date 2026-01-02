@@ -62,5 +62,37 @@ describe('input validation', () => {
         '❌ Failed to validate Last.fm API key. Please check its validity.',
       );
     });
+
+    it('should default TARGET_FILE to README.md when not provided', async () => {
+      const { default: LastFm } = await import('lastfm-typed');
+      const mockLastFm = vi.mocked(LastFm);
+
+      mockLastFm.mockImplementation(
+        () =>
+          ({
+            auth: {
+              getToken: vi.fn().mockResolvedValue({ token: 'test-token' }),
+            },
+          }) as unknown as LastFMTyped,
+      );
+
+      vi.mocked(core.getInput).mockImplementation((name: string) => {
+        const inputs: Record<string, string> = {
+          LASTFM_API_KEY: 'test-api-key',
+          LASTFM_USER: 'test-user',
+          GH_TOKEN: 'test-token',
+          REPOSITORY: 'owner/repo',
+          COMMIT_MESSAGE: 'test commit',
+          SHOW_TITLE: 'true',
+          LOCALE: 'en-US',
+          DATE_FORMAT: 'MM/dd/yyyy',
+        };
+        return inputs[name] || '';
+      });
+
+      const result = await parseInput();
+
+      expect(result.target_file).toBe('README.md');
+    });
   });
 });

@@ -19,6 +19,10 @@ inputs:
     description: Your GitHub repository
     default: ${{ github.repository }}
     required: false
+  TARGET_FILE:
+    description: Path to the target file to update
+    default: README.md
+    required: false
   COMMIT_MESSAGE:
     description: Add a commit message of your choice
     default: 'chore: update Last.fm sections'

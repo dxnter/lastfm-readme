@@ -114,6 +114,7 @@ describe('local input parsing', () => {
         lastfm_user: 'testuser',
         gh_token: '',
         repository: { owner: 'local', repo: 'dev' },
+        target_file: 'README.md',
         commit_message: 'custom commit',
         show_title: 'false',
         locale: 'fr-FR',
@@ -138,6 +139,7 @@ describe('local input parsing', () => {
       expect(githubInput.date_format).toBe('MM/dd/yyyy');
       expect(githubInput.gh_token).toBe('');
       expect(githubInput.repository).toEqual({ owner: 'local', repo: 'dev' });
+      expect(githubInput.target_file).toBe('README.md');
     });
   });
 

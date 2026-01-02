@@ -1,10 +1,10 @@
 <div align="center">
   <img src="./static/images/readme-hero.png" alt="lastfm-readme branding hero" width="700px">
-  
+
   # 🎵 Last.fm README GitHub Action
-  
+
   **Dynamically update your GitHub `README.md` with [Last.fm](https://www.last.fm) metrics.**
-  
+
   [![MIT License][license.badge]][license]
   [![GitHub Release][github.release.badge]][github.release]
 </div>
@@ -104,7 +104,7 @@ jobs:
 
     steps:
       - name: 🎵 Update Last.fm README
-        uses: dxnter/lastfm-readme@v1.6.0
+        uses: dxnter/lastfm-readme@v1
         with:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USER: your-lastfm-username
@@ -115,6 +115,9 @@ jobs:
           # Optional: For cross-repository updates
           # GH_TOKEN: ${{ secrets.GH_TOKEN }}
           # REPOSITORY: username/repository
+
+          # Optional: Target a different file
+          # TARGET_FILE: profile/README.md
 ```
 
 <details>
@@ -169,6 +172,12 @@ For different scheduling needs, refer to the [crontab.guru](https://crontab.guru
 <td>🔶 Optional</td>
 <td>Current repository</td>
 <td>Target repository (<code>owner/repo</code>)</td>
+</tr>
+<tr>
+<td><code>TARGET_FILE</code></td>
+<td>🔶 Optional</td>
+<td><code>README.md</code></td>
+<td>Path to the file to update</td>
 </tr>
 <tr>
 <td><code>COMMIT_MESSAGE</code></td>

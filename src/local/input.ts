@@ -67,6 +67,7 @@ export function convertToGithubActionInput(
     lastfm_user: localConfig.input.lastfm_user,
     gh_token: '',
     repository: { owner: 'local', repo: 'dev' },
+    target_file: localConfig.input.readme_path || 'README.md',
     commit_message:
       localConfig.input.commit_message || 'chore: update Last.fm sections',
     show_title: localConfig.input.show_title || 'true',

@@ -15,6 +15,7 @@ describe('last.fm integration', () => {
     lastfm_user: 'test-user',
     gh_token: 'test-token',
     repository: { owner: 'test', repo: 'test' },
+    target_file: 'README.md',
     commit_message: 'test',
     show_title: 'true',
     locale: 'en-US',

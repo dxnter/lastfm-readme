@@ -41,6 +41,7 @@ export async function run(): Promise<void> {
   const input = await parseInput();
   const fileSystem = new GitHubFileSystem(input, {
     commitMessage: input.commit_message,
+    readmePath: input.target_file,
   });
 
   const readme = await fileSystem.getReadme();

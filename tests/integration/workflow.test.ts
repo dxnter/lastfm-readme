@@ -20,7 +20,7 @@ describe('end-to-end workflow', () => {
   const mockOctokit = {
     rest: {
       repos: {
-        getReadme: vi.fn(),
+        getContent: vi.fn(),
         createOrUpdateFileContents: vi.fn(),
       },
     },
@@ -48,6 +48,7 @@ describe('end-to-end workflow', () => {
         LASTFM_USER: 'testuser',
         GH_TOKEN: 'test-gh-token',
         REPOSITORY: 'owner/repo',
+        TARGET_FILE: 'README.md',
         COMMIT_MESSAGE: 'chore: update Last.fm sections',
         SHOW_TITLE: 'true',
         LOCALE: 'en-US',
@@ -73,7 +74,7 @@ Old recent tracks content
 Old artists content
 <!--END_LASTFM_ARTISTS-->`;
 
-    mockOctokit.rest.repos.getReadme.mockResolvedValue({
+    mockOctokit.rest.repos.getContent.mockResolvedValue({
       data: {
         content: Buffer.from(defaultReadme).toString('base64'),
         encoding: 'base64',
@@ -114,9 +115,10 @@ Old artists content
     expect(mockLastFM.auth.getToken).toHaveBeenCalled();
 
     // Verify README fetch
-    expect(mockOctokit.rest.repos.getReadme).toHaveBeenCalledWith({
+    expect(mockOctokit.rest.repos.getContent).toHaveBeenCalledWith({
       owner: 'owner',
       repo: 'repo',
+      path: 'README.md',
     });
 
     // Verify API calls were made
@@ -154,6 +156,39 @@ Old artists content
     );
   });
 
+  it('should update the configured target file', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        LASTFM_API_KEY: 'test-api-key',
+        LASTFM_USER: 'testuser',
+        GH_TOKEN: 'test-gh-token',
+        REPOSITORY: 'owner/repo',
+        TARGET_FILE: 'docs/PROFILE.md',
+        COMMIT_MESSAGE: 'chore: update Last.fm sections',
+        SHOW_TITLE: 'true',
+        LOCALE: 'en-US',
+        DATE_FORMAT: 'MM/dd/yyyy',
+      };
+      return inputs[name] || '';
+    });
+
+    await expect(run()).resolves.not.toThrow();
+
+    expect(mockOctokit.rest.repos.getContent).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      path: 'docs/PROFILE.md',
+    });
+
+    expect(
+      mockOctokit.rest.repos.createOrUpdateFileContents,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: 'docs/PROFILE.md',
+      }),
+    );
+  });
+
   it('should skip update when content is unchanged', async () => {
     // Mock current content that would generate the same result after processing
     const unchangedReadme = `# Test Profile
@@ -170,7 +205,7 @@ Old artists content
 <!--END_LASTFM_ARTISTS-->`;
 
     // Both calls return the same content to simulate no change
-    mockOctokit.rest.repos.getReadme.mockResolvedValue({
+    mockOctokit.rest.repos.getContent.mockResolvedValue({
       data: {
         content: Buffer.from(unchangedReadme).toString('base64'),
         encoding: 'base64',
@@ -212,7 +247,7 @@ Old content
 Old content
 <!--END_LASTFM_USER_INFO-->`;
 
-    mockOctokit.rest.repos.getReadme.mockResolvedValue({
+    mockOctokit.rest.repos.getContent.mockResolvedValue({
       data: {
         content: Buffer.from(multiSectionReadme).toString('base64'),
         encoding: 'base64',
@@ -274,7 +309,7 @@ Old content
   });
 
   it('should handle GitHub API failures gracefully', async () => {
-    mockOctokit.rest.repos.getReadme.mockRejectedValue(
+    mockOctokit.rest.repos.getContent.mockRejectedValue(
       new Error('GitHub API error'),
     );
 
@@ -300,7 +335,7 @@ Old content
 Content
 <!-- Missing end tag -->`; // Missing end tag
 
-    mockOctokit.rest.repos.getReadme.mockResolvedValue({
+    mockOctokit.rest.repos.getContent.mockResolvedValue({
       data: {
         content: Buffer.from(malformedReadme).toString('base64'),
         encoding: 'base64',
@@ -332,7 +367,7 @@ Old artists
 
 Footer content.`;
 
-    mockOctokit.rest.repos.getReadme.mockResolvedValue({
+    mockOctokit.rest.repos.getContent.mockResolvedValue({
       data: {
         content: Buffer.from(readmeWithExtraContent).toString('base64'),
         encoding: 'base64',
@@ -379,7 +414,7 @@ Footer content.`;
 
   it('should use default GitHub context when repository not specified', async () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
-      if (name === 'REPOSITORY') return ''; // Empty repository
+      if (name === 'REPOSITORY' || name === 'TARGET_FILE') return '';
       return name === 'LASTFM_API_KEY'
         ? 'test-key'
         : name === 'LASTFM_USER'
@@ -395,9 +430,10 @@ Footer content.`;
 
     await run();
 
-    expect(mockOctokit.rest.repos.getReadme).toHaveBeenCalledWith({
+    expect(mockOctokit.rest.repos.getContent).toHaveBeenCalledWith({
       owner: 'context-owner',
       repo: 'context-repo',
+      path: 'README.md',
     });
   });
 });

@@ -21,6 +21,12 @@ export class GitHubFileSystem implements ReadmeFileSystem {
     this.repo = input.repository.repo;
   }
 
+  private resolveReadmePath(path?: string): string {
+    return (
+      path || this.config.readmePath || this.input.target_file || 'README.md'
+    );
+  }
+
   async readFile(path: string): Promise<string> {
     try {
       logger.debug(`🔍 Reading file: ${path}`);
@@ -102,23 +108,28 @@ export class GitHubFileSystem implements ReadmeFileSystem {
   }
 
   /**
-   * Fetches the README file content from the specified GitHub repository.
-   * @param _path - Optional path to the README file (defaults to 'README.md') - currently unused
+   * Fetches the target file content from the specified GitHub repository.
+   * @param path - Optional path to the target file (defaults to 'README.md')
    * @returns A promise resolving to the README content and hash.
    * @throws Error if the README file cannot be retrieved.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getReadme(_path?: string): Promise<ReadmeFile> {
+  async getReadme(path?: string): Promise<ReadmeFile> {
+    const targetPath = this.resolveReadmePath(path);
     try {
-      logger.debug('🔍 Connecting to GitHub API to fetch README');
-      const readme = await this.octokit.rest.repos.getReadme({
+      logger.debug(`🔍 Connecting to GitHub API to fetch ${targetPath}`);
+      const readme = await this.octokit.rest.repos.getContent({
         owner: this.owner,
         repo: this.repo,
+        path: targetPath,
       });
+
+      if (!('content' in readme.data)) {
+        throw new Error(`${targetPath} is not a file`);
+      }
 
       logger.setOutput('readme_hash', readme.data.sha);
       logger.debug(
-        `📥 Successfully fetched README content from ${this.owner}/${this.repo}`,
+        `📥 Successfully fetched ${targetPath} content from ${this.owner}/${this.repo}`,
       );
 
       return {
@@ -130,14 +141,14 @@ export class GitHubFileSystem implements ReadmeFileSystem {
       };
     } catch (error) {
       throw new Error(
-        `❌ Failed to fetch README.md from ${this.owner}/${this.repo}: ${(error as Error).message}`,
+        `❌ Failed to fetch ${targetPath} from ${this.owner}/${this.repo}: ${(error as Error).message}`,
       );
     }
   }
 
   /**
-   * Updates the README file with new content in the specified GitHub repository.
-   * @param content - The updated content to be written to the README.
+   * Updates the target file with new content in the specified GitHub repository.
+   * @param content - The updated content to be written to the target file.
    * @param options - Options containing hash and commit message
    * @param options.hash - The current hash of the README file to ensure content integrity.
    * @param options.message - Optional custom commit message
@@ -148,9 +159,10 @@ export class GitHubFileSystem implements ReadmeFileSystem {
     content: string,
     options?: { hash?: string; message?: string },
   ): Promise<void> {
+    const targetPath = this.resolveReadmePath();
     try {
       logger.debug(
-        `🚀 Preparing to update README.md for ${this.owner}/${this.repo}`,
+        `🚀 Preparing to update ${targetPath} for ${this.owner}/${this.repo}`,
       );
 
       const message =
@@ -160,15 +172,13 @@ export class GitHubFileSystem implements ReadmeFileSystem {
       const sha = options?.hash;
 
       if (!sha) {
-        throw new Error(
-          'Hash is required for README updates in GitHub Actions',
-        );
+        throw new Error('Hash is required for file updates in GitHub Actions');
       }
 
       await this.octokit.rest.repos.createOrUpdateFileContents({
         owner: this.owner,
         repo: this.repo,
-        path: 'README.md',
+        path: targetPath,
         message,
         content: Buffer.from(content, 'utf8').toString('base64'),
         sha,
@@ -178,10 +188,10 @@ export class GitHubFileSystem implements ReadmeFileSystem {
         },
       });
 
-      logger.info('✅ README successfully updated with new charts');
+      logger.info(`✅ ${targetPath} successfully updated with new charts`);
     } catch (error) {
       throw new Error(
-        `❌ Failed to update README.md for ${this.owner}/${this.repo}: ${(error as Error).message}`,
+        `❌ Failed to update ${targetPath} for ${this.owner}/${this.repo}: ${(error as Error).message}`,
       );
     }
   }
