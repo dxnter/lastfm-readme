@@ -6,6 +6,10 @@ on:
       - main
       - next
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   Release:
     runs-on: ubuntu-latest
@@ -26,6 +30,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
+          registry-url: 'https://registry.npmjs.org'
           node-version-file: '.nvmrc'
           cache: pnpm
 
@@ -41,4 +46,3 @@ jobs:
         run: pnpm semantic-release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
