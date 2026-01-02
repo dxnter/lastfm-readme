@@ -8,13 +8,11 @@ on:
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 jobs:
   Release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: 📂 Checkout Repository
