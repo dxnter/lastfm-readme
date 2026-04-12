@@ -5,7 +5,7 @@ inputs:
   pnpm-version:
     description: 'pnpm version'
     required: false
-    default: '9.x.x'
+    default: '10.x.x'
 runs:
   using: 'composite'
   steps:

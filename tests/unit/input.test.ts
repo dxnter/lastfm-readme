@@ -35,14 +35,13 @@ describe('input validation', () => {
       const { default: LastFm } = await import('lastfm-typed');
       const mockLastFm = vi.mocked(LastFm);
 
-      mockLastFm.mockImplementation(
-        () =>
-          ({
-            user: {
-              getInfo: vi.fn().mockRejectedValue(new Error('Invalid API key')),
-            },
-          }) as unknown as LastFMTyped,
-      );
+      mockLastFm.mockImplementation(function MockLastFm() {
+        return {
+          user: {
+            getInfo: vi.fn().mockRejectedValue(new Error('Invalid API key')),
+          },
+        } as unknown as LastFMTyped;
+      });
 
       vi.mocked(core.getInput).mockImplementation((name: string) => {
         const inputs: Record<string, string> = {
@@ -67,14 +66,13 @@ describe('input validation', () => {
       const { default: LastFm } = await import('lastfm-typed');
       const mockLastFm = vi.mocked(LastFm);
 
-      mockLastFm.mockImplementation(
-        () =>
-          ({
-            auth: {
-              getToken: vi.fn().mockResolvedValue({ token: 'test-token' }),
-            },
-          }) as unknown as LastFMTyped,
-      );
+      mockLastFm.mockImplementation(function MockLastFm() {
+        return {
+          auth: {
+            getToken: vi.fn().mockResolvedValue({ token: 'test-token' }),
+          },
+        } as unknown as LastFMTyped;
+      });
 
       vi.mocked(core.getInput).mockImplementation((name: string) => {
         const inputs: Record<string, string> = {

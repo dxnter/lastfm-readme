@@ -177,7 +177,12 @@ const lastFMDataMethods = {
 
       return R.fromPairs(Object.entries(parsedInfo));
     } catch (error) {
-      throw new Error(`Failed to fetch user info: ${(error as Error).message}`);
+      throw new Error(
+        `Failed to fetch user info: ${(error as Error).message}`,
+        {
+          cause: error,
+        },
+      );
     }
   },
 };
@@ -219,6 +224,7 @@ export async function getLastFMData<T extends LastFmDataRetrieverKey>(
   } catch (error) {
     throw new Error(
       `Failed to fetch ${type} data from Last.fm: ${(error as Error).message}`,
+      { cause: error },
     );
   }
 }

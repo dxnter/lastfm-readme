@@ -54,9 +54,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const result = await getLastFMData(
         'RecentTracks',
@@ -87,9 +87,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const result = await getLastFMData('TopArtists', mockInput, mockSection);
 
@@ -118,9 +118,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const result = await getLastFMData('TopTracks', mockInput, mockSection);
 
@@ -149,9 +149,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const result = await getLastFMData('TopAlbums', mockInput, mockSection);
 
@@ -177,9 +177,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const userInfoSection: Section = {
         ...mockSection,
@@ -217,9 +217,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       await getLastFMData('RecentTracks', mockInput, sectionWithoutConfig);
 
@@ -245,9 +245,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       await expect(
         getLastFMData('RecentTracks', mockInput, mockSection),
@@ -309,9 +309,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const userInfoSection: Section = {
         ...mockSection,
@@ -335,9 +335,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const customDateFormatInput = {
         ...mockInput,
@@ -371,9 +371,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const germanInput = {
         ...mockInput,
@@ -408,9 +408,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const userInfoSection: Section = {
         ...mockSection,
@@ -447,9 +447,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const albumSection: Section = {
         ...mockSection,
@@ -475,9 +475,9 @@ describe('last.fm integration', () => {
         },
       };
 
-      vi.mocked(LastFMTyped).mockImplementation(
-        () => mockLastFM as unknown as LastFMTyped,
-      );
+      vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+        return mockLastFM as unknown as LastFMTyped;
+      });
 
       const tracksSection: Section = {
         ...mockSection,

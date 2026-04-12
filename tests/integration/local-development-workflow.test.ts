@@ -42,9 +42,8 @@ describe('local development workflow integration', () => {
   describe('basic workflow', () => {
     it('should run the complete local development workflow', async () => {
       // Mock local input parsing
-      const { parseLocalInput, convertToGithubActionInput } = await import(
-        '../../src/local/input'
-      );
+      const { parseLocalInput, convertToGithubActionInput } =
+        await import('../../src/local/input');
       (parseLocalInput as any).mockReturnValue(mockLocalConfig);
       (convertToGithubActionInput as any).mockReturnValue(mockInput);
 
@@ -70,7 +69,11 @@ Some other content
         writeFile: vi.fn().mockResolvedValue(''),
         ensureDir: vi.fn().mockResolvedValue(''),
       };
-      (LocalFileSystem as any).mockImplementation(() => mockFs);
+      (LocalFileSystem as any).mockImplementation(
+        function MockLocalFileSystem() {
+          return mockFs;
+        },
+      );
 
       // Mock Last.fm data
       const { getLastFMData } = await import('../../src/lastfm');
@@ -106,9 +109,8 @@ Some other content
     });
 
     it('should handle README file not found', async () => {
-      const { parseLocalInput, convertToGithubActionInput } = await import(
-        '../../src/local/input'
-      );
+      const { parseLocalInput, convertToGithubActionInput } =
+        await import('../../src/local/input');
       (parseLocalInput as any).mockReturnValue(mockLocalConfig);
       (convertToGithubActionInput as any).mockReturnValue(mockInput);
 
@@ -125,7 +127,11 @@ Some other content
         writeFile: vi.fn().mockResolvedValue(''),
         ensureDir: vi.fn().mockResolvedValue(''),
       };
-      (LocalFileSystem as any).mockImplementation(() => mockFs);
+      (LocalFileSystem as any).mockImplementation(
+        function MockLocalFileSystem() {
+          return mockFs;
+        },
+      );
 
       const { runLocalDevelopment } = await import('../../src/development');
 
@@ -135,9 +141,8 @@ Some other content
     });
 
     it('should complete successfully with no sections found', async () => {
-      const { parseLocalInput, convertToGithubActionInput } = await import(
-        '../../src/local/input'
-      );
+      const { parseLocalInput, convertToGithubActionInput } =
+        await import('../../src/local/input');
       (parseLocalInput as any).mockReturnValue(mockLocalConfig);
       (convertToGithubActionInput as any).mockReturnValue(mockInput);
 
@@ -156,7 +161,11 @@ Just some regular content without any Last.fm sections.
         writeFile: vi.fn().mockResolvedValue(''),
         ensureDir: vi.fn().mockResolvedValue(''),
       };
-      (LocalFileSystem as any).mockImplementation(() => mockFs);
+      (LocalFileSystem as any).mockImplementation(
+        function MockLocalFileSystem() {
+          return mockFs;
+        },
+      );
 
       const { runLocalDevelopment } = await import('../../src/development');
 
@@ -168,9 +177,8 @@ Just some regular content without any Last.fm sections.
 
   describe('error handling', () => {
     it('should handle Last.fm API failures gracefully', async () => {
-      const { parseLocalInput, convertToGithubActionInput } = await import(
-        '../../src/local/input'
-      );
+      const { parseLocalInput, convertToGithubActionInput } =
+        await import('../../src/local/input');
       (parseLocalInput as any).mockReturnValue(mockLocalConfig);
       (convertToGithubActionInput as any).mockReturnValue(mockInput);
 
@@ -188,7 +196,11 @@ Just some regular content without any Last.fm sections.
         writeFile: vi.fn().mockResolvedValue(''),
         ensureDir: vi.fn().mockResolvedValue(''),
       };
-      (LocalFileSystem as any).mockImplementation(() => mockFs);
+      (LocalFileSystem as any).mockImplementation(
+        function MockLocalFileSystem() {
+          return mockFs;
+        },
+      );
 
       const { getLastFMData } = await import('../../src/lastfm');
       (getLastFMData as any).mockRejectedValue(new Error('Last.fm API error'));
@@ -214,9 +226,8 @@ Just some regular content without any Last.fm sections.
         },
       };
 
-      const { parseLocalInput, convertToGithubActionInput } = await import(
-        '../../src/local/input'
-      );
+      const { parseLocalInput, convertToGithubActionInput } =
+        await import('../../src/local/input');
       (parseLocalInput as any).mockReturnValue(customConfig);
       (convertToGithubActionInput as any).mockReturnValue({
         ...mockInput,
@@ -234,7 +245,11 @@ Just some regular content without any Last.fm sections.
         writeFile: vi.fn().mockResolvedValue(''),
         ensureDir: vi.fn().mockResolvedValue(''),
       };
-      (LocalFileSystem as any).mockImplementation(() => mockFs);
+      (LocalFileSystem as any).mockImplementation(
+        function MockLocalFileSystem() {
+          return mockFs;
+        },
+      );
 
       const { runLocalDevelopment } = await import('../../src/development');
 
@@ -248,9 +263,8 @@ Just some regular content without any Last.fm sections.
 
   describe('file operations', () => {
     it('should write README only when changes are made', async () => {
-      const { parseLocalInput, convertToGithubActionInput } = await import(
-        '../../src/local/input'
-      );
+      const { parseLocalInput, convertToGithubActionInput } =
+        await import('../../src/local/input');
       (parseLocalInput as any).mockReturnValue(mockLocalConfig);
       (convertToGithubActionInput as any).mockReturnValue(mockInput);
 
@@ -268,7 +282,11 @@ Just some regular content without any Last.fm sections.
         writeFile: vi.fn().mockResolvedValue(''),
         ensureDir: vi.fn().mockResolvedValue(''),
       };
-      (LocalFileSystem as any).mockImplementation(() => mockFs);
+      (LocalFileSystem as any).mockImplementation(
+        function MockLocalFileSystem() {
+          return mockFs;
+        },
+      );
 
       const { getLastFMData } = await import('../../src/lastfm');
       (getLastFMData as any).mockResolvedValue({

@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { CLI } from 'src/utils/cli';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('cLI', () => {
+  type ConsoleLogCall = [unknown?, ...unknown[]];
   let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+  const hasLogged = (text: string): boolean =>
+    (consoleLogSpy.mock.calls as ConsoleLogCall[]).some(
+      (call) => typeof call[0] === 'string' && call[0].includes(text),
+    );
 
   beforeEach(() => {
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -123,11 +129,7 @@ describe('cLI', () => {
       CLI.printSectionResults(sections);
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) => typeof call[0] === 'string' && call[0].includes('Artists'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('Artists')).toBe(true);
     });
 
     it('should handle success sections with no updates', () => {
@@ -161,13 +163,7 @@ describe('cLI', () => {
       CLI.printSectionResults(sections);
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' &&
-            call[0].includes('API connection failed'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('API connection failed')).toBe(true);
     });
 
     it('should handle error sections without error message', () => {
@@ -217,12 +213,7 @@ describe('cLI', () => {
 
       // Should convert LASTFM_USER_INFO to "User Info"
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' && call[0].includes('User Info'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('User Info')).toBe(true);
     });
   });
 
@@ -239,23 +230,9 @@ describe('cLI', () => {
       CLI.printSummary(stats);
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' &&
-            call[0].includes('README Updated Successfully'),
-        ),
-      ).toBe(true);
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) => typeof call[0] === 'string' && call[0].includes('5'),
-        ),
-      ).toBe(true);
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) => typeof call[0] === 'string' && call[0].includes('3'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('README Updated Successfully')).toBe(true);
+      expect(hasLogged('5')).toBe(true);
+      expect(hasLogged('3')).toBe(true);
     });
 
     it('should print no changes summary when no changes made', () => {
@@ -270,18 +247,8 @@ describe('cLI', () => {
       CLI.printSummary(stats);
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' && call[0].includes('No Changes Made'),
-        ),
-      ).toBe(true);
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' && call[0].includes('DEVELOPMENT.md'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('No Changes Made')).toBe(true);
+      expect(hasLogged('DEVELOPMENT.md')).toBe(true);
     });
 
     it('should handle path with just filename', () => {
@@ -296,12 +263,7 @@ describe('cLI', () => {
       CLI.printSummary(stats);
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' && call[0].includes('README.md'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('README.md')).toBe(true);
     });
 
     it('should handle empty path gracefully', () => {
@@ -327,32 +289,15 @@ describe('cLI', () => {
       CLI.printError(error);
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' && call[0].includes('Operation Failed'),
-        ),
-      ).toBe(true);
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' &&
-            call[0].includes('Test error message'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('Operation Failed')).toBe(true);
+      expect(hasLogged('Test error message')).toBe(true);
     });
 
     it('should print error with string message', () => {
       CLI.printError('Simple error message');
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' &&
-            call[0].includes('Simple error message'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('Simple error message')).toBe(true);
     });
 
     it('should handle very long error messages with word wrapping', () => {
@@ -362,24 +307,14 @@ describe('cLI', () => {
       CLI.printError(longMessage);
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) =>
-            typeof call[0] === 'string' &&
-            call[0].includes('This is a very long error message'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('This is a very long error message')).toBe(true);
     });
 
     it('should handle short error messages', () => {
       CLI.printError('Short');
 
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) => typeof call[0] === 'string' && call[0].includes('Short'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('Short')).toBe(true);
     });
   });
 
@@ -395,11 +330,7 @@ describe('cLI', () => {
 
       CLI.printSummary(stats);
 
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) => typeof call[0] === 'string' && call[0].includes('500ms'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('500ms')).toBe(true);
     });
 
     it('should format duration in seconds for values 1000ms and above', () => {
@@ -413,11 +344,7 @@ describe('cLI', () => {
 
       CLI.printSummary(stats);
 
-      expect(
-        consoleLogSpy.mock.calls.some(
-          (call) => typeof call[0] === 'string' && call[0].includes('2.5s'),
-        ),
-      ).toBe(true);
+      expect(hasLogged('2.5s')).toBe(true);
     });
   });
 });

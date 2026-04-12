@@ -2,10 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import eslint from '@eslint/js';
+import { importX as eslintPluginImportX } from 'eslint-plugin-import-x';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import eslintPluginPrettierConfigRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginVitest from '@vitest/eslint-plugin';
-import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
@@ -26,8 +26,8 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginImport.flatConfigs.recommended,
-  eslintPluginImport.flatConfigs.typescript,
+  eslintPluginImportX.flatConfigs.recommended,
+  eslintPluginImportX.flatConfigs.typescript,
   eslintPluginVitest.configs.recommended,
   eslintPluginUnicorn.configs['flat/recommended'],
   eslintPluginPrettierConfigRecommended,
@@ -49,10 +49,10 @@ export default tseslint.config(
       },
     },
     settings: {
-      'import/parsers': {
+      'import-x/parsers': {
         '@typescript-eslint/parser': ['.ts'],
       },
-      'import/resolver': {
+      'import-x/resolver': {
         typescript: {
           alwaysTryTypes: true,
           project: ['tsconfig.eslint.json'],
@@ -62,10 +62,10 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       'prettier/prettier': 'error',
-      'import/no-unresolved': 'error',
-      'import/first': 'error',
-      'import/newline-after-import': 'error',
-      'import/no-duplicates': 'error',
+      'import-x/no-unresolved': 'error',
+      'import-x/first': 'error',
+      'import-x/newline-after-import': 'error',
+      'import-x/no-duplicates': 'error',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
       'vitest/max-nested-describe': [

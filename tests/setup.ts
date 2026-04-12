@@ -17,18 +17,20 @@ vi.mock('@actions/github', () => ({
 
 // Mock lastfm-typed
 vi.mock('lastfm-typed', () => {
-  const LastFMTyped = vi.fn().mockImplementation(() => ({
-    auth: {
-      getToken: vi.fn().mockResolvedValue({ token: 'mocked-token' }),
-    },
-    user: {
-      getRecentTracks: vi.fn(),
-      getTopArtists: vi.fn(),
-      getTopTracks: vi.fn(),
-      getTopAlbums: vi.fn(),
-      getInfo: vi.fn(),
-    },
-  }));
+  const LastFMTyped = vi.fn(function MockLastFMTyped() {
+    return {
+      auth: {
+        getToken: vi.fn().mockResolvedValue({ token: 'mocked-token' }),
+      },
+      user: {
+        getRecentTracks: vi.fn(),
+        getTopArtists: vi.fn(),
+        getTopTracks: vi.fn(),
+        getTopAlbums: vi.fn(),
+        getInfo: vi.fn(),
+      },
+    };
+  });
 
   return { default: LastFMTyped };
 });

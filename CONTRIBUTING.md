@@ -22,7 +22,7 @@ This project adheres to a code of conduct that we expect all contributors to fol
 ### Prerequisites
 
 - **Node.js**: Version 24+
-- **pnpm**: Version 9+
+- **pnpm**: Version 10+
 
 ### Fork and Clone
 

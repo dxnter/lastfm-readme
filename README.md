@@ -201,7 +201,7 @@ For different scheduling needs, refer to the [crontab.guru](https://crontab.guru
 <td><code>DATE_FORMAT</code></td>
 <td>🔶 Optional</td>
 <td><code>MM/dd/yyyy</code></td>
-<td><a href="https://date-fns.org/v1.29.0/docs/format#description">date-fns format</a> for dates</td>
+<td><a href="https://date-fns.org/docs/format">date-fns format</a> for dates</td>
 </tr>
 </tbody>
 </table>

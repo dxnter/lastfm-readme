@@ -61,9 +61,9 @@ describe('end-to-end workflow', () => {
       mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
     );
 
-    vi.mocked(LastFMTyped).mockImplementation(
-      () => mockLastFM as unknown as LastFMTyped,
-    );
+    vi.mocked(LastFMTyped).mockImplementation(function MockLastFm() {
+      return mockLastFM as unknown as LastFMTyped;
+    });
 
     const defaultReadme = `# Test Profile
 <!--START_LASTFM_RECENT-->

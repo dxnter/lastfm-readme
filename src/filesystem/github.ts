@@ -44,6 +44,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
     } catch (error) {
       throw new Error(
         `Failed to read file ${path} from ${this.owner}/${this.repo}: ${(error as Error).message}`,
+        { cause: error },
       );
     }
   }
@@ -84,6 +85,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
     } catch (error) {
       throw new Error(
         `Failed to write file ${path} to ${this.owner}/${this.repo}: ${(error as Error).message}`,
+        { cause: error },
       );
     }
   }
@@ -142,6 +144,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
     } catch (error) {
       throw new Error(
         `❌ Failed to fetch ${targetPath} from ${this.owner}/${this.repo}: ${(error as Error).message}`,
+        { cause: error },
       );
     }
   }
@@ -192,6 +195,7 @@ export class GitHubFileSystem implements ReadmeFileSystem {
     } catch (error) {
       throw new Error(
         `❌ Failed to update ${targetPath} for ${this.owner}/${this.repo}: ${(error as Error).message}`,
+        { cause: error },
       );
     }
   }

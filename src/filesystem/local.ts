@@ -14,10 +14,11 @@ export class LocalFileSystem implements ReadmeFileSystem {
       return await fs.readFile(filePath, 'utf8');
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        throw new Error(`File not found: ${filePath}`);
+        throw new Error(`File not found: ${filePath}`, { cause: error });
       }
       throw new Error(
         `Failed to read file ${filePath}: ${(error as Error).message}`,
+        { cause: error },
       );
     }
   }
@@ -29,6 +30,7 @@ export class LocalFileSystem implements ReadmeFileSystem {
     } catch (error) {
       throw new Error(
         `Failed to write file ${filePath}: ${(error as Error).message}`,
+        { cause: error },
       );
     }
   }
@@ -39,6 +41,7 @@ export class LocalFileSystem implements ReadmeFileSystem {
     } catch (error) {
       throw new Error(
         `Failed to create directory ${directoryPath}: ${(error as Error).message}`,
+        { cause: error },
       );
     }
   }

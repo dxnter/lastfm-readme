@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import Table from 'cli-table3';
+import CliTable from 'cli-table3';
 
 /**
  * CLI utility functions for terminal output
@@ -100,7 +100,7 @@ export class CLI {
       return;
     }
 
-    const table = new Table({
+    const table = new CliTable({
       head: [
         chalk.bold.white('Section'),
         chalk.bold.white('Count'),
